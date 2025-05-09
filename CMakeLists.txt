@@ -9,9 +9,21 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-add_library(rmdev STATIC)
+set(CMAKE_CXX_SCAN_FOR_MODULES ON)
 
-file(GLOB_RECURSE RMDEV_LIB_SOURCES "lib/*.*")
-target_sources(rmdev PRIVATE
-    ${RMDEV_LIB_SOURCES}
+add_compile_options(-fmodules-ts)
+
+add_library(${PROJECT_NAME} STATIC)
+
+target_include_directories(${PROJECT_NAME} PUBLIC
+        Inc/
+)
+
+file(GLOB_RECURSE RMDEV_LIB_MODULES "lib/*.cppm")
+file(GLOB_RECURSE RMDEV_CONNECTIVITY_MODULES "connectivity/*.cppm")
+target_sources(${PROJECT_NAME}
+        PUBLIC
+        FILE_SET CXX_MODULES FILES
+        ${RMDEV_LIB_MODULES}
+        ${RMDEV_CONNECTIVITY_MODULES}
 )
