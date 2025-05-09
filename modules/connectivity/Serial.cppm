@@ -9,15 +9,17 @@
 module;
 
 #include <string_view>
+#include <cstdint>
 #include "rmdev/simplify_decl_macros.hpp"
 
-import rmdev.lib.InitOnce;
+import rmdev.connectivity.Connect;
+import rmdev.connectivity.connect_method;
 
 export module rmdev.connectivity.Serial;
 
 export namespace rmdev {
 
-class Serial
+class Serial : public Connect
 {
 public:
     Serial() = delete;
@@ -25,12 +27,7 @@ public:
     DELETE_COPY_AND_MOVE(Serial);
 
 public:
-    explicit Serial(const std::string_view name) : port_name(name) {}
-
-private:
-    const std::string_view port_name;  ///< 串口名称
-
-    InitOnce<void*> handle{};          ///< 串口句柄
+    Serial(const std::string_view name, const ConnectMethod tx, const ConnectMethod rx) : Connect(name, tx, rx) {}
 };
 
 }  // namespace rmdev

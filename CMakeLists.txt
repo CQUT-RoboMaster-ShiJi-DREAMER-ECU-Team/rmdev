@@ -11,19 +11,27 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 set(CMAKE_CXX_SCAN_FOR_MODULES ON)
 
-add_compile_options(-fmodules-ts)
+include("cmake/gcc-arm-none-eabi.cmake")
+
+add_compile_options(-fmodules-ts -fno-exceptions)
 
 add_library(${PROJECT_NAME} STATIC)
 
-target_include_directories(${PROJECT_NAME} PUBLIC
-        Inc/
+target_include_directories(${PROJECT_NAME}
+    PUBLIC
+    inc/
 )
 
-file(GLOB_RECURSE RMDEV_LIB_MODULES "lib/*.cppm")
-file(GLOB_RECURSE RMDEV_CONNECTIVITY_MODULES "connectivity/*.cppm")
+file(GLOB_RECURSE PUBLIC_MODULES "modules/*.cppm")
+file(GLOB_RECURSE PRIVATE_MODULES "private/modules/*.cppm")
+file(GLOB_RECURSE SOURCES "private/src/*.cpp")
 target_sources(${PROJECT_NAME}
-        PUBLIC
-        FILE_SET CXX_MODULES FILES
-        ${RMDEV_LIB_MODULES}
-        ${RMDEV_CONNECTIVITY_MODULES}
+    PUBLIC
+        FILE_SET public_modules TYPE CXX_MODULES FILES ${PUBLIC_MODULES}
+
+    PRIVATE
+        FILE_SET private_modules TYPE CXX_MODULES FILES ${PRIVATE_MODULES}
+
+    PRIVATE
+        ${SOURCES}
 )
