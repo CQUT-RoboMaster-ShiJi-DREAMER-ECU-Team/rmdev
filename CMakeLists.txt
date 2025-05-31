@@ -5,21 +5,17 @@ project(rmdev C CXX)
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 20)
 
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 set(CMAKE_CXX_SCAN_FOR_MODULES ON)
 
-include("cmake/gcc-arm-none-eabi.cmake")
-
-add_compile_options(-fmodules-ts -fno-exceptions)
+add_compile_options(-fmodules-ts -fno-exceptions -fno-rtti)
 
 add_library(${PROJECT_NAME} STATIC)
 
 target_include_directories(${PROJECT_NAME}
     PUBLIC
-    inc/
+        inc/
 )
 
 file(GLOB_RECURSE PUBLIC_MODULES "modules/*.cppm")
@@ -35,3 +31,15 @@ target_sources(${PROJECT_NAME}
     PRIVATE
         ${SOURCES}
 )
+
+Include(FetchContent)
+
+FetchContent_Declare(
+    etl
+    GIT_REPOSITORY https://gitee.com/du-yicheng23/etl
+    GIT_TAG        20.41.2
+)
+
+FetchContent_MakeAvailable(etl)
+
+target_link_libraries(${PROJECT_NAME} PRIVATE etl::etl)

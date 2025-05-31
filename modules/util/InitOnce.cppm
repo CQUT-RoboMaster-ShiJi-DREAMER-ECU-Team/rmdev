@@ -10,7 +10,7 @@ module;
 
 #include <concepts>
 
-export module rmdev.lib.InitOnce;
+export module rmdev.util.InitOnce;
 
 export namespace rmdev {
 
@@ -46,6 +46,13 @@ public:
 
         v = other_value;
         is_init = true;
+    }
+
+    constexpr InitOnce& operator=(Type other_value)
+    {
+        init(other_value);
+
+        return *this;
     }
 
     /**

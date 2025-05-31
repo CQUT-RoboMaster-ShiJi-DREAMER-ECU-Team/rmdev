@@ -8,10 +8,11 @@
 
 module;
 
-#include <type_traits>
-#include <cmath>
+#include "etl/type_traits.h"
+#include "etl/math.h"
+#include "etl/optional.h"
 
-export module rmdev.lib.math;
+export module rmdev.util.math;
 
 export namespace rmdev {
 
@@ -23,7 +24,7 @@ constexpr auto PI = 3.14159265358979f;
  * @tparam Type 数据类型
  */
 template<typename Type>
-concept CalculatableType = requires { requires std::is_arithmetic_v<Type>; };
+concept CalculatableType = requires { requires etl::is_arithmetic_v<Type>; };
 
 /**
  * 交换两个变量
@@ -48,7 +49,7 @@ inline void swap(CalculatableType& a, CalculatableType& b) noexcept
  * @retval -1 n 小于零
  */
 template<typename CalculatableType>
-inline constexpr CalculatableType sgn(const CalculatableType n)
+inline constexpr etl::optional<CalculatableType> sgn(const CalculatableType n)
 {
     if (n == 0) {
         return 0;
@@ -60,7 +61,7 @@ inline constexpr CalculatableType sgn(const CalculatableType n)
         return -1;
     }
 
-    return 0;
+    return etl::nullopt;
 }
 
 /**
@@ -70,7 +71,7 @@ inline constexpr CalculatableType sgn(const CalculatableType n)
  * @retval -1.0f n 小于零
  */
 template<>
-inline constexpr float sgn(const float n)
+inline constexpr etl::optional<float> sgn(const float n)
 {
     return ((n) >= 0.0f ? (1.0f) : (-1.0f));
 }
@@ -82,7 +83,7 @@ inline constexpr float sgn(const float n)
  * @retval -1.0 n 小于零
  */
 template<>
-inline constexpr double sgn(const double n)
+inline constexpr etl::optional<double> sgn(const double n)
 {
     return ((n) >= 0.0 ? (1.0) : (-1.0));
 }
@@ -171,13 +172,7 @@ inline constexpr CalculatableType limitMinMax(CalculatableType& value,
                                               const CalculatableType min,
                                               const CalculatableType max)
 {
-    if (value < min) {
-        value = min;
-    }
-    else if (value > max) {
-        value = max;
-    }
-
+    value = etl::clamp(value, min, max);
     return value;
 }
 
@@ -191,15 +186,7 @@ inline constexpr CalculatableType limitMinMax(CalculatableType& value,
 template<typename CalculatableType>
 inline constexpr CalculatableType limitInRange(CalculatableType& value, CalculatableType range)
 {
-    range = std::abs(range);
-
-    if (value < (-range)) {
-        value = (-range);
-    }
-    else if (value > range) {
-        value = range;
-    }
-
+    value = limitMinMax(value, -range, range);
     return value;
 }
 
