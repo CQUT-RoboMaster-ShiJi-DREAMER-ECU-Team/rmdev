@@ -10,7 +10,6 @@ module;
 
 #include "etl/type_traits.h"
 #include "etl/math.h"
-#include "etl/optional.h"
 
 export module rmdev.util.math;
 
@@ -49,11 +48,8 @@ inline void swap(CalculatableType& a, CalculatableType& b) noexcept
  * @retval -1 n 小于零
  */
 template<typename CalculatableType>
-inline constexpr etl::optional<CalculatableType> sgn(const CalculatableType n)
+inline constexpr CalculatableType sgn(const CalculatableType n)
 {
-    if (n == 0) {
-        return 0;
-    }
     if (n > 0) {
         return 1;
     }
@@ -61,7 +57,7 @@ inline constexpr etl::optional<CalculatableType> sgn(const CalculatableType n)
         return -1;
     }
 
-    return etl::nullopt;
+    return 0;
 }
 
 /**
@@ -71,7 +67,7 @@ inline constexpr etl::optional<CalculatableType> sgn(const CalculatableType n)
  * @retval -1.0f n 小于零
  */
 template<>
-inline constexpr etl::optional<float> sgn(const float n)
+inline constexpr float sgn(const float n)
 {
     return ((n) >= 0.0f ? (1.0f) : (-1.0f));
 }
@@ -83,7 +79,7 @@ inline constexpr etl::optional<float> sgn(const float n)
  * @retval -1.0 n 小于零
  */
 template<>
-inline constexpr etl::optional<double> sgn(const double n)
+inline constexpr double sgn(const double n)
 {
     return ((n) >= 0.0 ? (1.0) : (-1.0));
 }

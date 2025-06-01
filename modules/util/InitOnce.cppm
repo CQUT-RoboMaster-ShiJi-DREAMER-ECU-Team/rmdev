@@ -8,7 +8,10 @@
 
 module;
 
-#include <concepts>
+#include "etl/type_traits.h"
+#include "etl/utility.h"
+
+import rmdev.error_handler;
 
 export module rmdev.util.InitOnce;
 
@@ -19,47 +22,63 @@ export namespace rmdev {
  * @tparam Type 存储的数据类型
  */
 template<typename Type>
-    requires(std::is_copy_constructible_v<Type> && std::is_default_constructible_v<Type>)
+    requires(etl::is_copy_constructible_v<Type> && etl::is_default_constructible_v<Type> &&
+             etl::is_move_constructible_v<Type>)
 class InitOnce
 {
 public:
-    InitOnce() = default;
-    ~InitOnce() = default;
+    InitOnce() : v(), is_init(false) {}
+    ~InitOnce() = delete;
 
-    InitOnce(const InitOnce&) = delete;
-    InitOnce(InitOnce&&) = delete;
-    InitOnce& operator=(const InitOnce&) = delete;
-    InitOnce& operator=(InitOnce&&) = delete;
+    InitOnce(const InitOnce& other) : v(other.v), is_init(true) {}
 
-public:
-    explicit InitOnce(const Type other_value) : v(other_value), is_init(true) {}
+    InitOnce(InitOnce&& other) noexcept : v(etl::forward<InitOnce>(other.v)), is_init(true) {}
 
     /**
-     * 写入值
+     * 初始化值
      * @param other_value 待初始化的值
+     * @return 错误码。若已被初始化后，返回 ErrorCode::AlreadyExists。
      */
-    constexpr void init(Type other_value)
+    constexpr ErrorCode init(Type&& other_value)
     {
         if (is_init) {
-            return;
+            return ErrorCode::AlreadyExists;
         }
 
-        v = other_value;
+        v = etl::forward<Type>(other_value);
         is_init = true;
+
+        return ErrorCode::Success;
     }
 
-    constexpr InitOnce& operator=(Type other_value)
+    constexpr InitOnce& operator=(const InitOnce& other)
     {
-        init(other_value);
+        init(etl::forward<Type>(other.v));
+
+        return *this;
+    }
+
+    constexpr InitOnce& operator=(InitOnce&& other) noexcept
+    {
+        init(etl::forward<Type>(other.v));
+
+        return *this;
+    }
+
+    explicit InitOnce(Type&& other_value) : v(etl::forward<Type>(other_value)), is_init(true) {}
+
+    constexpr InitOnce& operator=(Type&& other_value)
+    {
+        init(etl::forward<Type>(other_value));
 
         return *this;
     }
 
     /**
-     * 获得值
-     * @return 值
+     * 获得值的常量引用
+     * @return 值的常量引用
      */
-    constexpr Type value() const
+    constexpr const Type& operator()() const
     {
         return v;
     }
@@ -70,9 +89,9 @@ public:
     }
 
 private:
-    Type v;                ///< 值
+    Type v;        ///< 值
 
-    bool is_init = false;  ///< 是否已经初始化
+    bool is_init;  ///< 是否已经初始化
 };
 
 }  // namespace rmdev

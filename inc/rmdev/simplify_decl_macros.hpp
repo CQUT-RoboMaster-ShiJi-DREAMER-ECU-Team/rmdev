@@ -13,7 +13,7 @@
  * 删除拷贝构造函数和拷贝赋值运算符
  * @param ClassName 待删除的类名
  */
-#define DELETE_COPY_CONSTRUCTOR(ClassName) \
+#define RMDEV_DELETE_COPY_CONSTRUCTOR(ClassName) \
     ClassName(const ClassName&) = delete;  \
     ClassName& operator=(const ClassName&) = delete
 
@@ -21,7 +21,7 @@
  * 删除移动构造函数和移动赋值运算符
  * @param ClassName 待删除的类名
  */
-#define DELETE_MOVE_CONSTRUCTOR(ClassName) \
+#define RMDEV_DELETE_MOVE_CONSTRUCTOR(ClassName) \
     ClassName(ClassName&&) = delete;       \
     ClassName& operator=(const ClassName&&) = delete
 
@@ -29,7 +29,7 @@
  * 删除拷贝与移动构造函数及相关运算符
  * @param ClassName 待删除的类名
  */
-#define DELETE_COPY_AND_MOVE(ClassName) \
+#define RMDEV_DELETE_COPY_AND_MOVE(ClassName) \
     DELETE_COPY_CONSTRUCTOR(ClassName); \
     DELETE_MOVE_CONSTRUCTOR(ClassName)
 

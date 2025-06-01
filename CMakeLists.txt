@@ -19,17 +19,13 @@ target_include_directories(${PROJECT_NAME}
 )
 
 file(GLOB_RECURSE PUBLIC_MODULES "modules/*.cppm")
-file(GLOB_RECURSE PRIVATE_MODULES "private/modules/*.cppm")
-file(GLOB_RECURSE SOURCES "private/src/*.cpp")
+file(GLOB_RECURSE PUBLIC_SOURCES "src/*.cpp")
 target_sources(${PROJECT_NAME}
     PUBLIC
         FILE_SET public_modules TYPE CXX_MODULES FILES ${PUBLIC_MODULES}
 
-    PRIVATE
-        FILE_SET private_modules TYPE CXX_MODULES FILES ${PRIVATE_MODULES}
-
-    PRIVATE
-        ${SOURCES}
+    PUBLIC
+        ${PUBLIC_SOURCES}
 )
 
 Include(FetchContent)
@@ -42,4 +38,4 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(etl)
 
-target_link_libraries(${PROJECT_NAME} PRIVATE etl::etl)
+target_link_libraries(${PROJECT_NAME} PUBLIC etl::etl)
