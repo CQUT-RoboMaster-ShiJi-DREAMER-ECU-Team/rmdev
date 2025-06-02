@@ -18,24 +18,18 @@ target_include_directories(${PROJECT_NAME}
         inc/
 )
 
-file(GLOB_RECURSE PUBLIC_MODULES "modules/*.cppm")
-file(GLOB_RECURSE PUBLIC_SOURCES "src/*.cpp")
+file(GLOB_RECURSE ${PROJECT_NAME}_PUBLIC_MODULES "modules/*.cppm")
+file(GLOB_RECURSE ${PROJECT_NAME}_PUBLIC_SOURCES "src/*.cpp")
 target_sources(${PROJECT_NAME}
     PUBLIC
-        FILE_SET public_modules TYPE CXX_MODULES FILES ${PUBLIC_MODULES}
+        FILE_SET ${PROJECT_NAME}_public_modules TYPE CXX_MODULES FILES ${${PROJECT_NAME}_PUBLIC_MODULES}
 
     PUBLIC
-        ${PUBLIC_SOURCES}
+        ${${PROJECT_NAME}_PUBLIC_SOURCES}
 )
 
-Include(FetchContent)
+include(FetchContent)
 
-FetchContent_Declare(
-    etl
-    GIT_REPOSITORY https://gitee.com/du-yicheng23/etl
-    GIT_TAG        20.41.2
-)
-
-FetchContent_MakeAvailable(etl)
+include("cmake/FetchETL.cmake")
 
 target_link_libraries(${PROJECT_NAME} PUBLIC etl::etl)

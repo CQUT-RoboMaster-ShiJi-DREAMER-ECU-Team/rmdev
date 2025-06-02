@@ -13,6 +13,8 @@ module;
 
 export module rmdev.error_handler;
 
+export RMDEV_NO_RETURN void rmdevFaultHandler(const char* message);
+
 export namespace rmdev {
 
 /**
@@ -30,7 +32,5 @@ enum class ErrorCode : std::int8_t {
     NotImplemented = -8,    ///< 未实现
     InternalError = -9      ///< 内部错误
 };
-
-RMDEV_NO_RETURN void faultHandler(const char* message);
 
 }  // namespace rmdev

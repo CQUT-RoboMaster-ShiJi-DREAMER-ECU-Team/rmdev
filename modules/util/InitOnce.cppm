@@ -32,7 +32,7 @@ public:
 
     InitOnce(const InitOnce& other) : v(other.v), is_init(true) {}
 
-    InitOnce(InitOnce&& other) noexcept : v(etl::forward<InitOnce>(other.v)), is_init(true) {}
+    InitOnce(InitOnce&& other) noexcept : v(etl::move(other.v)), is_init(true) {}
 
     /**
      * 初始化值
@@ -53,14 +53,14 @@ public:
 
     constexpr InitOnce& operator=(const InitOnce& other)
     {
-        init(etl::forward<Type>(other.v));
+        init(other.v);
 
         return *this;
     }
 
     constexpr InitOnce& operator=(InitOnce&& other) noexcept
     {
-        init(etl::forward<Type>(other.v));
+        init(etl::move(other.v));
 
         return *this;
     }
