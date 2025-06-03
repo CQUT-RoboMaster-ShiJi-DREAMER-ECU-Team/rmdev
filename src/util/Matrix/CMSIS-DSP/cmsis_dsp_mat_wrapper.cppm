@@ -1,10 +1,12 @@
 /**
- * @file Matrix_impl.cppm
- * @module rmdev.Matrix:impl
+ * @file cmsis_dsp_mat_wrapper.cppm
+ * @module rmdev.Matrix:CMSIS_DSP
  * @author 杜以成
- * @date 2025-06-02
- * @brief 矩阵计算实现
+ * @date 2025-06-03
+ * @brief CMSIS-DSP 矩阵运算封装
  */
+
+#if RMDEV_USE_CMSIS_DSP
 
 module;
 
@@ -13,9 +15,75 @@ module;
 #include "etl/type_traits.h"
 #include "arm_math.h"
 
-export module rmdev.Matrix:impl;
-import :def;
+export module rmdev.Matrix:CMSIS_DSP;
 
+// ================ declares ================
+export namespace rmdev {
+
+template<typename Type, std::size_t row, std::size_t col>
+class Matrix;
+
+template<std::size_t row, std::size_t col>
+class Matrix<float, row, col>
+{
+public:
+    static_assert(etl::is_same_v<float, float32_t>);
+
+    /**
+     *
+     */
+    Matrix();
+
+    Matrix(const Matrix& other);
+
+    Matrix& operator=(const Matrix& other);
+
+    static Matrix& add(Matrix& result, const Matrix& a, const Matrix& b);
+
+    static Matrix& subtract(Matrix& result, const Matrix& a, const Matrix& b);
+
+    template<std::size_t rowa, std::size_t cola, std::size_t rowb, std::size_t colb>
+    friend auto multiply(Matrix<float, rowa, colb>& result,
+                         const Matrix<float, rowa, cola>& a,
+                         const Matrix<float, rowb, colb>& b)
+        -> etl::enable_if_t<cola == rowb, Matrix<float, rowa, colb>&>;
+
+    static Matrix& multiply(Matrix& result, const Matrix& a, float scalar);
+
+    static Matrix& multiply(Matrix& result, float scalar, const Matrix& a);
+
+    static Matrix<float, col, row>& transpose(Matrix<float, col, row>& result, const Matrix<float, row, col>& a);
+
+    static auto inverse(Matrix& result, const Matrix& a) -> etl::enable_if_t<row == col, Matrix&>;
+
+    static float determinant(Matrix& a);
+
+private:
+    arm_matrix_instance_f32 matrix{};
+    float32_t data[row * col]{};
+};
+
+template<std::size_t row, std::size_t col>
+class Matrix<double, row, col>
+{
+public:
+    static_assert(etl::is_same_v<double, float64_t>);
+    /**
+     *
+     */
+    Matrix()
+    {
+        arm_mat_init_f64(&matrix, row, col, data);
+    }
+
+private:
+    arm_matrix_instance_f64 matrix{};
+    float64_t data[row * col]{};
+};
+
+}  // namespace rmdev
+
+// ================== implements ==================
 export namespace rmdev {
 
 template<std::size_t row, std::size_t col>
@@ -56,11 +124,8 @@ Matrix<float, row, col>& Matrix<float, row, col>::subtract(Matrix& result, const
     return result;
 }
 
-template<std::size_t row, std::size_t col>
 template<std::size_t rowa, std::size_t cola, std::size_t rowb, std::size_t colb>
-auto Matrix<float, row, col>::multiply(Matrix<float, rowa, colb>& result,
-                                       const Matrix<float, rowa, cola>& a,
-                                       const Matrix<float, rowb, colb>& b)
+auto multiply(Matrix<float, rowa, colb>& result, const Matrix<float, rowa, cola>& a, const Matrix<float, rowb, colb>& b)
     -> etl::enable_if_t<cola == rowb, Matrix<float, rowa, colb>&>
 {
     arm_mat_mult_f32(&a.matrix, &b.matrix, &result.matrix);
@@ -100,11 +165,17 @@ auto Matrix<float, row, col>::inverse(Matrix& result, const Matrix& a) -> etl::e
 }
 
 template<std::size_t row, std::size_t col>
-auto Matrix<float, row, col>::determinant(Matrix& a) -> etl::enable_if_t<row == col, float>
+float Matrix<float, row, col>::determinant(Matrix& a)
 {
+    if constexpr (row != col) {
+        return 0.0f;
+    }
+
     float det;
 
     return det;
 }
 
 }  // namespace rmdev
+
+#endif  // RMDEV_USE_CMSIS_DSP
