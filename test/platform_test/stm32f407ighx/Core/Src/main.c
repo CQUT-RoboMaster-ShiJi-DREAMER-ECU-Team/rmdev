@@ -25,6 +25,8 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
+#include "platform_test_impl.h"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -96,6 +98,8 @@ int main(void)
   MX_UART5_Init();
   MX_USART6_UART_Init();
   /* USER CODE BEGIN 2 */
+
+  stm32f407ighx_test_main();
 
   /* USER CODE END 2 */
 
