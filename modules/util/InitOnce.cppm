@@ -11,9 +11,9 @@ module;
 #include "etl/type_traits.h"
 #include "etl/utility.h"
 
-import rmdev.error_handler;
-
 export module rmdev.util.InitOnce;
+
+import rmdev.error_handler;
 
 export namespace rmdev {
 

@@ -1,21 +1,21 @@
-if (NOT DEFINED ${PROJECT_NAME}_ETL_REPO_URL)
-    set(${PROJECT_NAME}_ETL_REPO_URL "https://github.com/ETLCPP/etl")
-    message("Using default ETL repository URL: ${${PROJECT_NAME}_ETL_REPO_URL}")
+if (NOT DEFINED RMDEV_ETL_REPO_URL)
+    set(RMDEV_ETL_REPO_URL "https://github.com/ETLCPP/etl")
+    message("Using default ETL repository URL: ${RMDEV_ETL_REPO_URL}")
 else ()
-    message("Using ETL repository URL: ${${PROJECT_NAME}_ETL_REPO_URL}")
+    message("Using ETL repository URL: ${RMDEV_ETL_REPO_URL}")
 endif ()
 
-if (NOT DEFINED ${PROJECT_NAME}_ETL_VERSION)
-    set(${PROJECT_NAME}_ETL_VERSION "20.41.2")
-    message("Using default ETL version: ${${PROJECT_NAME}_ETL_VERSION}")
+if (NOT DEFINED RMDEV_ETL_VERSION)
+    set(RMDEV_ETL_VERSION "20.41.2")
+    message("Using default ETL version: ${RMDEV_ETL_VERSION}")
 else ()
-    message("Using ETL version: ${${PROJECT_NAME}_ETL_VERSION}")
+    message("Using ETL version: ${RMDEV_ETL_VERSION}")
 endif ()
 
 FetchContent_Declare(
     etl
-    GIT_REPOSITORY ${${PROJECT_NAME}_ETL_REPO_URL}
-    GIT_TAG        ${${PROJECT_NAME}_ETL_VERSION}
+    GIT_REPOSITORY ${RMDEV_ETL_REPO_URL}
+    GIT_TAG        ${RMDEV_ETL_VERSION}
 )
 
 FetchContent_MakeAvailable(etl)

@@ -26,14 +26,14 @@ target_include_directories(${PROJECT_NAME}
         inc/
 )
 
-file(GLOB_RECURSE ${PROJECT_NAME}_PUBLIC_MODULES "modules/*.cppm" "src/*.cppm")
-file(GLOB_RECURSE ${PROJECT_NAME}_PUBLIC_SOURCES "src/*.cpp")
+file(GLOB_RECURSE RMDEV_PUBLIC_MODULES "modules/*.cppm" "src/*.cppm")
+file(GLOB_RECURSE RMDEV_PUBLIC_SOURCES "src/*.cpp")
 target_sources(${PROJECT_NAME}
     PUBLIC
-        FILE_SET ${PROJECT_NAME}_public_modules TYPE CXX_MODULES FILES ${${PROJECT_NAME}_PUBLIC_MODULES}
+        FILE_SET rmdev_public_modules_fileset TYPE CXX_MODULES FILES ${RMDEV_PUBLIC_MODULES}
 
     PUBLIC
-        ${${PROJECT_NAME}_PUBLIC_SOURCES}
+        ${RMDEV_PUBLIC_SOURCES}
 )
 
 include(FetchContent)
@@ -42,14 +42,14 @@ include("cmake/FetchETL.cmake")
 
 target_link_libraries(${PROJECT_NAME} PUBLIC etl::etl)
 
-if (${PROJECT_NAME}_ENABLE_TESTS)
+if (RMDEV_ENABLE_TESTS)
     add_subdirectory(test/platform_test)
 endif ()
 
-if (${PROJECT_NAME}_USE_CMSIS_DSP)
+if (RMDEV_USE_CMSIS_DSP)
     add_definitions(-DRMDEV_USE_CMSIS_DSP)
 
-    if (${PROJECT_NAME}_USE_STM32CUBEMX)
+    if (RMDEV_USE_STM32CUBEMX)
         enable_language(ASM)
         target_link_libraries(${PROJECT_NAME} PRIVATE stm32cubemx)
     else ()

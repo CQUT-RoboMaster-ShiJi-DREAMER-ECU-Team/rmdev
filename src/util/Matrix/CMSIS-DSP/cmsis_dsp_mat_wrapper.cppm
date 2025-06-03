@@ -12,10 +12,15 @@ module;
 
 #include <cstddef>
 #include <cstring>
+
 #include "etl/type_traits.h"
+#include "etl/optional.h"
+
 #include "arm_math.h"
 
 export module rmdev.Matrix:CMSIS_DSP;
+
+import rmdev.error_handler;
 
 // ================ declares ================
 export namespace rmdev {
@@ -57,6 +62,10 @@ public:
     static auto inverse(Matrix& result, const Matrix& a) -> etl::enable_if_t<row == col, Matrix&>;
 
     static float determinant(Matrix& a);
+
+    float* at(std::size_t r, std::size_t c);
+
+    float& operator()(std::size_t r, std::size_t c);
 
 private:
     arm_matrix_instance_f32 matrix{};
@@ -174,6 +183,22 @@ float Matrix<float, row, col>::determinant(Matrix& a)
     float det;
 
     return det;
+}
+
+template<std::size_t row, std::size_t col>
+float* Matrix<float, row, col>::at(const std::size_t r, const std::size_t c)
+{
+    if ((r - 1) > row || (c - 1) > col) {
+        return etl::nullopt;
+    }
+
+    return &data[(r - 1) * col + (c - 1)];
+}
+
+template<std::size_t row, std::size_t col>
+float& Matrix<float, row, col>::operator()(const std::size_t r, const std::size_t c)
+{
+    return data[(r - 1) * col + (c - 1)];
 }
 
 }  // namespace rmdev
