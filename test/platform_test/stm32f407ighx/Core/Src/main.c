@@ -25,7 +25,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
-#include "platform_test_impl.h"
+#include "../../PlatformTestImpl/platform_test_impl.h"
 
 /* USER CODE END Includes */
 

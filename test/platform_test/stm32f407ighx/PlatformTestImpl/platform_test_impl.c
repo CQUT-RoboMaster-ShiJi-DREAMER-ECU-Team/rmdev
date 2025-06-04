@@ -17,18 +17,30 @@
 
 extern void test_main(void);
 
+static char printf_buffer[8000] = {0};
+
 void rmdev_test_printf(const char* format, ...)
 {
-    static char buffer[256] = {0};
+    printf_buffer[0] = '\0';
 
     va_list args;
     va_start(args, format);
 
-    vsprintf(buffer, format, args);
+    vsprintf(printf_buffer, format, args);
 
     va_end(args);
 
-    HAL_UART_Transmit(&huart1, (uint8_t*)buffer, strlen(buffer), HAL_MAX_DELAY);
+    const uint32_t len = strlen(printf_buffer);
+
+    HAL_Delay(20 * len);
+
+    while (HAL_UART_Transmit(&huart6, (const uint8_t*)printf_buffer, len, HAL_MAX_DELAY) != HAL_OK) {
+        HAL_Delay(50);
+    }
+
+    while (HAL_UART_GetState(&huart6) != HAL_UART_STATE_READY) {
+        HAL_Delay(1);
+    }
 }
 
 void rmdev_test_Delay(const unsigned int ms)

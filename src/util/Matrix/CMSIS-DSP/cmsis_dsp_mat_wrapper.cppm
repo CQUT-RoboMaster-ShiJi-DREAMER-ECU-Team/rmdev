@@ -14,7 +14,7 @@ module;
 #include <cstring>
 
 #include "etl/type_traits.h"
-#include "etl/optional.h"
+#include "etl/initializer_list.h"
 
 #include "arm_math.h"
 
@@ -41,6 +41,16 @@ public:
 
     Matrix(const Matrix& other);
 
+    explicit Matrix(const float mat_data[row * col]);
+
+    explicit Matrix(const float mat_data[row][col]);
+
+    Matrix(const std::initializer_list<float> mat_data)
+    {
+        std::memcpy(data, mat_data.begin(), sizeof data);
+        arm_mat_init_f32(&matrix, row, col, data);
+    }
+
     Matrix& operator=(const Matrix& other);
 
     static Matrix& add(Matrix& result, const Matrix& a, const Matrix& b);
@@ -59,7 +69,9 @@ public:
 
     static Matrix<float, col, row>& transpose(Matrix<float, col, row>& result, const Matrix<float, row, col>& a);
 
-    static auto inverse(Matrix& result, const Matrix& a) -> etl::enable_if_t<row == col, Matrix&>;
+    template<std::size_t row_, std::size_t col_>
+    friend auto inverse(Matrix<float, row_, col_>& result, const Matrix<float, row_, col_>& a)
+        -> etl::enable_if_t<row_ == col_, Matrix<float, row_, col_>&>;
 
     static float determinant(Matrix& a);
 
@@ -106,6 +118,22 @@ Matrix<float, row, col>::Matrix(const Matrix& other)
 {
     std::memcpy(this->data, other.data, sizeof this->data);
     this->matrix = {.numCols = other.matrix.numCols, .numRows = other.matrix.numRows, .pData = this->data};
+
+    arm_mat_init_f32(&matrix, row, col, data);
+}
+
+template<std::size_t row, std::size_t col>
+Matrix<float, row, col>::Matrix(const float mat_data[row * col])
+{
+    std::memcpy(data, mat_data, sizeof data);
+    arm_mat_init_f32(&matrix, row, col, data);
+}
+
+template<std::size_t row, std::size_t col>
+Matrix<float, row, col>::Matrix(const float mat_data[row][col])
+{
+    std::memcpy(data, mat_data, sizeof data);
+    arm_mat_init_f32(&matrix, row, col, data);
 }
 
 template<std::size_t row, std::size_t col>
@@ -166,7 +194,8 @@ Matrix<float, col, row>& Matrix<float, row, col>::transpose(Matrix<float, col, r
 }
 
 template<std::size_t row, std::size_t col>
-auto Matrix<float, row, col>::inverse(Matrix& result, const Matrix& a) -> etl::enable_if_t<row == col, Matrix&>
+auto inverse(Matrix<float, row, col>& result, const Matrix<float, row, col>& a)
+    -> etl::enable_if_t<row == col, Matrix<float, row, col>&>
 {
     arm_mat_inverse_f32(&a.matrix, &result.matrix);
 
@@ -188,17 +217,20 @@ float Matrix<float, row, col>::determinant(Matrix& a)
 template<std::size_t row, std::size_t col>
 float* Matrix<float, row, col>::at(const std::size_t r, const std::size_t c)
 {
-    if ((r - 1) > row || (c - 1) > col) {
-        return etl::nullopt;
+    if (r < 1U || c < 1U) {
+        return nullptr;
+    }
+    if ((r - 1U) >= row || (c - 1U) >= col) {
+        return nullptr;
     }
 
-    return &data[(r - 1) * col + (c - 1)];
+    return &data[(r - 1U) * col + (c - 1U)];
 }
 
 template<std::size_t row, std::size_t col>
 float& Matrix<float, row, col>::operator()(const std::size_t r, const std::size_t c)
 {
-    return data[(r - 1) * col + (c - 1)];
+    return data[(r - 1U) * col + (c - 1U)];
 }
 
 }  // namespace rmdev

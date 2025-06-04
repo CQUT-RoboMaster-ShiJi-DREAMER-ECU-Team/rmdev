@@ -22,7 +22,6 @@ target_include_directories(stm32cubemx INTERFACE
     ../../Drivers/CMSIS/Device/ST/STM32F4xx/Include
     ../../Drivers/CMSIS/Include
     ../../Middlewares/ST/ARM/DSP/Inc
-	../../PlatformTestImpl/ # todo 待研究如何正确包含头文件
 )
 
 target_sources(stm32cubemx INTERFACE

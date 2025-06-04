@@ -186,4 +186,19 @@ inline constexpr CalculatableType limitInRange(CalculatableType& value, Calculat
     return value;
 }
 
+/**
+ * 浮点数等于比较
+ * @tparam FloatType 具体的浮点类型
+ * @param a 第一个数
+ * @param b 第二个数
+ * @param error 允许的误差（a、b 之差的绝对值小于这个值即认为相等）
+ * @return a、b 是否相等
+ */
+template<typename FloatType>
+inline constexpr auto floatEqu(FloatType a, FloatType b, FloatType error = static_cast<FloatType>(0.001f))
+    -> etl::enable_if_t<etl::is_floating_point_v<FloatType>, bool>
+{
+    return std::abs(a - b) < error;
+}
+
 }  // namespace rmdev
