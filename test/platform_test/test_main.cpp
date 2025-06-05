@@ -7,11 +7,7 @@
 
 #include "test_main.hpp"
 
-#include "rmdev_test_framework.h"
-
 extern "C" void test_main(void)
 {
-    RMDEV_TEST_CHECK("True test", true);
-
-    matrix_test();
+    matrixTest();
 }

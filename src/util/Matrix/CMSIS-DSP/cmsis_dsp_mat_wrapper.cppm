@@ -51,6 +51,16 @@ public:
         arm_mat_init_f32(&matrix, row, col, data);
     }
 
+    Matrix(const std::initializer_list<std::initializer_list<float>> mat_data)
+    {
+        std::size_t i = 0;
+        for (const auto& row_data : mat_data) {
+            std::memcpy(&data[i * col], row_data.begin(), sizeof(float) * row_data.size());
+            ++i;
+        }
+        arm_mat_init_f32(&matrix, row, col, data);
+    }
+
     Matrix& operator=(const Matrix& other);
 
     static Matrix& add(Matrix& result, const Matrix& a, const Matrix& b);

@@ -17,38 +17,40 @@
 
 extern void test_main(void);
 
-static char printf_buffer[8000] = {0};
-
-void rmdev_test_printf(const char* format, ...)
+static void serialPrint(const char* buffer, const uint16_t size)
 {
-    printf_buffer[0] = '\0';
-
-    va_list args;
-    va_start(args, format);
-
-    vsprintf(printf_buffer, format, args);
-
-    va_end(args);
-
-    const uint32_t len = strlen(printf_buffer);
-
-    HAL_Delay(20 * len);
-
-    while (HAL_UART_Transmit(&huart6, (const uint8_t*)printf_buffer, len, HAL_MAX_DELAY) != HAL_OK) {
-        HAL_Delay(50);
+    while (HAL_UART_GetState(&huart6) != HAL_UART_STATE_READY) {
+    }
+    while (HAL_DMA_GetState(huart6.hdmatx) != HAL_DMA_STATE_READY) {
     }
 
-    while (HAL_UART_GetState(&huart6) != HAL_UART_STATE_READY) {
-        HAL_Delay(1);
+    //HAL_Delay(1 * size);
+
+    while (HAL_UART_Transmit_DMA(&huart6, (const uint8_t*)buffer, size) != HAL_OK) {
+        HAL_Delay(100);
     }
 }
 
-void rmdev_test_Delay(const unsigned int ms)
+static void testPrintf(const char* format, ...)
+{
+    va_list args;
+    va_start(args, format);
+
+    char printf_buffer[1000] = {'\0'};
+
+    vsprintf(printf_buffer, format, args);
+
+    serialPrint(printf_buffer, strlen(printf_buffer));
+
+    va_end(args);
+}
+
+static void testDelay(const unsigned int ms)
 {
     HAL_Delay(ms);
 }
 
-void rmdev_test_testItem(void)
+static void testItem(void)
 {
     test_main();
 }
@@ -59,5 +61,5 @@ void rmdev_test_testItem(void)
  */
 void stm32f407ighx_test_main(void)
 {
-    rmdev_test_framework_main();
+    rmdev_test_framework_main("\n", testPrintf, testDelay, testItem);
 }

@@ -9,6 +9,6 @@
 #ifndef TEST_MAIN_HPP
 #define TEST_MAIN_HPP
 
-void matrix_test();
+void matrixTest();
 
 #endif // !TEST_MAIN_HPP
