@@ -15,6 +15,7 @@ module;
 
 #include "etl/type_traits.h"
 #include "etl/initializer_list.h"
+#include "etl/algorithm.h"
 
 #include "arm_math.h"
 
@@ -45,23 +46,15 @@ public:
 
     explicit Matrix(const float mat_data[row][col]);
 
-    Matrix(const std::initializer_list<float> mat_data)
-    {
-        std::memcpy(data, mat_data.begin(), sizeof data);
-        arm_mat_init_f32(&matrix, row, col, data);
-    }
+    Matrix(std::initializer_list<float> mat_data);
 
-    Matrix(const std::initializer_list<std::initializer_list<float>> mat_data)
-    {
-        std::size_t i = 0;
-        for (const auto& row_data : mat_data) {
-            std::memcpy(&data[i * col], row_data.begin(), sizeof(float) * row_data.size());
-            ++i;
-        }
-        arm_mat_init_f32(&matrix, row, col, data);
-    }
+    Matrix(std::initializer_list<std::initializer_list<float>> mat_data);
 
     Matrix& operator=(const Matrix& other);
+
+    bool operator==(const Matrix& other) const;
+
+    bool operator!=(const Matrix& other) const;
 
     static Matrix& add(Matrix& result, const Matrix& a, const Matrix& b);
 
@@ -127,7 +120,7 @@ template<std::size_t row, std::size_t col>
 Matrix<float, row, col>::Matrix(const Matrix& other)
 {
     std::memcpy(this->data, other.data, sizeof this->data);
-    this->matrix = {.numCols = other.matrix.numCols, .numRows = other.matrix.numRows, .pData = this->data};
+    this->matrix = {.numRows = other.matrix.numRows, .numCols = other.matrix.numCols, .pData = this->data};
 
     arm_mat_init_f32(&matrix, row, col, data);
 }
@@ -147,12 +140,42 @@ Matrix<float, row, col>::Matrix(const float mat_data[row][col])
 }
 
 template<std::size_t row, std::size_t col>
+Matrix<float, row, col>::Matrix(const std::initializer_list<float> mat_data)
+{
+    std::memcpy(data, mat_data.begin(), sizeof data);
+    arm_mat_init_f32(&matrix, row, col, data);
+}
+
+template<std::size_t row, std::size_t col>
+Matrix<float, row, col>::Matrix(const std::initializer_list<std::initializer_list<float>> mat_data)
+{
+    std::size_t i = 0;
+    for (const auto& row_data : mat_data) {
+        std::memcpy(&data[i * col], row_data.begin(), sizeof(float) * row_data.size());
+        ++i;
+    }
+    arm_mat_init_f32(&matrix, row, col, data);
+}
+
+template<std::size_t row, std::size_t col>
 Matrix<float, row, col>& Matrix<float, row, col>::operator=(const Matrix& other)
 {
     if (this != &other) {
         std::memcpy(data, other.data, sizeof data);
     }
     return *this;
+}
+
+template<std::size_t row, std::size_t col>
+bool Matrix<float, row, col>::operator==(const Matrix& other) const
+{
+    return etl::equal(data, data + row * col, other.data);
+}
+
+template<std::size_t row, std::size_t col>
+bool Matrix<float, row, col>::operator!=(const Matrix& other) const
+{
+    return !(this->operator==(other));
 }
 
 template<std::size_t row, std::size_t col>

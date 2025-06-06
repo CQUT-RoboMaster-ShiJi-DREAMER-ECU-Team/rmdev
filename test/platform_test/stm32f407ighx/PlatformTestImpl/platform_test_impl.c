@@ -19,15 +19,12 @@ extern void test_main(void);
 
 static void serialPrint(const char* buffer, const uint16_t size)
 {
-    while (HAL_UART_GetState(&huart6) != HAL_UART_STATE_READY) {
-    }
-    while (HAL_DMA_GetState(huart6.hdmatx) != HAL_DMA_STATE_READY) {
-    }
+    for (uint16_t i = 0; i < size; ++i) {
+        while (HAL_UART_GetState(&huart6) != HAL_UART_STATE_READY) {
+        }
 
-    //HAL_Delay(1 * size);
-
-    while (HAL_UART_Transmit_DMA(&huart6, (const uint8_t*)buffer, size) != HAL_OK) {
-        HAL_Delay(100);
+        while (HAL_UART_Transmit(&huart6, (const uint8_t*)&buffer[i], sizeof(char), HAL_MAX_DELAY) != HAL_OK) {
+        }
     }
 }
 
