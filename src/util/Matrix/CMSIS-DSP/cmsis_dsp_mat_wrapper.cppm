@@ -40,6 +40,7 @@ public:
     using Type = float;
     using ArmMatrixType = arm_matrix_instance_f32;
 
+    // 由于 CMSIS-DSP 的矩阵加法函数需要分配一个新的矩阵，因此删除基本运算符
     Matrix& operator+(const Matrix& other) = delete;
 
     /**

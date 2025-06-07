@@ -1,8 +1,8 @@
 /**
  * @file concepts.hpp
- * @author NaAlO2
+ * @author 杜以成
  * @date 2025-06-07
- * @brief 
+ * @brief 概念定义
  */
  
 #pragma once
@@ -26,6 +26,16 @@ concept ArithmeticType = etl::is_arithmetic_v<Type>;
  */
 template<typename Type>
 concept FloatingPointType = etl::is_floating_point_v<Type>;
+
+/**
+ * 矩阵可以相乘的概念
+ * @tparam row1 乘号左边的矩阵的行数
+ * @tparam col1 乘号左边的矩阵的列数
+ * @tparam row2 乘号右边的矩阵的行数
+ * @tparam col2 乘号右边的矩阵的列数
+ */
+template<std::size_t row1, std::size_t col1, std::size_t row2, std::size_t col2>
+concept MatrixCouldMultiplied = (col1 == row2);
 
 }  // namespace rmdev
 
