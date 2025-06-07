@@ -19,24 +19,28 @@ module;
 
 #include "arm_math.h"
 
-export module rmdev.Matrix:CMSIS_DSP;
+#include "rmdev/concepts.hpp"
 
-import rmdev.error_handler;
+export module rmdev.Matrix:CMSIS_DSP;
+import :interface;
 
 // ================ declares ================
 export namespace rmdev {
 
 template<typename Type, std::size_t row, std::size_t col>
+    requires ArithmeticType<Type>
 class Matrix;
 
 template<std::size_t row, std::size_t col>
-class Matrix<float, row, col>
+class Matrix<float, row, col> : public MatrixInterface<Matrix>
 {
 public:
     static_assert(etl::is_same_v<float, float32_t>);
 
     using Type = float;
     using ArmMatrixType = arm_matrix_instance_f32;
+
+    Matrix& operator+(const Matrix& other) = delete;
 
     /**
      *
@@ -61,8 +65,8 @@ public:
 
     template<std::size_t row_, std::size_t col_>
     friend Matrix<Type, row_, col_>& add(Matrix<Type, row_, col_>& result,
-                                          const Matrix<Type, row_, col_>& a,
-                                          const Matrix<Type, row_, col_>& b);
+                                         const Matrix<Type, row_, col_>& a,
+                                         const Matrix<Type, row_, col_>& b);
 
     static Matrix& subtract(Matrix& result, const Matrix& a, const Matrix& b);
 

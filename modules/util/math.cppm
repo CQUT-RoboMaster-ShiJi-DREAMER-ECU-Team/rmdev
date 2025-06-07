@@ -11,26 +11,14 @@ module;
 #include "etl/type_traits.h"
 #include "etl/math.h"
 
+#include "rmdev/concepts.hpp"
+
 export module rmdev.util.math;
 
 export namespace rmdev {
 
 /// 圆周率
 constexpr auto PI = 3.14159265358979f;
-
-/**
- * 可计算类型概念
- * @tparam Type 数据类型
- */
-template<typename Type>
-concept ArithmeticType = etl::is_arithmetic_v<Type>;
-
-/**
- * 浮点类型概念
- * @tparam Type 数据类型
- */
-template<typename Type>
-concept FloatingPointType = etl::is_floating_point_v<Type>;
 
 /**
  * 交换两个变量
