@@ -23,32 +23,41 @@ constexpr auto PI = 3.14159265358979f;
  * @tparam Type 数据类型
  */
 template<typename Type>
-concept CalculatableType = requires { requires etl::is_arithmetic_v<Type>; };
+concept ArithmeticType = etl::is_arithmetic_v<Type>;
+
+/**
+ * 浮点类型概念
+ * @tparam Type 数据类型
+ */
+template<typename Type>
+concept FloatingPointType = etl::is_floating_point_v<Type>;
 
 /**
  * 交换两个变量
- * @tparam CalculatableType: 待交换的变量的类型
+ * @tparam Type: 待交换的变量的类型
  * @param a 第一个变量
  * @param b 第二个变量
  */
-template<typename CalculatableType>
-inline void swap(CalculatableType& a, CalculatableType& b) noexcept
+template<typename Type>
+    requires ArithmeticType<Type>
+inline void swap(Type& a, Type& b) noexcept
 {
-    CalculatableType tmp = a;
+    Type tmp = a;
     a = b;
     b = tmp;
 }
 
 /**
  * 符号函数
- * @tparam CalculatableType: 数字类型（应当为整型数字）
+ * @tparam Type: 数字类型（应当为整型数字）
  * @param n: 待判断符号的数字
  * @retval 0 n 等于零
  * @retval 1 n 大于零
  * @retval -1 n 小于零
  */
-template<typename CalculatableType>
-inline constexpr CalculatableType sgn(const CalculatableType n)
+template<typename Type>
+    requires ArithmeticType<Type>
+inline constexpr Type sgn(const Type n)
 {
     if (n > 0) {
         return 1;
@@ -157,16 +166,15 @@ inline constexpr double radToAngle(const double rad)
 
 /**
  * 限制值在给定范围内
- * @tparam CalculatableType 数据类型
+ * @tparam Type 数据类型
  * @param value 待限制的值
  * @param min 最小值
  * @param max 最大值
  * @return 限制计算完成后的值
  */
-template<typename CalculatableType>
-inline constexpr CalculatableType limitMinMax(CalculatableType& value,
-                                              const CalculatableType min,
-                                              const CalculatableType max)
+template<typename Type>
+    requires ArithmeticType<Type>
+inline constexpr Type limitMinMax(Type& value, const Type min, const Type max)
 {
     value = etl::clamp(value, min, max);
     return value;
@@ -174,13 +182,14 @@ inline constexpr CalculatableType limitMinMax(CalculatableType& value,
 
 /**
  * 限制值在给定对称区间内
- * @tparam CalculatableType 数据类型
+ * @tparam Type 数据类型
  * @param value 待限制的值
  * @param range 对称区间半径
  * @return 限制计算完成后的值
  */
-template<typename CalculatableType>
-inline constexpr CalculatableType limitInRange(CalculatableType& value, CalculatableType range)
+template<typename Type>
+    requires ArithmeticType<Type>
+inline constexpr Type limitInRange(Type& value, Type range)
 {
     value = limitMinMax(value, -range, range);
     return value;
@@ -195,8 +204,8 @@ inline constexpr CalculatableType limitInRange(CalculatableType& value, Calculat
  * @return a、b 是否相等
  */
 template<typename FloatType>
-inline constexpr auto floatEqu(FloatType a, FloatType b, FloatType error = static_cast<FloatType>(0.001f))
-    -> etl::enable_if_t<etl::is_floating_point_v<FloatType>, bool>
+    requires FloatingPointType<FloatType>
+inline constexpr bool floatEqu(FloatType a, FloatType b, FloatType error = static_cast<FloatType>(0.001f))
 {
     return std::abs(a - b) < error;
 }

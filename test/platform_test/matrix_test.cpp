@@ -105,7 +105,7 @@ static void matrixCalcTest()
     TestMatrix mat2{9.0f, 8.0f, 7.0f, 6.0f, 5.0f, 4.0f, 3.0f, 2.0f, 1.0f};
 
     TestMatrix mat1_add_mat2;
-    rmdev::Matrix::add(mat1_add_mat2, mat1, mat2);
+    rmdev::add(mat1_add_mat2, mat1, mat2);
     TestMatrix mat1_add_mat2_expected{10.0f, 10.0f, 10.0f, 10.0f, 10.0f, 10.0f, 10.0f, 10.0f, 10.0f};
     bool mat1_add_mat2_is_equal_to_expected = true;
     for (std::size_t i = 1; i <= 3; ++i) {

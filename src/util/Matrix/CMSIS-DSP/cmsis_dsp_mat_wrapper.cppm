@@ -35,6 +35,9 @@ class Matrix<float, row, col>
 public:
     static_assert(etl::is_same_v<float, float32_t>);
 
+    using Type = float;
+    using ArmMatrixType = arm_matrix_instance_f32;
+
     /**
      *
      */
@@ -42,13 +45,13 @@ public:
 
     Matrix(const Matrix& other);
 
-    explicit Matrix(const float mat_data[row * col]);
+    explicit Matrix(const Type mat_data[row * col]);
 
-    explicit Matrix(const float mat_data[row][col]);
+    explicit Matrix(const Type mat_data[row][col]);
 
-    Matrix(std::initializer_list<float> mat_data);
+    Matrix(std::initializer_list<Type> mat_data);
 
-    Matrix(std::initializer_list<std::initializer_list<float>> mat_data);
+    Matrix(std::initializer_list<std::initializer_list<Type>> mat_data);
 
     Matrix& operator=(const Matrix& other);
 
@@ -56,34 +59,37 @@ public:
 
     bool operator!=(const Matrix& other) const;
 
-    static Matrix& add(Matrix& result, const Matrix& a, const Matrix& b);
+    template<std::size_t row_, std::size_t col_>
+    friend Matrix<Type, row_, col_>& add(Matrix<Type, row_, col_>& result,
+                                          const Matrix<Type, row_, col_>& a,
+                                          const Matrix<Type, row_, col_>& b);
 
     static Matrix& subtract(Matrix& result, const Matrix& a, const Matrix& b);
 
     template<std::size_t rowa, std::size_t cola, std::size_t rowb, std::size_t colb>
-    friend auto multiply(Matrix<float, rowa, colb>& result,
-                         const Matrix<float, rowa, cola>& a,
-                         const Matrix<float, rowb, colb>& b)
-        -> etl::enable_if_t<cola == rowb, Matrix<float, rowa, colb>&>;
+    friend auto multiply(Matrix<Type, rowa, colb>& result,
+                         const Matrix<Type, rowa, cola>& a,
+                         const Matrix<Type, rowb, colb>& b)
+        -> etl::enable_if_t<cola == rowb, Matrix<Type, rowa, colb>&>;
 
-    static Matrix& multiply(Matrix& result, const Matrix& a, float scalar);
+    static Matrix& multiply(Matrix& result, const Matrix& a, Type scalar);
 
-    static Matrix& multiply(Matrix& result, float scalar, const Matrix& a);
+    static Matrix& multiply(Matrix& result, Type scalar, const Matrix& a);
 
-    static Matrix<float, col, row>& transpose(Matrix<float, col, row>& result, const Matrix<float, row, col>& a);
+    static Matrix<Type, col, row>& transpose(Matrix<Type, col, row>& result, const Matrix<Type, row, col>& a);
 
     template<std::size_t row_, std::size_t col_>
-    friend auto inverse(Matrix<float, row_, col_>& result, const Matrix<float, row_, col_>& a)
-        -> etl::enable_if_t<row_ == col_, Matrix<float, row_, col_>&>;
+    friend auto inverse(Matrix<Type, row_, col_>& result, const Matrix<Type, row_, col_>& a)
+        -> etl::enable_if_t<row_ == col_, Matrix<Type, row_, col_>&>;
 
-    static float determinant(Matrix& a);
+    static Type determinant(Matrix& a);
 
-    float* at(std::size_t r, std::size_t c);
+    Type* at(std::size_t r, std::size_t c);
 
-    float& operator()(std::size_t r, std::size_t c);
+    Type& operator()(std::size_t r, std::size_t c);
 
 private:
-    arm_matrix_instance_f32 matrix{};
+    ArmMatrixType matrix{};
     float32_t data[row * col]{};
 };
 
@@ -179,7 +185,9 @@ bool Matrix<float, row, col>::operator!=(const Matrix& other) const
 }
 
 template<std::size_t row, std::size_t col>
-Matrix<float, row, col>& Matrix<float, row, col>::add(Matrix& result, const Matrix& a, const Matrix& b)
+Matrix<float, row, col>& add(Matrix<float, row, col>& result,
+                             const Matrix<float, row, col>& a,
+                             const Matrix<float, row, col>& b)
 {
     arm_mat_add_f32(&a.matrix, &b.matrix, &result.matrix);
 
