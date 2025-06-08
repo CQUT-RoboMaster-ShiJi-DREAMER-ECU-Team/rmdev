@@ -10,8 +10,6 @@ module;
 
 export module rmdev.Matrix;
 
-export import :interface;
-
 #if RMDEV_USE_CMSIS_DSP
 export import :CMSIS_DSP;
 #endif

@@ -4,7 +4,7 @@
  * @date 2025-06-07
  * @brief 概念定义
  */
- 
+
 #pragma once
 #ifndef RMDEV_CONCEPTS_HPP
 #define RMDEV_CONCEPTS_HPP
@@ -37,6 +37,14 @@ concept FloatingPointType = etl::is_floating_point_v<Type>;
 template<std::size_t row1, std::size_t col1, std::size_t row2, std::size_t col2>
 concept MatrixCouldMultiplied = (col1 == row2);
 
+/**
+ * 方阵概念
+ * @tparam row 矩阵的行数
+ * @tparam col 矩阵的列数
+ */
+template<std::size_t row, std::size_t col>
+concept SquareMatrix = (row == col);
+
 }  // namespace rmdev
 
-#endif // !RMDEV_CONCEPTS_HPP
+#endif  // !RMDEV_CONCEPTS_HPP

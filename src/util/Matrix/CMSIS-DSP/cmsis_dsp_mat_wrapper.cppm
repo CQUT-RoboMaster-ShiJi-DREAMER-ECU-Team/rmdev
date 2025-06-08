@@ -22,7 +22,6 @@ module;
 #include "rmdev/concepts.hpp"
 
 export module rmdev.Matrix:CMSIS_DSP;
-import :interface;
 
 // ================ declares ================
 export namespace rmdev {
@@ -32,7 +31,7 @@ template<typename Type, std::size_t row, std::size_t col>
 class Matrix;
 
 template<std::size_t row, std::size_t col>
-class Matrix<float, row, col> : public MatrixInterface<Matrix>
+class Matrix<float, row, col>
 {
 public:
     static_assert(etl::is_same_v<float, float32_t>);
@@ -40,8 +39,13 @@ public:
     using Type = float;
     using ArmMatrixType = arm_matrix_instance_f32;
 
-    // 由于 CMSIS-DSP 的矩阵加法函数需要分配一个新的矩阵，因此删除基本运算符
+    // 由于 CMSIS-DSP 的矩阵加法函数需要分配一个新的矩阵，常规运算符难以实现，因此删除基本运算符
     Matrix& operator+(const Matrix& other) = delete;
+    Matrix& operator-(const Matrix& other) = delete;
+    Matrix& operator*(const Matrix& other) = delete;
+    Matrix& operator/(const Matrix& other) = delete;
+
+    Matrix&& trans() = delete;
 
     /**
      *
@@ -69,13 +73,16 @@ public:
                                          const Matrix<Type, row_, col_>& a,
                                          const Matrix<Type, row_, col_>& b);
 
-    static Matrix& subtract(Matrix& result, const Matrix& a, const Matrix& b);
+    template<std::size_t row_, std::size_t col_>
+    friend Matrix<Type, row_, col_>& sub(Matrix<Type, row_, col_>& result,
+                                         const Matrix<Type, row_, col_>& a,
+                                         const Matrix<Type, row_, col_>& b);
 
     template<std::size_t rowa, std::size_t cola, std::size_t rowb, std::size_t colb>
-    friend auto multiply(Matrix<Type, rowa, colb>& result,
-                         const Matrix<Type, rowa, cola>& a,
-                         const Matrix<Type, rowb, colb>& b)
-        -> etl::enable_if_t<cola == rowb, Matrix<Type, rowa, colb>&>;
+        requires MatrixCouldMultiplied<rowa, cola, rowb, colb>
+    friend Matrix<Type, rowa, colb>& mul(Matrix<Type, rowa, colb>& result,
+                                         const Matrix<Type, rowa, cola>& a,
+                                         const Matrix<Type, rowb, colb>& b);
 
     static Matrix& multiply(Matrix& result, const Matrix& a, Type scalar);
 
@@ -200,7 +207,9 @@ Matrix<float, row, col>& add(Matrix<float, row, col>& result,
 }
 
 template<std::size_t row, std::size_t col>
-Matrix<float, row, col>& Matrix<float, row, col>::subtract(Matrix& result, const Matrix& a, const Matrix& b)
+Matrix<float, row, col>& sub(Matrix<float, row, col>& result,
+                             const Matrix<float, row, col>& a,
+                             const Matrix<float, row, col>& b)
 {
     arm_mat_sub_f32(&a.matrix, &b.matrix, &result.matrix);
 
@@ -208,8 +217,10 @@ Matrix<float, row, col>& Matrix<float, row, col>::subtract(Matrix& result, const
 }
 
 template<std::size_t rowa, std::size_t cola, std::size_t rowb, std::size_t colb>
-auto multiply(Matrix<float, rowa, colb>& result, const Matrix<float, rowa, cola>& a, const Matrix<float, rowb, colb>& b)
-    -> etl::enable_if_t<cola == rowb, Matrix<float, rowa, colb>&>
+    requires MatrixCouldMultiplied<rowa, cola, rowb, colb>
+Matrix<float, rowa, colb>& mul(Matrix<float, rowa, colb>& result,
+                               const Matrix<float, rowa, cola>& a,
+                               const Matrix<float, rowb, colb>& b)
 {
     arm_mat_mult_f32(&a.matrix, &b.matrix, &result.matrix);
 
