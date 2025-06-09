@@ -16,6 +16,10 @@ export module rmdev.util.math;
 
 export namespace rmdev {
 
+#ifndef RMDEV_FLOAT_EQU_DEFAULT_ERROR_VALUE
+#define RMDEV_FLOAT_EQU_DEFAULT_ERROR_VALUE 0.001f
+#endif
+
 /// 圆周率
 constexpr auto PI = 3.14159265358979f;
 
@@ -192,7 +196,9 @@ constexpr Type limitInRange(Type& value, Type range)
  */
 template<typename FloatType>
     requires FloatingPointType<FloatType>
-constexpr bool floatEqu(FloatType a, FloatType b, FloatType error = static_cast<FloatType>(0.001f))
+constexpr bool floatEqu(FloatType a,
+                        FloatType b,
+                        FloatType error = static_cast<FloatType>(RMDEV_FLOAT_EQU_DEFAULT_ERROR_VALUE))
 {
     return std::abs(a - b) < error;
 }

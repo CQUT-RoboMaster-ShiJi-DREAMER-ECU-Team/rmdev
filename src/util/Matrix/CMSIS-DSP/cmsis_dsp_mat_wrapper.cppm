@@ -23,15 +23,67 @@ module;
 
 export module rmdev.Matrix:CMSIS_DSP;
 
+import rmdev.util.math;
+
 // ================ declares ================
 export namespace rmdev {
+
+template<typename Type, std::size_t row, std::size_t col>
+    requires ArithmeticType<Type>
+class ArmMatrixBase
+{
+public:
+    [[nodiscard]] Type* at(const std::size_t r, const std::size_t c)
+    {
+        if (r < 1U || c < 1U) {
+            return nullptr;
+        }
+        if ((r - 1U) >= row || (c - 1U) >= col) {
+            return nullptr;
+        }
+
+        return &data[(r - 1U) * col + (c - 1U)];
+    }
+
+    [[nodiscard]] const Type* at(const std::size_t r, const std::size_t c) const
+    {
+        return const_cast<ArmMatrixBase*>(this)->at(r, c);
+    }
+
+    [[nodiscard]] Type& operator()(const std::size_t r, const std::size_t c)
+    {
+        return data[(r - 1U) * col + (c - 1U)];
+    }
+
+    [[nodiscard]] const Type& operator()(const std::size_t r, const std::size_t c) const
+    {
+        return const_cast<ArmMatrixBase*>(this)->operator()(r, c);
+    }
+
+    [[nodiscard]] Type det() const
+    {
+        if constexpr (row != col) {
+            return 0.0f;
+        }
+
+        float det;
+
+        return det;
+    }
+
+protected:
+    ArmMatrixBase() = default;
+    ~ArmMatrixBase() = default;
+
+    Type data[row * col];
+};
 
 template<typename Type, std::size_t row, std::size_t col>
     requires ArithmeticType<Type>
 class ArmMatrix;
 
 template<std::size_t row, std::size_t col>
-class ArmMatrix<float, row, col>
+class ArmMatrix<float, row, col> : public ArmMatrixBase<float, row, col>
 {
 public:
     static_assert(etl::is_same_v<float, float32_t>);
@@ -84,25 +136,26 @@ public:
                                             const ArmMatrix<Type, rowa, cola>& a,
                                             const ArmMatrix<Type, rowb, colb>& b);
 
-    static ArmMatrix& multiply(ArmMatrix& result, const ArmMatrix& a, Type scalar);
-
-    static ArmMatrix& multiply(ArmMatrix& result, Type scalar, const ArmMatrix& a);
-
-    static ArmMatrix<Type, col, row>& transpose(ArmMatrix<Type, col, row>& result, const ArmMatrix<Type, row, col>& a);
+    template<std::size_t row_, std::size_t col_>
+    friend ArmMatrix<Type, row_, col_>& mul(ArmMatrix<Type, row_, col_>& result,
+                                            const ArmMatrix<Type, row_, col_>& a,
+                                            Type scalar);
 
     template<std::size_t row_, std::size_t col_>
-    friend auto inverse(ArmMatrix<Type, row_, col_>& result, const ArmMatrix<Type, row_, col_>& a)
-        -> etl::enable_if_t<row_ == col_, ArmMatrix<Type, row_, col_>&>;
+    friend ArmMatrix<Type, row_, col_>& mul(ArmMatrix<Type, row_, col_>& result,
+                                            Type scalar,
+                                            const ArmMatrix<Type, row_, col_>& a);
 
-    static Type determinant(ArmMatrix& a);
+    template<std::size_t row_, std::size_t col_>
+    friend ArmMatrix<Type, col_, row_>& trans(ArmMatrix<Type, col_, row_>& result,
+                                              const ArmMatrix<Type, row_, col_>& a);
 
-    Type* at(std::size_t r, std::size_t c);
-
-    Type& operator()(std::size_t r, std::size_t c);
+    template<std::size_t row_, std::size_t col_>
+        requires SquareMatrix<row_, col_>
+    friend ArmMatrix<Type, row_, col_>* inv(ArmMatrix<Type, row_, col_>& result, const ArmMatrix<Type, row_, col_>& a);
 
 private:
     ArmMatrixType matrix{};
-    float32_t data[row * col]{};
 };
 
 template<std::size_t row, std::size_t col>
@@ -111,80 +164,96 @@ class ArmMatrix<double, row, col>;  // todo 待完成其他类型的特化
 }  // namespace rmdev
 
 // ================== implements ==================
+
+// 辅助函数
+namespace rmdev {
+
+template<typename T>
+    requires ArithmeticType<T>
+bool floatEquPredicate(const T a, const T b)
+{
+    return floatEqu<T>(a, b);
+}
+
+}  // namespace rmdev
+
+// float 类型的矩阵实现
 export namespace rmdev {
 
+#define ImplType float
+
 template<std::size_t row, std::size_t col>
-ArmMatrix<float, row, col>::ArmMatrix()
+ArmMatrix<ImplType, row, col>::ArmMatrix()
 {
-    arm_mat_init_f32(&matrix, row, col, data);
+    arm_mat_init_f32(&matrix, row, col, this->data);
 }
 
 template<std::size_t row, std::size_t col>
-ArmMatrix<float, row, col>::ArmMatrix(const ArmMatrix& other)
+ArmMatrix<ImplType, row, col>::ArmMatrix(const ArmMatrix& other)
 {
     std::memcpy(this->data, other.data, sizeof this->data);
     this->matrix = {.numRows = other.matrix.numRows, .numCols = other.matrix.numCols, .pData = this->data};
 
-    arm_mat_init_f32(&matrix, row, col, data);
+    arm_mat_init_f32(&matrix, row, col, this->data);
 }
 
 template<std::size_t row, std::size_t col>
-ArmMatrix<float, row, col>::ArmMatrix(const float mat_data[row * col])
+ArmMatrix<ImplType, row, col>::ArmMatrix(const ImplType mat_data[row * col])
 {
-    std::memcpy(data, mat_data, sizeof data);
-    arm_mat_init_f32(&matrix, row, col, data);
+    std::memcpy(this->data, mat_data, sizeof this->data);
+    arm_mat_init_f32(&matrix, row, col, this->data);
 }
 
 template<std::size_t row, std::size_t col>
-ArmMatrix<float, row, col>::ArmMatrix(const float mat_data[row][col])
+ArmMatrix<ImplType, row, col>::ArmMatrix(const ImplType mat_data[row][col])
 {
-    std::memcpy(data, mat_data, sizeof data);
-    arm_mat_init_f32(&matrix, row, col, data);
+    std::memcpy(this->data, mat_data, sizeof this->data);
+    arm_mat_init_f32(&matrix, row, col, this->data);
 }
 
 template<std::size_t row, std::size_t col>
-ArmMatrix<float, row, col>::ArmMatrix(const std::initializer_list<float> mat_data)
+ArmMatrix<ImplType, row, col>::ArmMatrix(const std::initializer_list<ImplType> mat_data)
 {
-    std::memcpy(data, mat_data.begin(), sizeof data);
-    arm_mat_init_f32(&matrix, row, col, data);
+    std::memcpy(this->data, mat_data.begin(), sizeof this->data);
+    arm_mat_init_f32(&matrix, row, col, this->data);
 }
 
 template<std::size_t row, std::size_t col>
-ArmMatrix<float, row, col>::ArmMatrix(const std::initializer_list<std::initializer_list<float>> mat_data)
+ArmMatrix<ImplType, row, col>::ArmMatrix(const std::initializer_list<std::initializer_list<ImplType>> mat_data)
 {
     std::size_t i = 0;
     for (const auto& row_data : mat_data) {
-        std::memcpy(&data[i * col], row_data.begin(), sizeof(float) * row_data.size());
+        std::memcpy(&this->data[i * col], row_data.begin(), sizeof(ImplType) * row_data.size());
         ++i;
     }
-    arm_mat_init_f32(&matrix, row, col, data);
+    arm_mat_init_f32(&matrix, row, col, this->data);
 }
 
 template<std::size_t row, std::size_t col>
-ArmMatrix<float, row, col>& ArmMatrix<float, row, col>::operator=(const ArmMatrix& other)
+ArmMatrix<ImplType, row, col>& ArmMatrix<ImplType, row, col>::operator=(const ArmMatrix& other)
 {
     if (this != &other) {
-        std::memcpy(data, other.data, sizeof data);
+        std::memcpy(this->data, other.data, sizeof this->data);
     }
     return *this;
 }
 
 template<std::size_t row, std::size_t col>
-constexpr bool ArmMatrix<float, row, col>::operator==(const ArmMatrix& other) const
+constexpr bool ArmMatrix<ImplType, row, col>::operator==(const ArmMatrix& other) const
 {
-    return etl::equal(data, data + row * col, other.data);
+    return etl::equal(this->data, this->data + row * col, other.data, floatEquPredicate<ImplType>);
 }
 
 template<std::size_t row, std::size_t col>
-constexpr bool ArmMatrix<float, row, col>::operator!=(const ArmMatrix& other) const
+constexpr bool ArmMatrix<ImplType, row, col>::operator!=(const ArmMatrix& other) const
 {
     return !(this->operator==(other));
 }
 
 template<std::size_t row, std::size_t col>
-ArmMatrix<float, row, col>& add(ArmMatrix<float, row, col>& result,
-                                const ArmMatrix<float, row, col>& a,
-                                const ArmMatrix<float, row, col>& b)
+ArmMatrix<ImplType, row, col>& add(ArmMatrix<ImplType, row, col>& result,
+                                   const ArmMatrix<ImplType, row, col>& a,
+                                   const ArmMatrix<ImplType, row, col>& b)
 {
     arm_mat_add_f32(&a.matrix, &b.matrix, &result.matrix);
 
@@ -192,9 +261,9 @@ ArmMatrix<float, row, col>& add(ArmMatrix<float, row, col>& result,
 }
 
 template<std::size_t row, std::size_t col>
-ArmMatrix<float, row, col>& sub(ArmMatrix<float, row, col>& result,
-                                const ArmMatrix<float, row, col>& a,
-                                const ArmMatrix<float, row, col>& b)
+ArmMatrix<ImplType, row, col>& sub(ArmMatrix<ImplType, row, col>& result,
+                                   const ArmMatrix<ImplType, row, col>& a,
+                                   const ArmMatrix<ImplType, row, col>& b)
 {
     arm_mat_sub_f32(&a.matrix, &b.matrix, &result.matrix);
 
@@ -203,9 +272,9 @@ ArmMatrix<float, row, col>& sub(ArmMatrix<float, row, col>& result,
 
 template<std::size_t rowa, std::size_t cola, std::size_t rowb, std::size_t colb>
     requires MatrixCouldMultiplied<rowa, cola, rowb, colb>
-ArmMatrix<float, rowa, colb>& mul(ArmMatrix<float, rowa, colb>& result,
-                                  const ArmMatrix<float, rowa, cola>& a,
-                                  const ArmMatrix<float, rowb, colb>& b)
+ArmMatrix<ImplType, rowa, colb>& mul(ArmMatrix<ImplType, rowa, colb>& result,
+                                     const ArmMatrix<ImplType, rowa, cola>& a,
+                                     const ArmMatrix<ImplType, rowb, colb>& b)
 {
     arm_mat_mult_f32(&a.matrix, &b.matrix, &result.matrix);
 
@@ -213,9 +282,9 @@ ArmMatrix<float, rowa, colb>& mul(ArmMatrix<float, rowa, colb>& result,
 }
 
 template<std::size_t row, std::size_t col>
-ArmMatrix<float, row, col>& ArmMatrix<float, row, col>::multiply(ArmMatrix& result,
-                                                                 const ArmMatrix& a,
-                                                                 const float scalar)
+ArmMatrix<ImplType, row, col>& mul(ArmMatrix<ImplType, row, col>& result,
+                                   const ArmMatrix<ImplType, row, col>& a,
+                                   const ImplType scalar)
 {
     arm_mat_scale_f32(&a.matrix, scalar, &result.matrix);
 
@@ -223,16 +292,15 @@ ArmMatrix<float, row, col>& ArmMatrix<float, row, col>::multiply(ArmMatrix& resu
 }
 
 template<std::size_t row, std::size_t col>
-ArmMatrix<float, row, col>& ArmMatrix<float, row, col>::multiply(ArmMatrix& result,
-                                                                 const float scalar,
-                                                                 const ArmMatrix& a)
+ArmMatrix<ImplType, row, col>& mul(ArmMatrix<ImplType, row, col>& result,
+                                   const ImplType scalar,
+                                   const ArmMatrix<ImplType, row, col>& a)
 {
-    return multiply(result, a, scalar);
+    return mul(result, a, scalar);
 }
 
 template<std::size_t row, std::size_t col>
-ArmMatrix<float, col, row>& ArmMatrix<float, row, col>::transpose(ArmMatrix<float, col, row>& result,
-                                                                  const ArmMatrix<float, row, col>& a)
+ArmMatrix<ImplType, col, row>& trans(ArmMatrix<ImplType, col, row>& result, const ArmMatrix<ImplType, row, col>& a)
 {
     arm_mat_trans_f32(&a.matrix, &result.matrix);
 
@@ -240,44 +308,23 @@ ArmMatrix<float, col, row>& ArmMatrix<float, row, col>::transpose(ArmMatrix<floa
 }
 
 template<std::size_t row, std::size_t col>
-auto inverse(ArmMatrix<float, row, col>& result, const ArmMatrix<float, row, col>& a)
-    -> etl::enable_if_t<row == col, ArmMatrix<float, row, col>&>
+    requires SquareMatrix<row, col>
+ArmMatrix<ImplType, row, col>* inv(ArmMatrix<ImplType, row, col>& result, const ArmMatrix<ImplType, row, col>& a)
 {
-    arm_mat_inverse_f32(&a.matrix, &result.matrix);
-
-    return result;
-}
-
-template<std::size_t row, std::size_t col>
-float ArmMatrix<float, row, col>::determinant(ArmMatrix& a)
-{
-    if constexpr (row != col) {
-        return 0.0f;
+    if (arm_mat_inverse_f32(&a.matrix, &result.matrix) == ARM_MATH_SINGULAR) {
+        return nullptr;  // 矩阵不可逆
     }
 
-    float det;
-
-    return det;
+    return &result;
 }
 
-template<std::size_t row, std::size_t col>
-float* ArmMatrix<float, row, col>::at(const std::size_t r, const std::size_t c)
-{
-    if (r < 1U || c < 1U) {
-        return nullptr;
-    }
-    if ((r - 1U) >= row || (c - 1U) >= col) {
-        return nullptr;
-    }
+}  // namespace rmdev
 
-    return &data[(r - 1U) * col + (c - 1U)];
-}
+// double 类型的矩阵实现
+export namespace rmdev {
 
-template<std::size_t row, std::size_t col>
-float& ArmMatrix<float, row, col>::operator()(const std::size_t r, const std::size_t c)
-{
-    return data[(r - 1U) * col + (c - 1U)];
-}
+#undef ImplType
+#define ImplType double
 
 }  // namespace rmdev
 
