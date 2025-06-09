@@ -116,9 +116,23 @@ public:
 
     ArmMatrix& operator=(const ArmMatrix& other);
 
-    constexpr bool operator==(const ArmMatrix& other) const;
+    bool operator==(const ArmMatrix& other) const;
 
-    constexpr bool operator!=(const ArmMatrix& other) const;
+    bool equ(const ArmMatrix& other) const
+    {
+        return etl::equal(this->data, this->data + row * col, other.data, [](const auto a, const auto b) -> bool {
+            return floatEqu(a, b);
+        });
+    }
+
+    bool equ(const ArmMatrix& other, const Type error) const
+    {
+        return etl::equal(this->data, this->data + row * col, other.data, [error](const auto a, const auto b) -> bool {
+            return floatEqu(a, b, error);
+        });
+    }
+
+    bool operator!=(const ArmMatrix& other) const;
 
     template<std::size_t row_, std::size_t col_>
     friend ArmMatrix<Type, row_, col_>& add(ArmMatrix<Type, row_, col_>& result,
@@ -164,18 +178,6 @@ class ArmMatrix<double, row, col>;  // todo 待完成其他类型的特化
 }  // namespace rmdev
 
 // ================== implements ==================
-
-// 辅助函数
-namespace rmdev {
-
-template<typename T>
-    requires ArithmeticType<T>
-bool floatEquPredicate(const T a, const T b)
-{
-    return floatEqu<T>(a, b);
-}
-
-}  // namespace rmdev
 
 // float 类型的矩阵实现
 export namespace rmdev {
@@ -239,13 +241,13 @@ ArmMatrix<ImplType, row, col>& ArmMatrix<ImplType, row, col>::operator=(const Ar
 }
 
 template<std::size_t row, std::size_t col>
-constexpr bool ArmMatrix<ImplType, row, col>::operator==(const ArmMatrix& other) const
+bool ArmMatrix<ImplType, row, col>::operator==(const ArmMatrix& other) const
 {
-    return etl::equal(this->data, this->data + row * col, other.data, floatEquPredicate<ImplType>);
+    return this->equ(other);
 }
 
 template<std::size_t row, std::size_t col>
-constexpr bool ArmMatrix<ImplType, row, col>::operator!=(const ArmMatrix& other) const
+bool ArmMatrix<ImplType, row, col>::operator!=(const ArmMatrix& other) const
 {
     return !(this->operator==(other));
 }
