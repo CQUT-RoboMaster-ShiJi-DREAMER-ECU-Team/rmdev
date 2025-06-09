@@ -28,10 +28,10 @@ export namespace rmdev {
 
 template<typename Type, std::size_t row, std::size_t col>
     requires ArithmeticType<Type>
-class Matrix;
+class ArmMatrix;
 
 template<std::size_t row, std::size_t col>
-class Matrix<float, row, col>
+class ArmMatrix<float, row, col>
 {
 public:
     static_assert(etl::is_same_v<float, float32_t>);
@@ -40,61 +40,61 @@ public:
     using ArmMatrixType = arm_matrix_instance_f32;
 
     // 由于 CMSIS-DSP 的矩阵加法函数需要分配一个新的矩阵，常规运算符难以实现，因此删除基本运算符
-    Matrix& operator+(const Matrix& other) = delete;
-    Matrix& operator-(const Matrix& other) = delete;
-    Matrix& operator*(const Matrix& other) = delete;
-    Matrix& operator/(const Matrix& other) = delete;
+    ArmMatrix& operator+(const ArmMatrix& other) = delete;
+    ArmMatrix& operator-(const ArmMatrix& other) = delete;
+    ArmMatrix& operator*(const ArmMatrix& other) = delete;
+    ArmMatrix& operator/(const ArmMatrix& other) = delete;
 
-    Matrix&& trans() = delete;
+    ArmMatrix&& trans() = delete;
 
     /**
      *
      */
-    Matrix();
+    ArmMatrix();
 
-    Matrix(const Matrix& other);
+    ArmMatrix(const ArmMatrix& other);
 
-    explicit Matrix(const Type mat_data[row * col]);
+    explicit ArmMatrix(const Type mat_data[row * col]);
 
-    explicit Matrix(const Type mat_data[row][col]);
+    explicit ArmMatrix(const Type mat_data[row][col]);
 
-    Matrix(std::initializer_list<Type> mat_data);
+    ArmMatrix(std::initializer_list<Type> mat_data);
 
-    Matrix(std::initializer_list<std::initializer_list<Type>> mat_data);
+    ArmMatrix(std::initializer_list<std::initializer_list<Type>> mat_data);
 
-    Matrix& operator=(const Matrix& other);
+    ArmMatrix& operator=(const ArmMatrix& other);
 
-    bool operator==(const Matrix& other) const;
+    constexpr bool operator==(const ArmMatrix& other) const;
 
-    bool operator!=(const Matrix& other) const;
-
-    template<std::size_t row_, std::size_t col_>
-    friend Matrix<Type, row_, col_>& add(Matrix<Type, row_, col_>& result,
-                                         const Matrix<Type, row_, col_>& a,
-                                         const Matrix<Type, row_, col_>& b);
+    constexpr bool operator!=(const ArmMatrix& other) const;
 
     template<std::size_t row_, std::size_t col_>
-    friend Matrix<Type, row_, col_>& sub(Matrix<Type, row_, col_>& result,
-                                         const Matrix<Type, row_, col_>& a,
-                                         const Matrix<Type, row_, col_>& b);
+    friend ArmMatrix<Type, row_, col_>& add(ArmMatrix<Type, row_, col_>& result,
+                                            const ArmMatrix<Type, row_, col_>& a,
+                                            const ArmMatrix<Type, row_, col_>& b);
+
+    template<std::size_t row_, std::size_t col_>
+    friend ArmMatrix<Type, row_, col_>& sub(ArmMatrix<Type, row_, col_>& result,
+                                            const ArmMatrix<Type, row_, col_>& a,
+                                            const ArmMatrix<Type, row_, col_>& b);
 
     template<std::size_t rowa, std::size_t cola, std::size_t rowb, std::size_t colb>
         requires MatrixCouldMultiplied<rowa, cola, rowb, colb>
-    friend Matrix<Type, rowa, colb>& mul(Matrix<Type, rowa, colb>& result,
-                                         const Matrix<Type, rowa, cola>& a,
-                                         const Matrix<Type, rowb, colb>& b);
+    friend ArmMatrix<Type, rowa, colb>& mul(ArmMatrix<Type, rowa, colb>& result,
+                                            const ArmMatrix<Type, rowa, cola>& a,
+                                            const ArmMatrix<Type, rowb, colb>& b);
 
-    static Matrix& multiply(Matrix& result, const Matrix& a, Type scalar);
+    static ArmMatrix& multiply(ArmMatrix& result, const ArmMatrix& a, Type scalar);
 
-    static Matrix& multiply(Matrix& result, Type scalar, const Matrix& a);
+    static ArmMatrix& multiply(ArmMatrix& result, Type scalar, const ArmMatrix& a);
 
-    static Matrix<Type, col, row>& transpose(Matrix<Type, col, row>& result, const Matrix<Type, row, col>& a);
+    static ArmMatrix<Type, col, row>& transpose(ArmMatrix<Type, col, row>& result, const ArmMatrix<Type, row, col>& a);
 
     template<std::size_t row_, std::size_t col_>
-    friend auto inverse(Matrix<Type, row_, col_>& result, const Matrix<Type, row_, col_>& a)
-        -> etl::enable_if_t<row_ == col_, Matrix<Type, row_, col_>&>;
+    friend auto inverse(ArmMatrix<Type, row_, col_>& result, const ArmMatrix<Type, row_, col_>& a)
+        -> etl::enable_if_t<row_ == col_, ArmMatrix<Type, row_, col_>&>;
 
-    static Type determinant(Matrix& a);
+    static Type determinant(ArmMatrix& a);
 
     Type* at(std::size_t r, std::size_t c);
 
@@ -106,22 +106,7 @@ private:
 };
 
 template<std::size_t row, std::size_t col>
-class Matrix<double, row, col>
-{
-public:
-    static_assert(etl::is_same_v<double, float64_t>);
-    /**
-     *
-     */
-    Matrix()
-    {
-        arm_mat_init_f64(&matrix, row, col, data);
-    }
-
-private:
-    arm_matrix_instance_f64 matrix{};
-    float64_t data[row * col]{};
-};
+class ArmMatrix<double, row, col>;  // todo 待完成其他类型的特化
 
 }  // namespace rmdev
 
@@ -129,13 +114,13 @@ private:
 export namespace rmdev {
 
 template<std::size_t row, std::size_t col>
-Matrix<float, row, col>::Matrix()
+ArmMatrix<float, row, col>::ArmMatrix()
 {
     arm_mat_init_f32(&matrix, row, col, data);
 }
 
 template<std::size_t row, std::size_t col>
-Matrix<float, row, col>::Matrix(const Matrix& other)
+ArmMatrix<float, row, col>::ArmMatrix(const ArmMatrix& other)
 {
     std::memcpy(this->data, other.data, sizeof this->data);
     this->matrix = {.numRows = other.matrix.numRows, .numCols = other.matrix.numCols, .pData = this->data};
@@ -144,28 +129,28 @@ Matrix<float, row, col>::Matrix(const Matrix& other)
 }
 
 template<std::size_t row, std::size_t col>
-Matrix<float, row, col>::Matrix(const float mat_data[row * col])
+ArmMatrix<float, row, col>::ArmMatrix(const float mat_data[row * col])
 {
     std::memcpy(data, mat_data, sizeof data);
     arm_mat_init_f32(&matrix, row, col, data);
 }
 
 template<std::size_t row, std::size_t col>
-Matrix<float, row, col>::Matrix(const float mat_data[row][col])
+ArmMatrix<float, row, col>::ArmMatrix(const float mat_data[row][col])
 {
     std::memcpy(data, mat_data, sizeof data);
     arm_mat_init_f32(&matrix, row, col, data);
 }
 
 template<std::size_t row, std::size_t col>
-Matrix<float, row, col>::Matrix(const std::initializer_list<float> mat_data)
+ArmMatrix<float, row, col>::ArmMatrix(const std::initializer_list<float> mat_data)
 {
     std::memcpy(data, mat_data.begin(), sizeof data);
     arm_mat_init_f32(&matrix, row, col, data);
 }
 
 template<std::size_t row, std::size_t col>
-Matrix<float, row, col>::Matrix(const std::initializer_list<std::initializer_list<float>> mat_data)
+ArmMatrix<float, row, col>::ArmMatrix(const std::initializer_list<std::initializer_list<float>> mat_data)
 {
     std::size_t i = 0;
     for (const auto& row_data : mat_data) {
@@ -176,7 +161,7 @@ Matrix<float, row, col>::Matrix(const std::initializer_list<std::initializer_lis
 }
 
 template<std::size_t row, std::size_t col>
-Matrix<float, row, col>& Matrix<float, row, col>::operator=(const Matrix& other)
+ArmMatrix<float, row, col>& ArmMatrix<float, row, col>::operator=(const ArmMatrix& other)
 {
     if (this != &other) {
         std::memcpy(data, other.data, sizeof data);
@@ -185,21 +170,21 @@ Matrix<float, row, col>& Matrix<float, row, col>::operator=(const Matrix& other)
 }
 
 template<std::size_t row, std::size_t col>
-bool Matrix<float, row, col>::operator==(const Matrix& other) const
+constexpr bool ArmMatrix<float, row, col>::operator==(const ArmMatrix& other) const
 {
     return etl::equal(data, data + row * col, other.data);
 }
 
 template<std::size_t row, std::size_t col>
-bool Matrix<float, row, col>::operator!=(const Matrix& other) const
+constexpr bool ArmMatrix<float, row, col>::operator!=(const ArmMatrix& other) const
 {
     return !(this->operator==(other));
 }
 
 template<std::size_t row, std::size_t col>
-Matrix<float, row, col>& add(Matrix<float, row, col>& result,
-                             const Matrix<float, row, col>& a,
-                             const Matrix<float, row, col>& b)
+ArmMatrix<float, row, col>& add(ArmMatrix<float, row, col>& result,
+                                const ArmMatrix<float, row, col>& a,
+                                const ArmMatrix<float, row, col>& b)
 {
     arm_mat_add_f32(&a.matrix, &b.matrix, &result.matrix);
 
@@ -207,9 +192,9 @@ Matrix<float, row, col>& add(Matrix<float, row, col>& result,
 }
 
 template<std::size_t row, std::size_t col>
-Matrix<float, row, col>& sub(Matrix<float, row, col>& result,
-                             const Matrix<float, row, col>& a,
-                             const Matrix<float, row, col>& b)
+ArmMatrix<float, row, col>& sub(ArmMatrix<float, row, col>& result,
+                                const ArmMatrix<float, row, col>& a,
+                                const ArmMatrix<float, row, col>& b)
 {
     arm_mat_sub_f32(&a.matrix, &b.matrix, &result.matrix);
 
@@ -218,9 +203,9 @@ Matrix<float, row, col>& sub(Matrix<float, row, col>& result,
 
 template<std::size_t rowa, std::size_t cola, std::size_t rowb, std::size_t colb>
     requires MatrixCouldMultiplied<rowa, cola, rowb, colb>
-Matrix<float, rowa, colb>& mul(Matrix<float, rowa, colb>& result,
-                               const Matrix<float, rowa, cola>& a,
-                               const Matrix<float, rowb, colb>& b)
+ArmMatrix<float, rowa, colb>& mul(ArmMatrix<float, rowa, colb>& result,
+                                  const ArmMatrix<float, rowa, cola>& a,
+                                  const ArmMatrix<float, rowb, colb>& b)
 {
     arm_mat_mult_f32(&a.matrix, &b.matrix, &result.matrix);
 
@@ -228,7 +213,9 @@ Matrix<float, rowa, colb>& mul(Matrix<float, rowa, colb>& result,
 }
 
 template<std::size_t row, std::size_t col>
-Matrix<float, row, col>& Matrix<float, row, col>::multiply(Matrix& result, const Matrix& a, const float scalar)
+ArmMatrix<float, row, col>& ArmMatrix<float, row, col>::multiply(ArmMatrix& result,
+                                                                 const ArmMatrix& a,
+                                                                 const float scalar)
 {
     arm_mat_scale_f32(&a.matrix, scalar, &result.matrix);
 
@@ -236,14 +223,16 @@ Matrix<float, row, col>& Matrix<float, row, col>::multiply(Matrix& result, const
 }
 
 template<std::size_t row, std::size_t col>
-Matrix<float, row, col>& Matrix<float, row, col>::multiply(Matrix& result, const float scalar, const Matrix& a)
+ArmMatrix<float, row, col>& ArmMatrix<float, row, col>::multiply(ArmMatrix& result,
+                                                                 const float scalar,
+                                                                 const ArmMatrix& a)
 {
     return multiply(result, a, scalar);
 }
 
 template<std::size_t row, std::size_t col>
-Matrix<float, col, row>& Matrix<float, row, col>::transpose(Matrix<float, col, row>& result,
-                                                            const Matrix<float, row, col>& a)
+ArmMatrix<float, col, row>& ArmMatrix<float, row, col>::transpose(ArmMatrix<float, col, row>& result,
+                                                                  const ArmMatrix<float, row, col>& a)
 {
     arm_mat_trans_f32(&a.matrix, &result.matrix);
 
@@ -251,8 +240,8 @@ Matrix<float, col, row>& Matrix<float, row, col>::transpose(Matrix<float, col, r
 }
 
 template<std::size_t row, std::size_t col>
-auto inverse(Matrix<float, row, col>& result, const Matrix<float, row, col>& a)
-    -> etl::enable_if_t<row == col, Matrix<float, row, col>&>
+auto inverse(ArmMatrix<float, row, col>& result, const ArmMatrix<float, row, col>& a)
+    -> etl::enable_if_t<row == col, ArmMatrix<float, row, col>&>
 {
     arm_mat_inverse_f32(&a.matrix, &result.matrix);
 
@@ -260,7 +249,7 @@ auto inverse(Matrix<float, row, col>& result, const Matrix<float, row, col>& a)
 }
 
 template<std::size_t row, std::size_t col>
-float Matrix<float, row, col>::determinant(Matrix& a)
+float ArmMatrix<float, row, col>::determinant(ArmMatrix& a)
 {
     if constexpr (row != col) {
         return 0.0f;
@@ -272,7 +261,7 @@ float Matrix<float, row, col>::determinant(Matrix& a)
 }
 
 template<std::size_t row, std::size_t col>
-float* Matrix<float, row, col>::at(const std::size_t r, const std::size_t c)
+float* ArmMatrix<float, row, col>::at(const std::size_t r, const std::size_t c)
 {
     if (r < 1U || c < 1U) {
         return nullptr;
@@ -285,7 +274,7 @@ float* Matrix<float, row, col>::at(const std::size_t r, const std::size_t c)
 }
 
 template<std::size_t row, std::size_t col>
-float& Matrix<float, row, col>::operator()(const std::size_t r, const std::size_t c)
+float& ArmMatrix<float, row, col>::operator()(const std::size_t r, const std::size_t c)
 {
     return data[(r - 1U) * col + (c - 1U)];
 }

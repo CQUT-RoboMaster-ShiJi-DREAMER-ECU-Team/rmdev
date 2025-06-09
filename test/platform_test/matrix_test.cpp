@@ -12,13 +12,13 @@
 import rmdev.Matrix;
 import rmdev.util.math;
 
-static void matrixBasicTest()
+static void armMatrixBasicTest()
 {
     using rmdev::floatEqu;
 
-    RMDEV_TEST_ITEM("Matrix basic test");
+    RMDEV_TEST_ITEM("ArmMatrix Basic Test");
 
-    rmdev::Matrix<float, 3, 3> mat1;
+    rmdev::ArmMatrix<float, 3, 3> mat1;
 
     RMDEV_TEST_ASSERT(floatEqu(mat1(1, 1), 0.0f));
 
@@ -45,8 +45,8 @@ static void matrixBasicTest()
     nullnum_in_mat1_expected.fill(nullptr);
     RMDEV_TEST_ASSERT(nullnum_in_mat1 == nullnum_in_mat1_expected);
 
-    rmdev::Matrix<float, 3, 3> mat2{1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f, 7.0f, 8.0f, 9.0f};
-    rmdev::Matrix<float, 3, 3> mat3{{1.0f, 2.0f, 3.0f}, {4.0f, 5.0f, 6.0f}, {7.0f, 8.0f, 9.0f}};
+    rmdev::ArmMatrix<float, 3, 3> mat2{1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f, 7.0f, 8.0f, 9.0f};
+    rmdev::ArmMatrix<float, 3, 3> mat3{{1.0f, 2.0f, 3.0f}, {4.0f, 5.0f, 6.0f}, {7.0f, 8.0f, 9.0f}};
     RMDEV_TEST_ASSERT(
         rmdev::floatEqu(mat2(1, 1), 1.0f) && rmdev::floatEqu(mat2(1, 2), 2.0f) && rmdev::floatEqu(mat2(1, 3), 3.0f) &&
         rmdev::floatEqu(mat2(2, 1), 4.0f) && rmdev::floatEqu(mat2(2, 2), 5.0f) && rmdev::floatEqu(mat2(2, 3), 6.0f) &&
@@ -74,32 +74,34 @@ static void matrixBasicTest()
     mat1 = mat2;
     RMDEV_TEST_ASSERT(mat1 == mat2);
 
-    rmdev::Matrix<float, 3, 3> mat4{mat1};
+    rmdev::ArmMatrix<float, 3, 3> mat4{mat1};
     RMDEV_TEST_ASSERT(mat4 == mat1);
 
-    rmdev::Matrix<float, 3, 3> mat4_2(mat1);
+    rmdev::ArmMatrix<float, 3, 3> mat4_2(mat1);
     RMDEV_TEST_ASSERT(mat4_2 == mat1);
 
     const float data_equ_to_mat2[] = {1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f, 7.0f, 8.0f, 9.0f};
-    rmdev::Matrix<float, 3, 3> mat5{data_equ_to_mat2};
-    rmdev::Matrix<float, 3, 3> mat5_2(data_equ_to_mat2);
+    rmdev::ArmMatrix<float, 3, 3> mat5{data_equ_to_mat2};
+    rmdev::ArmMatrix<float, 3, 3> mat5_2(data_equ_to_mat2);
     RMDEV_TEST_ASSERT(mat5 == mat2);
     RMDEV_TEST_ASSERT(mat5_2 == mat2);
 
     const float data_equ_to_mat3[3][3] = {{1.0f, 2.0f, 3.0f}, {4.0f, 5.0f, 6.0f}, {7.0f, 8.0f, 9.0f}};
-    rmdev::Matrix<float, 3, 3> mat6{data_equ_to_mat3};
-    rmdev::Matrix<float, 3, 3> mat6_2(data_equ_to_mat3);
+    rmdev::ArmMatrix<float, 3, 3> mat6{data_equ_to_mat3};
+    rmdev::ArmMatrix<float, 3, 3> mat6_2(data_equ_to_mat3);
     RMDEV_TEST_ASSERT(mat6 == mat3);
     RMDEV_TEST_ASSERT(mat6_2 == mat3);
     RMDEV_TEST_ASSERT(mat5 == mat6);
 
-    rmdev::Matrix<float, 3, 3> mat7 = mat2;
+    rmdev::ArmMatrix<float, 3, 3> mat7 = mat2;
     RMDEV_TEST_ASSERT(mat7 == mat2);
 }
 
-static void matrixCalcTest()
+static void armMatrixCalcTest()
 {
-    using TestMatrix = rmdev::Matrix<float, 3, 3>;
+    RMDEV_TEST_ITEM("ArmMatrix Calculate Test");
+
+    using TestMatrix = rmdev::ArmMatrix<float, 3, 3>;
 
     TestMatrix mat1{1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f, 7.0f, 8.0f, 9.0f};
     TestMatrix mat2{9.0f, 8.0f, 7.0f, 6.0f, 5.0f, 4.0f, 3.0f, 2.0f, 1.0f};
@@ -124,6 +126,6 @@ static void matrixCalcTest()
 
 void matrixTest()
 {
-    matrixBasicTest();
-    matrixCalcTest();
+    armMatrixBasicTest();
+    armMatrixCalcTest();
 }

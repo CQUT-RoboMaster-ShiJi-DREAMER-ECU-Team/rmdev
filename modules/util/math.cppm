@@ -8,7 +8,6 @@
 
 module;
 
-#include "etl/type_traits.h"
 #include "etl/math.h"
 
 #include "rmdev/concepts.hpp"
@@ -28,7 +27,7 @@ constexpr auto PI = 3.14159265358979f;
  */
 template<typename Type>
     requires ArithmeticType<Type>
-inline void swap(Type& a, Type& b) noexcept
+void swap(Type& a, Type& b) noexcept
 {
     Type tmp = a;
     a = b;
@@ -45,7 +44,7 @@ inline void swap(Type& a, Type& b) noexcept
  */
 template<typename Type>
     requires ArithmeticType<Type>
-inline constexpr Type sgn(const Type n)
+constexpr Type sgn(const Type n)
 {
     if (n > 0) {
         return 1;
@@ -64,7 +63,7 @@ inline constexpr Type sgn(const Type n)
  * @retval -1.0f n 小于零
  */
 template<>
-inline constexpr float sgn(const float n)
+constexpr float sgn(const float n)
 {
     return ((n) >= 0.0f ? (1.0f) : (-1.0f));
 }
@@ -76,7 +75,7 @@ inline constexpr float sgn(const float n)
  * @retval -1.0 n 小于零
  */
 template<>
-inline constexpr double sgn(const double n)
+constexpr double sgn(const double n)
 {
     return ((n) >= 0.0 ? (1.0) : (-1.0));
 }
@@ -86,7 +85,7 @@ inline constexpr double sgn(const double n)
  * @param bits: 位数
  * @return 最大值
  */
-inline constexpr std::size_t bitUintMax(const std::size_t bits)
+constexpr std::size_t bitUintMax(const std::size_t bits)
 {
     return (1U << bits) - 1U;
 }
@@ -96,7 +95,7 @@ inline constexpr std::size_t bitUintMax(const std::size_t bits)
  * @param integer: 待计算的十进制整数
  * @return 这个十进制整数的位数
  */
-inline constexpr std::size_t integerBits(std::size_t integer)
+constexpr std::size_t integerBits(std::size_t integer)
 {
     std::size_t count = 0U;
 
@@ -114,7 +113,7 @@ inline constexpr std::size_t integerBits(std::size_t integer)
  * @param angle: 角度值
  * @return 弧度值
  */
-inline constexpr float angleToRad(const float angle)
+constexpr float angleToRad(const float angle)
 {
     return angle * PI / 180.0f;
 }
@@ -125,7 +124,7 @@ inline constexpr float angleToRad(const float angle)
  * @param angle: 角度值
  * @return 弧度值
  */
-inline constexpr double angleToRad(const double angle)
+constexpr double angleToRad(const double angle)
 {
     return angle * PI / 180.0;
 }
@@ -136,7 +135,7 @@ inline constexpr double angleToRad(const double angle)
  * @param rad: 弧度值
  * @return 角度值
  */
-inline constexpr float radToAngle(const float rad)
+constexpr float radToAngle(const float rad)
 {
     return rad * 180.0f / PI;
 }
@@ -147,7 +146,7 @@ inline constexpr float radToAngle(const float rad)
  * @param rad: 弧度值
  * @return 角度值
  */
-inline constexpr double radToAngle(const double rad)
+constexpr double radToAngle(const double rad)
 {
     return rad * 180.0 / PI;
 }
@@ -162,7 +161,7 @@ inline constexpr double radToAngle(const double rad)
  */
 template<typename Type>
     requires ArithmeticType<Type>
-inline constexpr Type limitMinMax(Type& value, const Type min, const Type max)
+constexpr Type limitMinMax(Type& value, const Type min, const Type max)
 {
     value = etl::clamp(value, min, max);
     return value;
@@ -177,7 +176,7 @@ inline constexpr Type limitMinMax(Type& value, const Type min, const Type max)
  */
 template<typename Type>
     requires ArithmeticType<Type>
-inline constexpr Type limitInRange(Type& value, Type range)
+constexpr Type limitInRange(Type& value, Type range)
 {
     value = limitMinMax(value, -range, range);
     return value;
@@ -193,7 +192,7 @@ inline constexpr Type limitInRange(Type& value, Type range)
  */
 template<typename FloatType>
     requires FloatingPointType<FloatType>
-inline constexpr bool floatEqu(FloatType a, FloatType b, FloatType error = static_cast<FloatType>(0.001f))
+constexpr bool floatEqu(FloatType a, FloatType b, FloatType error = static_cast<FloatType>(0.001f))
 {
     return std::abs(a - b) < error;
 }
