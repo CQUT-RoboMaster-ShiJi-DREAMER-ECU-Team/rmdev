@@ -8,7 +8,8 @@
 
 module;
 
-#include "etl/math.h"
+#include <cmath>
+#include <algorithm>
 
 #include "rmdev/concepts.hpp"
 
@@ -175,7 +176,7 @@ template<typename Type>
     requires ArithmeticType<Type>
 constexpr Type limitMinMax(Type& value, const Type min, const Type max)
 {
-    value = etl::clamp(value, min, max);
+    value = std::clamp(value, min, max);
     return value;
 }
 

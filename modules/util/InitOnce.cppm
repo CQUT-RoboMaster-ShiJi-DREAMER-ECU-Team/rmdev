@@ -8,8 +8,8 @@
 
 module;
 
-#include "etl/type_traits.h"
-#include "etl/utility.h"
+#include <type_traits>
+#include <utility>
 
 export module rmdev.util.InitOnce;
 
@@ -22,8 +22,8 @@ export namespace rmdev {
  * @tparam Type 存储的数据类型
  */
 template<typename Type>
-    requires(etl::is_copy_constructible_v<Type> && etl::is_default_constructible_v<Type> &&
-             etl::is_move_constructible_v<Type>)
+    requires(std::is_copy_constructible_v<Type> && std::is_default_constructible_v<Type> &&
+             std::is_move_constructible_v<Type>)
 class InitOnce
 {
 public:
@@ -32,7 +32,7 @@ public:
 
     InitOnce(const InitOnce& other) : v(other.v), is_init(true) {}
 
-    InitOnce(InitOnce&& other) noexcept : v(etl::move(other.v)), is_init(true) {}
+    InitOnce(InitOnce&& other) noexcept : v(std::move(other.v)), is_init(true) {}
 
     /**
      * 初始化值
@@ -45,7 +45,7 @@ public:
             return ErrorCode::AlreadyExists;
         }
 
-        v = etl::forward<Type>(other_value);
+        v = std::forward<Type>(other_value);
         is_init = true;
 
         return ErrorCode::Success;
@@ -60,16 +60,16 @@ public:
 
     constexpr InitOnce& operator=(InitOnce&& other) noexcept
     {
-        init(etl::move(other.v));
+        init(std::move(other.v));
 
         return *this;
     }
 
-    explicit InitOnce(Type&& other_value) : v(etl::forward<Type>(other_value)), is_init(true) {}
+    explicit InitOnce(Type&& other_value) : v(std::forward<Type>(other_value)), is_init(true) {}
 
     constexpr InitOnce& operator=(Type&& other_value)
     {
-        init(etl::forward<Type>(other_value));
+        init(std::forward<Type>(other_value));
 
         return *this;
     }

@@ -12,11 +12,10 @@ module;
 
 #include <cstddef>
 #include <cstring>
-
-#include "etl/type_traits.h"
-#include "etl/initializer_list.h"
-#include "etl/algorithm.h"
-#include "etl/math.h"
+#include <cmath>
+#include <type_traits>
+#include <initializer_list>
+#include <algorithm>
 
 #include "arm_math.h"
 
@@ -98,10 +97,10 @@ public:
     [[nodiscard]] Type det() const
     {
         if constexpr (row != col) {
-            return 0.0f;
+            return 0;
         }
 
-        float det;
+        Type det;  // todo 待完成行列式计算方法
 
         return det;
     }
@@ -133,7 +132,7 @@ template<std::size_t row, std::size_t col>
 class ArmMatrix<float, row, col> : public ArmMatrixBase<float, row, col>
 {
 public:
-    static_assert(etl::is_same_v<float, float32_t>);
+    static_assert(std::is_same_v<float, float32_t>);
 
     using Type = float;
     using ArmMatrixType = arm_matrix_instance_f32;
@@ -274,6 +273,7 @@ public:
                                             Type scalar);
 
     template<std::size_t row_, std::size_t col_>
+        requires SquareMatrix<row_, col_>
     friend ArmMatrix<Type, row_, col_>* div(ArmMatrix<Type, row_, col_>& result,
                                             Type scalar,
                                             const ArmMatrix<Type, row_, col_>& a);
@@ -365,15 +365,15 @@ bool ArmMatrix<ImplType, row, col>::operator==(const ArmMatrix& other) const
 template<std::size_t row, std::size_t col>
 bool ArmMatrix<float, row, col>::equ(const ArmMatrix& other) const
 {
-    return etl::equal(this->data, this->data + row * col, other.data, [](const auto a, const auto b) -> bool {
+    return std::equal(this->data, this->data + row * col, other.data, [](const auto a, const auto b) -> bool {
         return floatEqu(a, b);
     });
 }
 
 template<std::size_t row, std::size_t col>
-bool ArmMatrix<float, row, col>::equ(const ArmMatrix& other, Type error) const
+bool ArmMatrix<float, row, col>::equ(const ArmMatrix& other, const Type error) const
 {
-    return etl::equal(this->data, this->data + row * col, other.data, [error](const auto a, const auto b) -> bool {
+    return std::equal(this->data, this->data + row * col, other.data, [error](const auto a, const auto b) -> bool {
         return floatEqu(a, b, error);
     });
 }
@@ -387,13 +387,13 @@ bool ArmMatrix<ImplType, row, col>::operator!=(const ArmMatrix& other) const
 template<std::size_t row, std::size_t col>
 bool ArmMatrix<ImplType, row, col>::notequ(const ArmMatrix& other) const
 {
-    return !(this->equ(other));
+    return !equ(other);
 }
 
 template<std::size_t row, std::size_t col>
 bool ArmMatrix<ImplType, row, col>::notequ(const ArmMatrix& other, const Type error) const
 {
-    return !(this->equ(other, error));
+    return !equ(other, error);
 }
 
 /**
@@ -541,9 +541,9 @@ ArmMatrix<ImplType, row, col>* div(ArmMatrix<ImplType, row, col>& result,
                                    const ArmMatrix<ImplType, row, col>& a,
                                    const ImplType scalar)
 {
-    const auto scalar_inv = static_cast<ImplType>(1) / scalar;
+    const ImplType scalar_inv = static_cast<ImplType>(1) / scalar;
 
-    if (etl::is_infinity(scalar_inv)) {
+    if (std::isinf(scalar_inv)) {
         return nullptr;  // 除数为零
     }
 

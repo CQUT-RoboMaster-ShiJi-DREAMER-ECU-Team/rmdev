@@ -5,9 +5,9 @@
  * @brief 矩阵运算测试
  */
 
-#include "rmdev_test_framework.h"
+#include <array>
 
-#include "etl/array.h"
+#include "rmdev_test_framework.h"
 
 import rmdev.util.Matrix;
 import rmdev.util.math;
@@ -33,7 +33,7 @@ static void armMatrixBasicTest()
     RMDEV_TEST_ASSERT(floatEqu(*mat1.at(3, 1), 245.0f) && floatEqu(*mat1.at(2, 3), 123.0f) &&
                       floatEqu(*mat1.at(1, 2), 456.0f));
 
-    etl::array nullnum_in_mat1{mat1.at(0, 0),
+    std::array nullnum_in_mat1{mat1.at(0, 0),
                                mat1.at(0, 2),
                                mat1.at(3, 4),
                                mat1.at(-1, 2),
@@ -96,13 +96,13 @@ static void armMatrixBasicTest()
     rmdev::ArmMatrix<float, 3, 3> mat7 = mat2;
     RMDEV_TEST_ASSERT(mat7 == mat2);
 
-    const rmdev::ArmMatrix<float, 3, 3> mat8{mat2};
-    RMDEV_TEST_ASSERT(mat8 == mat2);
+    const rmdev::ArmMatrix<float, 3, 3> mat8_const{mat2};
+    RMDEV_TEST_ASSERT(mat8_const == mat2);
 
     bool mat2_and_mat8_are_equal = true;
     for (std::size_t i = 1; i <= 3; ++i) {
         for (std::size_t j = 1; j <= 3; ++j) {
-            if (!floatEqu(mat2(i, j), mat8(i, j))) {
+            if (!floatEqu(mat2(i, j), mat8_const(i, j))) {
                 mat2_and_mat8_are_equal = false;
                 break;
             }
@@ -116,7 +116,7 @@ static void armMatrixBasicTest()
     bool mat2_and_mat8_are_equal_use_at = true;
     for (std::size_t i = 1; i <= 3; ++i) {
         for (std::size_t j = 1; j <= 3; ++j) {
-            if (!floatEqu(*mat8.at(i, j), mat2(i, j))) {
+            if (!floatEqu(*mat8_const.at(i, j), mat2(i, j))) {
                 mat2_and_mat8_are_equal_use_at = false;
                 break;
             }
@@ -245,13 +245,30 @@ static void armMatrixCalcTest()
     RMDEV_TEST_ASSERT(p_result == nullptr);
     // RMDEV_TEST_ASSERT(mat1_inv == mat1);  // 虽然求逆矩阵失败，但计算结果仍然会发生改变
 
-    TestMatrix mat5{{1, 2, 3}, {4, 7, 6}, {7, 8, 10}};
+    const TestMatrix mat5{{1, 2, 3}, {4, 7, 6}, {7, 8, 10}};
     TestMatrix mat5_inv;
     p_result = rmdev::inv(mat5_inv, mat5);
     RMDEV_TEST_ASSERT(p_result != nullptr);
     RMDEV_TEST_ASSERT(mat5_inv != mat5);
     const TestMatrix mat5_inv_expected{{-0.88f, -0.16f, 0.36f}, {-0.08f, 0.44f, -0.24f}, {0.68f, -0.24f, 0.04f}};
     RMDEV_TEST_ASSERT(mat5_inv == mat5_inv_expected);
+
+    TestMatrix mat5_div_0;
+    p_result = rmdev::div(mat5_div_0, mat5, 0);
+    RMDEV_TEST_ASSERT(p_result == nullptr);
+
+    TestMatrix mat5_div_2;
+    p_result = rmdev::div(mat5_div_2, mat5, 2.0f);
+    const TestMatrix mat5_div2_expected{{0.5f, 1.0f, 1.5f}, {2.0f, 3.5f, 3.0f}, {3.5f, 4.0f, 5.0f}};
+    RMDEV_TEST_ASSERT(p_result != nullptr);
+    RMDEV_TEST_ASSERT(mat5_div_2.equ(mat5_div2_expected, 0.01f));
+
+    p_result = rmdev::div(mat5_div_2, 2.0f, mat5);
+    TestMatrix mat5_inv_expected_mul2;
+    rmdev::mul(mat5_inv_expected_mul2, mat5_inv_expected, 2.0f);
+    const TestMatrix scale2_div_5_expected{mat5_inv_expected_mul2};
+    RMDEV_TEST_ASSERT(p_result != nullptr);
+    RMDEV_TEST_ASSERT(mat5_div_2.equ(scale2_div_5_expected));
 }
 
 void matrixTest()

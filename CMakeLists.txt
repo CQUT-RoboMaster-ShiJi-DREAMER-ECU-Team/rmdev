@@ -36,12 +36,6 @@ target_sources(${PROJECT_NAME}
         ${RMDEV_PUBLIC_SOURCES}
 )
 
-include(FetchContent)
-
-include("cmake/FetchETL.cmake")
-
-target_link_libraries(${PROJECT_NAME} PUBLIC etl::etl)
-
 if (RMDEV_ENABLE_TESTS)
     add_subdirectory(test/platform_test)
 endif ()
@@ -51,7 +45,7 @@ if (RMDEV_USE_CMSIS_DSP)
 
     if (RMDEV_USE_STM32CUBEMX)
         enable_language(ASM)
-        target_link_libraries(${PROJECT_NAME} PRIVATE stm32cubemx)
+        target_link_libraries(${PROJECT_NAME} PUBLIC stm32cubemx)
     else ()
         # todo 后续增加对其他平台的支持
     endif ()

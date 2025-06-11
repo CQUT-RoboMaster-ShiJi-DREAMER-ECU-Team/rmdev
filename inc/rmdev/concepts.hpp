@@ -9,7 +9,7 @@
 #ifndef RMDEV_CONCEPTS_HPP
 #define RMDEV_CONCEPTS_HPP
 
-#include "etl/type_traits.h"
+#include <type_traits>
 
 namespace rmdev {
 
@@ -18,14 +18,14 @@ namespace rmdev {
  * @tparam Type 数据类型
  */
 template<typename Type>
-concept ArithmeticType = etl::is_arithmetic_v<Type>;
+concept ArithmeticType = std::is_arithmetic_v<Type>;
 
 /**
  * 浮点类型概念
  * @tparam Type 数据类型
  */
 template<typename Type>
-concept FloatingPointType = etl::is_floating_point_v<Type>;
+concept FloatingPointType = std::is_floating_point_v<Type>;
 
 /**
  * 矩阵可以相乘的概念
