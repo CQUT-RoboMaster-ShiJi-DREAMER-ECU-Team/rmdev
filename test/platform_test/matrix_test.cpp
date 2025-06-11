@@ -9,7 +9,7 @@
 
 #include "etl/array.h"
 
-import rmdev.Matrix;
+import rmdev.util.Matrix;
 import rmdev.util.math;
 
 static void armMatrixBasicTest()

@@ -14,11 +14,19 @@ module;
 
 export module rmdev.util.math;
 
+#ifndef RMDEV_FLOAT_EQU_DEFAULT_ERROR_VALUE
+
+/// 默认的浮点数等于比较误差值（当两个浮点数的绝对值之差小于这个值时，认为二者相等）
+/// @note 这个值可以通过编译参数定义宏 RMDEV_FLOAT_EQU_DEFAULT_ERROR_VALUE 来修改。
+///       如果没有定义，则使用默认值 0.001f
+#define RMDEV_FLOAT_EQU_DEFAULT_ERROR_VALUE 0.001f
+
+#endif
+
 export namespace rmdev {
 
-#ifndef RMDEV_FLOAT_EQU_DEFAULT_ERROR_VALUE
-#define RMDEV_FLOAT_EQU_DEFAULT_ERROR_VALUE 0.001f
-#endif
+/// rmdev 中，默认的浮点数等于比较误差值
+constexpr auto float_equ_default_error_value = RMDEV_FLOAT_EQU_DEFAULT_ERROR_VALUE;
 
 /// 圆周率
 constexpr auto PI = 3.14159265358979f;
@@ -198,7 +206,7 @@ template<typename FloatType>
     requires FloatingPointType<FloatType>
 constexpr bool floatEqu(FloatType a,
                         FloatType b,
-                        FloatType error = static_cast<FloatType>(RMDEV_FLOAT_EQU_DEFAULT_ERROR_VALUE))
+                        FloatType error = static_cast<FloatType>(float_equ_default_error_value))
 {
     return std::abs(a - b) < error;
 }
