@@ -1,6 +1,6 @@
 /**
- * @file cmsis_dsp_mat_wrapper.cppm
- * @module rmdev.util.Matrix:CMSIS_DSP
+ * @file ArmMatrix.cppm
+ * @module rmdev.util.Matrix:ArmMatrix_interface
  * @author 杜以成
  * @date 2025-06-03
  * @brief CMSIS-DSP 矩阵运算封装
@@ -11,24 +11,17 @@
 module;
 
 #include <cstddef>
-#include <cstring>
-#include <cmath>
-#include <type_traits>
 #include <initializer_list>
-#include <algorithm>
 #include <array>
 
 #include "arm_math.h"
 
 #include "rmdev/concepts.hpp"
 
-export module rmdev.util.Matrix:CMSIS_DSP;
+export module rmdev.util.Matrix:ArmMatrix_interface;
 import :Type;
 
-import rmdev.util.math;
-
-// ================ declares ================
-export namespace rmdev {
+namespace rmdev {
 
 /**
  * ArmMatrixBase 是一个基类模板，用于实现 CMSIS-DSP 矩阵的基本操作。
@@ -121,7 +114,7 @@ protected:
  * @tparam row 行数
  * @tparam col 列数
  */
-template<typename Type, std::size_t row, std::size_t col>
+export template<typename Type, std::size_t row, std::size_t col>
     requires ArithmeticType<Type>
 class ArmMatrix;
 
@@ -130,7 +123,7 @@ class ArmMatrix;
  * @tparam row 行数
  * @tparam col 列数
  */
-template<std::size_t row, std::size_t col>
+export template<std::size_t row, std::size_t col>
 class ArmMatrix<float, row, col> : public ArmMatrixBase<float, row, col>
 {
 public:
@@ -273,7 +266,12 @@ public:
 
     template<std::size_t row_, std::size_t col_>
         requires SquareMatrix<row_, col_>
-    friend ArmMatrix<Type, row_, col_>* inv(ArmMatrix<Type, row_, col_>& result, const ArmMatrix<Type, row_, col_>& a);
+    friend ArmMatrix<Type, row_, col_>* inv(ArmMatrix<Type, row_, col_>& result, ArmMatrix<Type, row_, col_>& a);
+
+    template<std::size_t row_, std::size_t col_>
+        requires SquareMatrix<row_, col_>
+    friend ArmMatrix<Type, row_, col_>* invKeep(ArmMatrix<Type, row_, col_>& result,
+                                                const ArmMatrix<Type, row_, col_>& a);
 
     template<std::size_t row_, std::size_t col_>
     friend ArmMatrix<Type, row_, col_>* div(ArmMatrix<Type, row_, col_>& result,
@@ -284,386 +282,32 @@ public:
         requires SquareMatrix<row_, col_>
     friend ArmMatrix<Type, row_, col_>* div(ArmMatrix<Type, row_, col_>& result,
                                             Type scalar,
-                                            const ArmMatrix<Type, row_, col_>& a);
+                                            ArmMatrix<Type, row_, col_>& a);
+
+    template<std::size_t row_, std::size_t col_>
+        requires SquareMatrix<row_, col_>
+    friend ArmMatrix<Type, row_, col_>* divKeep(ArmMatrix<Type, row_, col_>& result,
+                                                Type scalar,
+                                                const ArmMatrix<Type, row_, col_>& a);
 
     template<std::size_t rowa, std::size_t cola, std::size_t rowb, std::size_t colb>
         requires SquareMatrix<rowb, colb> && MatrixCouldMultiplied<rowa, cola, rowb, colb>
     friend ArmMatrix<Type, rowa, colb>* div(ArmMatrix<Type, rowa, colb>& result,
                                             const ArmMatrix<Type, rowa, cola>& a,
-                                            const ArmMatrix<Type, rowb, colb>& b);
+                                            ArmMatrix<Type, rowb, colb>& b);
+
+    template<std::size_t rowa, std::size_t cola, std::size_t rowb, std::size_t colb>
+        requires SquareMatrix<rowb, colb> && MatrixCouldMultiplied<rowa, cola, rowb, colb>
+    friend ArmMatrix<Type, rowa, colb>* divKeep(ArmMatrix<Type, rowa, colb>& result,
+                                                const ArmMatrix<Type, rowa, cola>& a,
+                                                const ArmMatrix<Type, rowb, colb>& b);
 
 private:
     ArmMatrixType matrix{};  ///< CMSIS-DSP 矩阵实例
 };
 
-template<std::size_t row, std::size_t col>
+export template<std::size_t row, std::size_t col>
 class ArmMatrix<double, row, col>;  // todo 待完成其他类型的特化
-
-}  // namespace rmdev
-
-// ================== implements ==================
-
-// float 类型的矩阵实现
-export namespace rmdev {
-
-#define ImplType float
-
-template<std::size_t row, std::size_t col>
-ArmMatrix<ImplType, row, col>::ArmMatrix()
-{
-    arm_mat_init_f32(&matrix, row, col, this->data.data());
-}
-
-template<std::size_t row, std::size_t col>
-ArmMatrix<ImplType, row, col>::ArmMatrix(const ArmMatrix& other)
-{
-    this->data = other.data;
-
-    arm_mat_init_f32(&matrix, row, col, this->data.data());
-}
-
-template<std::size_t row, std::size_t col>
-ArmMatrix<float, row, col>::ArmMatrix(const MatrixType type)
-{
-    if constexpr (row == col) {
-        switch (type) {
-        case MatrixType::Normal:
-        case MatrixType::Zero:
-            break;
-
-        case MatrixType::E:
-            for (std::size_t i = 0, j = 0; i < row && j < col; i++, j++) {
-                this->data[i * col + j] = static_cast<ArmMatrix::Type>(1);
-            }
-            break;
-
-        case MatrixType::One:
-            this->data.fill(static_cast<ArmMatrix::Type>(1));
-            break;
-
-        default:
-            break;
-        }
-    }
-    else {
-        switch (type) {
-        case MatrixType::Normal:
-        case MatrixType::Zero:
-        case MatrixType::E:
-            break;
-
-        case MatrixType::One:
-            this->data.fill(static_cast<ArmMatrix::Type>(1));
-            break;
-
-        default:
-            break;
-        }
-    }
-
-    arm_mat_init_f32(&matrix, row, col, this->data.data());
-}
-
-template<std::size_t row, std::size_t col>
-ArmMatrix<ImplType, row, col>::ArmMatrix(const ImplType mat_data[row * col])
-{
-    std::memcpy(this->data.data(), mat_data, this->data.size() * sizeof(ArmMatrix::Type));
-    arm_mat_init_f32(&matrix, row, col, this->data.data());
-}
-
-template<std::size_t row, std::size_t col>
-ArmMatrix<ImplType, row, col>::ArmMatrix(const ImplType mat_data[row][col])
-{
-    std::memcpy(this->data.data(), mat_data, this->data.size() * sizeof(ArmMatrix::Type));
-    arm_mat_init_f32(&matrix, row, col, this->data.data());
-}
-
-template<std::size_t row, std::size_t col>
-ArmMatrix<ImplType, row, col>::ArmMatrix(const std::initializer_list<ImplType> mat_data)
-{
-    std::copy(mat_data.begin(), mat_data.end(), this->data.begin());
-    arm_mat_init_f32(&matrix, row, col, this->data.data());
-}
-
-template<std::size_t row, std::size_t col>
-ArmMatrix<ImplType, row, col>::ArmMatrix(const std::initializer_list<std::initializer_list<ImplType>> mat_data)
-{
-    std::size_t i = 0U;
-    for (const auto& row_data : mat_data) {
-        std::copy(row_data.begin(), row_data.end(), this->data.begin() + i * col);
-        ++i;
-    }
-    arm_mat_init_f32(&matrix, row, col, this->data.data());
-}
-
-template<std::size_t row, std::size_t col>
-ArmMatrix<ImplType, row, col>& ArmMatrix<ImplType, row, col>::operator=(const ArmMatrix& other)
-{
-    if (this != &other) {
-        std::copy(other.data.begin(), other.data.end(), this->data.begin());
-
-        if (this->matrix.pData == nullptr || this->matrix.pData == other.matrix.pData) {
-            arm_mat_init_f32(&this->matrix, row, col, this->data.data());
-        }
-    }
-    return *this;
-}
-
-template<std::size_t row, std::size_t col>
-bool ArmMatrix<ImplType, row, col>::operator==(const ArmMatrix& other) const
-{
-    return this->equ(other);
-}
-
-template<std::size_t row, std::size_t col>
-bool ArmMatrix<float, row, col>::equ(const ArmMatrix& other) const
-{
-    return std::equal(this->data.begin(),
-                      this->data.begin() + row * col,
-                      other.data.begin(),
-                      [](const auto a, const auto b) -> bool { return floatEqu(a, b); });
-}
-
-template<std::size_t row, std::size_t col>
-bool ArmMatrix<float, row, col>::equ(const ArmMatrix& other, const Type error) const
-{
-    return std::equal(this->data.begin(),
-                      this->data.begin() + row * col,
-                      other.data.begin(),
-                      [error](const auto a, const auto b) -> bool { return floatEqu(a, b, error); });
-}
-
-template<std::size_t row, std::size_t col>
-bool ArmMatrix<ImplType, row, col>::operator!=(const ArmMatrix& other) const
-{
-    return !(this->operator==(other));
-}
-
-template<std::size_t row, std::size_t col>
-bool ArmMatrix<ImplType, row, col>::notequ(const ArmMatrix& other) const
-{
-    return !equ(other);
-}
-
-template<std::size_t row, std::size_t col>
-bool ArmMatrix<ImplType, row, col>::notequ(const ArmMatrix& other, const Type error) const
-{
-    return !equ(other, error);
-}
-
-/**
- * 矩阵相加
- * @tparam row 矩阵行数
- * @tparam col 矩阵列数
- * @param result 存储计算结果的矩阵
- * @param a 第一个矩阵
- * @param b 第二个矩阵
- * @return 计算结果
- */
-template<std::size_t row, std::size_t col>
-ArmMatrix<ImplType, row, col>& add(ArmMatrix<ImplType, row, col>& result,
-                                   const ArmMatrix<ImplType, row, col>& a,
-                                   const ArmMatrix<ImplType, row, col>& b)
-{
-    arm_mat_add_f32(&a.matrix, &b.matrix, &result.matrix);
-
-    return result;
-}
-
-/**
- * 矩阵相减
- * @tparam row 矩阵行数
- * @tparam col 矩阵列数
- * @param result 存储计算结果的矩阵
- * @param a 第一个矩阵
- * @param b 第二个矩阵
- * @return 计算结果
- */
-template<std::size_t row, std::size_t col>
-ArmMatrix<ImplType, row, col>& sub(ArmMatrix<ImplType, row, col>& result,
-                                   const ArmMatrix<ImplType, row, col>& a,
-                                   const ArmMatrix<ImplType, row, col>& b)
-{
-    arm_mat_sub_f32(&a.matrix, &b.matrix, &result.matrix);
-
-    return result;
-}
-
-/**
- * 矩阵相乘
- * @tparam rowa 左侧矩阵的行数
- * @tparam cola 左侧矩阵的列数
- * @tparam rowb 右侧矩阵的行数
- * @tparam colb 右侧矩阵的列数
- * @param result 存储计算结果的矩阵
- * @param a 左侧的矩阵
- * @param b 右侧的矩阵
- * @return 计算结果
- */
-template<std::size_t rowa, std::size_t cola, std::size_t rowb, std::size_t colb>
-    requires MatrixCouldMultiplied<rowa, cola, rowb, colb>
-ArmMatrix<ImplType, rowa, colb>& mul(ArmMatrix<ImplType, rowa, colb>& result,
-                                     const ArmMatrix<ImplType, rowa, cola>& a,
-                                     const ArmMatrix<ImplType, rowb, colb>& b)
-{
-    arm_mat_mult_f32(&a.matrix, &b.matrix, &result.matrix);
-
-    return result;
-}
-
-/**
- * 矩阵数乘
- * @tparam row 矩阵行数
- * @tparam col 矩阵列数
- * @param result 存储计算结果的矩阵
- * @param a 矩阵
- * @param scalar 乘数
- * @return 计算结果
- */
-template<std::size_t row, std::size_t col>
-ArmMatrix<ImplType, row, col>& mul(ArmMatrix<ImplType, row, col>& result,
-                                   const ArmMatrix<ImplType, row, col>& a,
-                                   const ImplType scalar)
-{
-    arm_mat_scale_f32(&a.matrix, scalar, &result.matrix);
-
-    return result;
-}
-
-/**
- * 矩阵数乘
- * @tparam row 矩阵行数
- * @tparam col 矩阵列数
- * @param result 存储计算结果的矩阵
- * @param scalar 乘数
- * @param a 矩阵
- * @return 计算结果
- */
-template<std::size_t row, std::size_t col>
-ArmMatrix<ImplType, row, col>& mul(ArmMatrix<ImplType, row, col>& result,
-                                   const ImplType scalar,
-                                   const ArmMatrix<ImplType, row, col>& a)
-{
-    return mul(result, a, scalar);
-}
-
-/**
- * 矩阵转置
- * @tparam row 待转置的矩阵行数
- * @tparam col 待转置的矩阵列数
- * @param result 存储计算结果的矩阵
- * @param a 待转置的矩阵
- * @return 计算结果
- */
-template<std::size_t row, std::size_t col>
-ArmMatrix<ImplType, col, row>& trans(ArmMatrix<ImplType, col, row>& result, const ArmMatrix<ImplType, row, col>& a)
-{
-    arm_mat_trans_f32(&a.matrix, &result.matrix);
-
-    return result;
-}
-
-/**
- * 求逆矩阵
- * @tparam row 待求逆的矩阵行数
- * @tparam col 待求逆的矩阵列数
- * @param result 存储计算结果的矩阵
- * @param a 待求逆的矩阵
- * @return 计算结果的地址。如果矩阵不可逆，返回 nullptr
- */
-template<std::size_t row, std::size_t col>
-    requires SquareMatrix<row, col>
-ArmMatrix<ImplType, row, col>* inv(ArmMatrix<ImplType, row, col>& result, const ArmMatrix<ImplType, row, col>& a)
-{
-    if (arm_mat_inverse_f32(&a.matrix, &result.matrix) == ARM_MATH_SINGULAR) {
-        return nullptr;  // 矩阵不可逆
-    }
-
-    return &result;
-}
-
-/**
- * 矩阵除以数值
- * @tparam row 矩阵的行数
- * @tparam col 矩阵的列数
- * @param result 存储计算结果的矩阵
- * @param a 被除的矩阵
- * @param scalar 除数
- * @return 计算结果的地址。如果除数为零，返回 nullptr
- */
-template<std::size_t row, std::size_t col>
-ArmMatrix<ImplType, row, col>* div(ArmMatrix<ImplType, row, col>& result,
-                                   const ArmMatrix<ImplType, row, col>& a,
-                                   const ImplType scalar)
-{
-    const ImplType scalar_inv = static_cast<ImplType>(1) / scalar;
-
-    if (std::isinf(scalar_inv)) {
-        return nullptr;  // 除数为零
-    }
-
-    arm_mat_scale_f32(&a.matrix, scalar_inv, &result.matrix);
-
-    return &result;
-}
-
-/**
- * 数值除以矩阵
- * @tparam row 矩阵的行数
- * @tparam col 矩阵的列数
- * @param result 存储计算结果的矩阵
- * @param scalar 被除数
- * @param a 作为除数的矩阵
- * @return 计算结果的地址。如果矩阵不可逆，返回 nullptr
- */
-template<std::size_t row, std::size_t col>
-    requires SquareMatrix<row, col>
-ArmMatrix<ImplType, row, col>* div(ArmMatrix<ImplType, row, col>& result,
-                                   const ImplType scalar,
-                                   const ArmMatrix<ImplType, row, col>& a)
-{
-    if (arm_mat_inverse_f32(&a.matrix, &result.matrix) == ARM_MATH_SINGULAR) {
-        return nullptr;  // 矩阵不可逆
-    }
-
-    arm_mat_scale_f32(&result.matrix, scalar, &result.matrix);
-
-    return &result;
-}
-
-/**
- * 矩阵除以矩阵
- * @tparam rowa 作为被除数的矩阵的行数
- * @tparam cola 作为被除数的矩阵的列数
- * @tparam rowb 作为除数的矩阵的行数
- * @tparam colb 作为除数的矩阵的列数
- * @param result 存储计算结果的矩阵
- * @param a 作为被除数的矩阵
- * @param b 作为除数的矩阵
- * @return 计算结果的地址。如果作为除数的矩阵不可逆，返回 nullptr
- */
-template<std::size_t rowa, std::size_t cola, std::size_t rowb, std::size_t colb>
-    requires SquareMatrix<rowb, colb> && MatrixCouldMultiplied<rowa, cola, rowb, colb>
-ArmMatrix<ImplType, rowa, colb>* div(ArmMatrix<ImplType, rowa, colb>& result,
-                                     const ArmMatrix<ImplType, rowa, cola>& a,
-                                     const ArmMatrix<ImplType, rowb, colb>& b)
-{
-    if (arm_mat_inverse_f32(&b.matrix, &result.matrix) == ARM_MATH_SINGULAR) {
-        return nullptr;  // 矩阵不可逆
-    }
-
-    arm_mat_mult_f32(&a.matrix, &result.matrix, &result.matrix);
-
-    return &result;
-}
-
-}  // namespace rmdev
-
-// double 类型的矩阵实现
-export namespace rmdev {
-
-#undef ImplType
-#define ImplType double
 
 }  // namespace rmdev
 

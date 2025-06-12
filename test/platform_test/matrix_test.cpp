@@ -164,6 +164,7 @@ static void armMatrixSpecialConstructTest()
 {
     RMDEV_TEST_ITEM("ArmMatrix Special Construct Test");
 
+    // 方阵
     [] {
         using SquareMatrix = rmdev::ArmMatrix<float, 3, 3>;
 
@@ -185,6 +186,7 @@ static void armMatrixSpecialConstructTest()
         RMDEV_TEST_ASSERT(one_expected == one);
     }();
 
+    // 非方阵
     [] {
         using NotSquareMatrix = rmdev::ArmMatrix<float, 3, 2>;
 
@@ -213,7 +215,7 @@ static void armMatrixCalcTest()
 
     using TestMatrix = rmdev::ArmMatrix<float, 3, 3>;
 
-    const TestMatrix mat1{1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f, 7.0f, 8.0f, 9.0f};
+    TestMatrix mat1{1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f, 7.0f, 8.0f, 9.0f};
     const TestMatrix mat2{9.0f, 8.0f, 7.0f, 6.0f, 5.0f, 4.0f, 3.0f, 2.0f, 1.0f};
 
     TestMatrix mat1_add_mat2;
@@ -322,9 +324,9 @@ static void armMatrixCalcTest()
     RMDEV_TEST_ASSERT(mat1_inv == mat1);
     auto p_result = rmdev::inv(mat1_inv, mat1);
     RMDEV_TEST_ASSERT(p_result == nullptr);
-    // RMDEV_TEST_ASSERT(mat1_inv == mat1);  // 虽然求逆矩阵失败，但计算结果仍然会发生改变
 
-    TestMatrix mat5{{1, 2, 3}, {4, 7, 6}, {7, 8, 10}};
+    const TestMatrix mat5_origin{{1, 2, 3}, {4, 7, 6}, {7, 8, 10}};
+    TestMatrix mat5{mat5_origin};
     TestMatrix mat5_inv;
     p_result = rmdev::inv(mat5_inv, mat5);
     RMDEV_TEST_ASSERT(p_result != nullptr);
@@ -332,16 +334,19 @@ static void armMatrixCalcTest()
     const TestMatrix mat5_inv_expected{{-0.88f, -0.16f, 0.36f}, {-0.08f, 0.44f, -0.24f}, {0.68f, -0.24f, 0.04f}};
     RMDEV_TEST_ASSERT(mat5_inv == mat5_inv_expected);
 
+    mat5 = mat5_origin;
     TestMatrix mat5_div_0;
     p_result = rmdev::div(mat5_div_0, mat5, 0);
     RMDEV_TEST_ASSERT(p_result == nullptr);
 
+    mat5 = mat5_origin;
     TestMatrix mat5_div_2;
     p_result = rmdev::div(mat5_div_2, mat5, 2.0f);
     const TestMatrix mat5_div2_expected{{0.5f, 1.0f, 1.5f}, {2.0f, 3.5f, 3.0f}, {3.5f, 4.0f, 5.0f}};
     RMDEV_TEST_ASSERT(p_result != nullptr);
     RMDEV_TEST_ASSERT(mat5_div_2.equ(mat5_div2_expected, 0.01f));
 
+    mat5 = mat5_origin;
     p_result = rmdev::div(mat5_div_2, 2.0f, mat5);
     TestMatrix mat5_inv_expected_mul2;
     rmdev::mul(mat5_inv_expected_mul2, mat5_inv_expected, 2.0f);
