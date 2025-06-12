@@ -16,12 +16,14 @@ module;
 #include <type_traits>
 #include <initializer_list>
 #include <algorithm>
+#include <array>
 
 #include "arm_math.h"
 
 #include "rmdev/concepts.hpp"
 
 export module rmdev.util.Matrix:CMSIS_DSP;
+import :Type;
 
 import rmdev.util.math;
 
@@ -110,7 +112,7 @@ protected:
     ~ArmMatrixBase() = default;
 
     /// 存储的矩阵数据
-    Type data[row * col];
+    std::array<Type, row * col> data{};
 };
 
 /**
@@ -155,6 +157,12 @@ public:
      * @param other 另一个 ArmMatrix 矩阵
      */
     ArmMatrix(const ArmMatrix& other);
+
+    /**
+     * 构造特殊矩阵
+     * @param type 特殊矩阵类型
+     */
+    explicit ArmMatrix(MatrixType type);
 
     /**
      * 通过一维数组构造矩阵
@@ -303,55 +311,100 @@ export namespace rmdev {
 template<std::size_t row, std::size_t col>
 ArmMatrix<ImplType, row, col>::ArmMatrix()
 {
-    arm_mat_init_f32(&matrix, row, col, this->data);
+    arm_mat_init_f32(&matrix, row, col, this->data.data());
 }
 
 template<std::size_t row, std::size_t col>
 ArmMatrix<ImplType, row, col>::ArmMatrix(const ArmMatrix& other)
 {
-    std::memcpy(this->data, other.data, sizeof this->data);
-    this->matrix = {.numRows = other.matrix.numRows, .numCols = other.matrix.numCols, .pData = this->data};
+    this->data = other.data;
 
-    arm_mat_init_f32(&matrix, row, col, this->data);
+    arm_mat_init_f32(&matrix, row, col, this->data.data());
+}
+
+template<std::size_t row, std::size_t col>
+ArmMatrix<float, row, col>::ArmMatrix(const MatrixType type)
+{
+    if constexpr (row == col) {
+        switch (type) {
+        case MatrixType::Normal:
+        case MatrixType::Zero:
+            break;
+
+        case MatrixType::E:
+            for (std::size_t i = 0, j = 0; i < row && j < col; i++, j++) {
+                this->data[i * col + j] = static_cast<ArmMatrix::Type>(1);
+            }
+            break;
+
+        case MatrixType::One:
+            this->data.fill(static_cast<ArmMatrix::Type>(1));
+            break;
+
+        default:
+            break;
+        }
+    }
+    else {
+        switch (type) {
+        case MatrixType::Normal:
+        case MatrixType::Zero:
+        case MatrixType::E:
+            break;
+
+        case MatrixType::One:
+            this->data.fill(static_cast<ArmMatrix::Type>(1));
+            break;
+
+        default:
+            break;
+        }
+    }
+
+    arm_mat_init_f32(&matrix, row, col, this->data.data());
 }
 
 template<std::size_t row, std::size_t col>
 ArmMatrix<ImplType, row, col>::ArmMatrix(const ImplType mat_data[row * col])
 {
-    std::memcpy(this->data, mat_data, sizeof this->data);
-    arm_mat_init_f32(&matrix, row, col, this->data);
+    std::memcpy(this->data.data(), mat_data, this->data.size() * sizeof(ArmMatrix::Type));
+    arm_mat_init_f32(&matrix, row, col, this->data.data());
 }
 
 template<std::size_t row, std::size_t col>
 ArmMatrix<ImplType, row, col>::ArmMatrix(const ImplType mat_data[row][col])
 {
-    std::memcpy(this->data, mat_data, sizeof this->data);
-    arm_mat_init_f32(&matrix, row, col, this->data);
+    std::memcpy(this->data.data(), mat_data, this->data.size() * sizeof(ArmMatrix::Type));
+    arm_mat_init_f32(&matrix, row, col, this->data.data());
 }
 
 template<std::size_t row, std::size_t col>
 ArmMatrix<ImplType, row, col>::ArmMatrix(const std::initializer_list<ImplType> mat_data)
 {
-    std::memcpy(this->data, mat_data.begin(), sizeof this->data);
-    arm_mat_init_f32(&matrix, row, col, this->data);
+    std::copy(mat_data.begin(), mat_data.end(), this->data.begin());
+    arm_mat_init_f32(&matrix, row, col, this->data.data());
 }
 
 template<std::size_t row, std::size_t col>
 ArmMatrix<ImplType, row, col>::ArmMatrix(const std::initializer_list<std::initializer_list<ImplType>> mat_data)
 {
-    std::size_t i = 0;
+    std::size_t i = 0U;
     for (const auto& row_data : mat_data) {
-        std::memcpy(&this->data[i * col], row_data.begin(), sizeof(ImplType) * row_data.size());
+        std::copy(row_data.begin(), row_data.end(), this->data.begin() + i * col);
         ++i;
     }
-    arm_mat_init_f32(&matrix, row, col, this->data);
+    arm_mat_init_f32(&matrix, row, col, this->data.data());
 }
 
 template<std::size_t row, std::size_t col>
 ArmMatrix<ImplType, row, col>& ArmMatrix<ImplType, row, col>::operator=(const ArmMatrix& other)
 {
     if (this != &other) {
-        std::memcpy(this->data, other.data, sizeof this->data);
+        std::copy(other.data.begin(), other.data.end(), this->data.begin());
+
+        if (this->matrix.pData == nullptr || this->matrix.pData == other.matrix.pData) {
+            arm_mat_init_f32(&this->matrix, row, col, this->data.data());
+        }
     }
     return *this;
 }
@@ -365,17 +418,19 @@ bool ArmMatrix<ImplType, row, col>::operator==(const ArmMatrix& other) const
 template<std::size_t row, std::size_t col>
 bool ArmMatrix<float, row, col>::equ(const ArmMatrix& other) const
 {
-    return std::equal(this->data, this->data + row * col, other.data, [](const auto a, const auto b) -> bool {
-        return floatEqu(a, b);
-    });
+    return std::equal(this->data.begin(),
+                      this->data.begin() + row * col,
+                      other.data.begin(),
+                      [](const auto a, const auto b) -> bool { return floatEqu(a, b); });
 }
 
 template<std::size_t row, std::size_t col>
 bool ArmMatrix<float, row, col>::equ(const ArmMatrix& other, const Type error) const
 {
-    return std::equal(this->data, this->data + row * col, other.data, [error](const auto a, const auto b) -> bool {
-        return floatEqu(a, b, error);
-    });
+    return std::equal(this->data.begin(),
+                      this->data.begin() + row * col,
+                      other.data.begin(),
+                      [error](const auto a, const auto b) -> bool { return floatEqu(a, b, error); });
 }
 
 template<std::size_t row, std::size_t col>

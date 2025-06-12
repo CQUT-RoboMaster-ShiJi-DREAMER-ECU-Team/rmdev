@@ -6,11 +6,43 @@
  */
 
 #include <array>
+#include <algorithm>
 
 #include "rmdev_test_framework.h"
 
+#include "arm_math.h"
+
 import rmdev.util.Matrix;
 import rmdev.util.math;
+
+static void armMatCInterfaceTest()
+{
+    RMDEV_TEST_ITEM("ArmMatrix C Interface Test");
+
+    const float mat1_origin_data[3 * 3] = {1, 2, 3, 4, 7, 6, 7, 8, 10};
+
+    arm_matrix_instance_f32 mat1;
+    float mat1_data[3 * 3];
+    std::copy_n(mat1_origin_data, 3 * 3, mat1_data);
+    arm_mat_init_f32(&mat1, 3, 3, mat1_data);
+
+    arm_matrix_instance_f32 mat1_inv;
+    float mat1_inv_data[3 * 3];
+    arm_mat_init_f32(&mat1_inv, 3, 3, mat1_inv_data);
+
+    const auto status = arm_mat_inverse_f32(&mat1, &mat1_inv);
+    RMDEV_TEST_ASSERT(status == ARM_MATH_SUCCESS);
+    const float mat1_inv_expected_data[3 * 3] = {-0.88f, -0.16f, 0.36f, -0.08f, 0.44f, -0.24f, 0.68f, -0.24f, 0.04f};
+    RMDEV_TEST_ASSERT(std::equal(mat1_inv.pData,
+                                 mat1_inv.pData + 3 * 3,
+                                 mat1_inv_expected_data,
+                                 [](const float a, const float b) -> bool { return rmdev::floatEqu(a, b); }));
+    // 需要注意的是 arm_mat_inverse 运算完成后会把待求逆的矩阵化为单位矩阵，因此计算完成后，原来的数据会丢失
+    RMDEV_TEST_ASSERT(
+        !std::equal(mat1_inv.pData, mat1_inv.pData + 3 * 3, mat1_origin_data, [](const float a, const float b) -> bool {
+            return rmdev::floatEqu(a, b);
+        }));
+}
 
 static void armMatrixBasicTest()
 {
@@ -126,6 +158,53 @@ static void armMatrixBasicTest()
         }
     }
     RMDEV_TEST_ASSERT(mat2_and_mat8_are_equal_use_at);
+}
+
+static void armMatrixSpecialConstructTest()
+{
+    RMDEV_TEST_ITEM("ArmMatrix Special Construct Test");
+
+    [] {
+        using SquareMatrix = rmdev::ArmMatrix<float, 3, 3>;
+
+        const SquareMatrix zero_expected{0, 0, 0, 0, 0, 0, 0, 0, 0};
+
+        SquareMatrix zero(rmdev::MatrixType::Zero);
+        SquareMatrix normal(rmdev::MatrixType::Normal);
+        RMDEV_TEST_ASSERT(zero == zero_expected);
+        RMDEV_TEST_ASSERT(normal.equ(zero_expected));
+
+        const SquareMatrix e_expected{{1, 0, 0}, {0, 1, 0}, {0, 0, 1}};
+
+        SquareMatrix e{rmdev::MatrixType::E};
+        RMDEV_TEST_ASSERT(e == e_expected);
+
+        const SquareMatrix one_expected{1, 1, 1, 1, 1, 1, 1, 1, 1};
+
+        SquareMatrix one{rmdev::MatrixType::One};
+        RMDEV_TEST_ASSERT(one_expected == one);
+    }();
+
+    [] {
+        using NotSquareMatrix = rmdev::ArmMatrix<float, 3, 2>;
+
+        const NotSquareMatrix zero_expected{0, 0, 0, 0, 0, 0};
+
+        NotSquareMatrix zero(rmdev::MatrixType::Zero);
+        NotSquareMatrix normal(rmdev::MatrixType::Normal);
+        RMDEV_TEST_ASSERT(zero == zero_expected);
+        RMDEV_TEST_ASSERT(normal.equ(zero_expected));
+
+        const NotSquareMatrix e_expected{zero_expected};
+
+        NotSquareMatrix e{rmdev::MatrixType::E};
+        RMDEV_TEST_ASSERT(e == e_expected);
+
+        const NotSquareMatrix one_expected{1, 1, 1, 1, 1, 1};
+
+        NotSquareMatrix one{rmdev::MatrixType::One};
+        RMDEV_TEST_ASSERT(one_expected == one);
+    }();
 }
 
 static void armMatrixCalcTest()
@@ -245,7 +324,7 @@ static void armMatrixCalcTest()
     RMDEV_TEST_ASSERT(p_result == nullptr);
     // RMDEV_TEST_ASSERT(mat1_inv == mat1);  // 虽然求逆矩阵失败，但计算结果仍然会发生改变
 
-    const TestMatrix mat5{{1, 2, 3}, {4, 7, 6}, {7, 8, 10}};
+    TestMatrix mat5{{1, 2, 3}, {4, 7, 6}, {7, 8, 10}};
     TestMatrix mat5_inv;
     p_result = rmdev::inv(mat5_inv, mat5);
     RMDEV_TEST_ASSERT(p_result != nullptr);
@@ -273,6 +352,8 @@ static void armMatrixCalcTest()
 
 void matrixTest()
 {
+    armMatCInterfaceTest();
     armMatrixBasicTest();
+    armMatrixSpecialConstructTest();
     armMatrixCalcTest();
 }
