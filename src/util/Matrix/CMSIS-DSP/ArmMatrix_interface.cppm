@@ -184,14 +184,14 @@ public:
      * @param other 另一个矩阵的引用
      * @return 两个矩阵是否相等
      */
-    bool operator==(const ArmMatrix& other) const;
+    constexpr bool operator==(const ArmMatrix& other) const;
 
     /**
      * 判断两个矩阵是否相等（浮点数误差值使用默认的）
      * @param other 另一个矩阵的引用
      * @return 两个矩阵是否相等
      */
-    bool equ(const ArmMatrix& other) const;
+    constexpr bool equ(const ArmMatrix& other) const;
 
     /**
      * 判断两个矩阵是否相等
@@ -199,21 +199,21 @@ public:
      * @param error 允许的误差（a、b 之差的绝对值小于这个值即认为相等）
      * @return 两个矩阵是否相等
      */
-    bool equ(const ArmMatrix& other, Type error) const;
+    constexpr bool equ(const ArmMatrix& other, Type error) const;
 
     /**
      * 判断两个矩阵是否不相等（浮点数误差值使用默认的）
      * @param other 另一个矩阵的引用
      * @return 两个矩阵是否不相等
      */
-    bool operator!=(const ArmMatrix& other) const;
+    constexpr bool operator!=(const ArmMatrix& other) const;
 
     /**
      * 判断两个矩阵是否不相等（浮点数误差值使用默认的）
      * @param other 另一个矩阵的引用
      * @return 两个矩阵是否不相等
      */
-    bool notequ(const ArmMatrix& other) const;
+    constexpr bool notequ(const ArmMatrix& other) const;
 
     /**
      * 判断两个矩阵是否不相等
@@ -221,7 +221,7 @@ public:
      * @param error 允许的误差（a、b 之差的绝对值小于这个值即认为相等）
      * @return 两个矩阵是否不相等
      */
-    bool notequ(const ArmMatrix& other, Type error) const;
+    constexpr bool notequ(const ArmMatrix& other, Type error) const;
 
     template<typename Type_, std::size_t row_, std::size_t col_>
         requires ArithmeticType<Type_>

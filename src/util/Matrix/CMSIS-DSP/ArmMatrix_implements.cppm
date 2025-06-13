@@ -138,14 +138,14 @@ ArmMatrix<Type, row, col>& ArmMatrix<Type, row, col>::operator=(const ArmMatrix&
 
 template<typename Type, std::size_t row, std::size_t col>
     requires ArithmeticType<Type>
-bool ArmMatrix<Type, row, col>::operator==(const ArmMatrix& other) const
+constexpr bool ArmMatrix<Type, row, col>::operator==(const ArmMatrix& other) const
 {
     return this->equ(other);
 }
 
 template<typename Type, std::size_t row, std::size_t col>
     requires ArithmeticType<Type>
-bool ArmMatrix<Type, row, col>::equ(const ArmMatrix& other) const
+constexpr bool ArmMatrix<Type, row, col>::equ(const ArmMatrix& other) const
 {
     return std::equal(this->data.begin(),
                       this->data.begin() + row * col,
@@ -155,7 +155,7 @@ bool ArmMatrix<Type, row, col>::equ(const ArmMatrix& other) const
 
 template<typename Type, std::size_t row, std::size_t col>
     requires ArithmeticType<Type>
-bool ArmMatrix<Type, row, col>::equ(const ArmMatrix& other, const Type error) const
+constexpr bool ArmMatrix<Type, row, col>::equ(const ArmMatrix& other, const Type error) const
 {
     return std::equal(this->data.begin(),
                       this->data.begin() + row * col,
@@ -165,21 +165,21 @@ bool ArmMatrix<Type, row, col>::equ(const ArmMatrix& other, const Type error) co
 
 template<typename Type, std::size_t row, std::size_t col>
     requires ArithmeticType<Type>
-bool ArmMatrix<Type, row, col>::operator!=(const ArmMatrix& other) const
+constexpr bool ArmMatrix<Type, row, col>::operator!=(const ArmMatrix& other) const
 {
     return !(this->operator==(other));
 }
 
 template<typename Type, std::size_t row, std::size_t col>
     requires ArithmeticType<Type>
-bool ArmMatrix<Type, row, col>::notequ(const ArmMatrix& other) const
+constexpr bool ArmMatrix<Type, row, col>::notequ(const ArmMatrix& other) const
 {
     return !equ(other);
 }
 
 template<typename Type, std::size_t row, std::size_t col>
     requires ArithmeticType<Type>
-bool ArmMatrix<Type, row, col>::notequ(const ArmMatrix& other, const Type error) const
+constexpr bool ArmMatrix<Type, row, col>::notequ(const ArmMatrix& other, const Type error) const
 {
     return !equ(other, error);
 }
