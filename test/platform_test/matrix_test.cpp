@@ -333,19 +333,7 @@ static void armMatrixCalcTest()
     rmdev::ArmMatrix<float, 2, 4> mat3_trans;
     rmdev::trans(mat3_trans, mat3);
     const decltype(mat3_trans) mat3_trans_expected{{1.0f, 3.0f, 5.0f, 7.0f}, {2.0f, 4.0f, 6.0f, 8.0f}};
-    bool mat3_trans_is_equal_to_expected = true;
-    for (std::size_t i = 1; i <= 3; ++i) {
-        for (std::size_t j = 1; j <= 3; ++j) {
-            if (!rmdev::floatEqu(mat3_trans(i, j), mat3_trans_expected(i, j))) {
-                mat3_trans_is_equal_to_expected = false;
-                break;
-            }
-        }
-        if (!mat3_trans_is_equal_to_expected) {
-            break;
-        }
-    }
-    RMDEV_TEST_ASSERT(mat3_trans_is_equal_to_expected);
+    RMDEV_TEST_ASSERT(mat3_trans == mat3_trans_expected);
 
     TestMatrix mat1_inv{mat1};
     RMDEV_TEST_ASSERT(mat1_inv == mat1);
