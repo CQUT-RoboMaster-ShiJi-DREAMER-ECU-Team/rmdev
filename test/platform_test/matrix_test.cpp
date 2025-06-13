@@ -32,7 +32,8 @@ static void armMatCInterfaceTest()
 
     const auto status = arm_mat_inverse_f32(&mat1, &mat1_inv);
     RMDEV_TEST_ASSERT(status == ARM_MATH_SUCCESS);
-    const float mat1_inv_expected_data[3 * 3] = {-0.88f, -0.16f, 0.36f, -0.08f, 0.44f, -0.24f, 0.68f, -0.24f, 0.04f};
+    constexpr float mat1_inv_expected_data[3 * 3] =
+        {-0.88f, -0.16f, 0.36f, -0.08f, 0.44f, -0.24f, 0.68f, -0.24f, 0.04f};
     RMDEV_TEST_ASSERT(std::equal(mat1_inv.pData,
                                  mat1_inv.pData + 3 * 3,
                                  mat1_inv_expected_data,
@@ -44,11 +45,37 @@ static void armMatCInterfaceTest()
         }));
 }
 
+rmdev::ArmMatrix<float, 3, 3> global_mat1{1, 2, 3, 4, 5, 6, 7, 8, 9};
+rmdev::ArmMatrix<float, 3, 3> global_mat2{{1, 2, 3}, {4, 5, 6}, {7, 8, 9}};
+constexpr rmdev::ArmMatrix<float, 3, 3> global_mat1_origin{1, 2, 3, 4, 5, 6, 7, 8, 9};
+
 static void armMatrixBasicTest()
 {
     using rmdev::floatEqu;
 
     RMDEV_TEST_ITEM("ArmMatrix Basic Test");
+
+    RMDEV_TEST_ASSERT(floatEqu(global_mat1(1, 1), 1.0f));
+    RMDEV_TEST_ASSERT(floatEqu(global_mat1(2, 2), 5.0f));
+    RMDEV_TEST_ASSERT(global_mat1 == global_mat2);
+
+    global_mat1 = {9, 8, 7, 6, 5, 4, 3, 2, 1};
+    global_mat2 = {{9, 8, 7}, {6, 5, 4}, {3, 2, 1}};
+
+    RMDEV_TEST_ASSERT(floatEqu(global_mat1(1, 1), 9.0f) && floatEqu(global_mat1(2, 1), 6.0f));
+    RMDEV_TEST_ASSERT(global_mat1 == global_mat2);
+    RMDEV_TEST_ASSERT(global_mat1 != global_mat1_origin);
+
+    RMDEV_TEST_ASSERT(global_mat1.equ({9, 8, 7, 6, 5, 4, 3, 2, 1}));
+    RMDEV_TEST_ASSERT(global_mat1.equ({{9, 8, 7}, {6, 5, 4}, {3, 2, 1}}));
+    RMDEV_TEST_ASSERT(global_mat2.equ({9, 8, 7, 6, 5, 4, 3, 2, 1}, 0.01f));
+    RMDEV_TEST_ASSERT(global_mat2.equ({{9, 8, 7}, {6, 5, 4}, {3, 2, 1}}, 0.01f));
+    // RMDEV_TEST_ASSERT(global_mat1 == {9, 8, 7, 6, 5, 4, 3, 2, 1});
+    // RMDEV_TEST_ASSERT(global_mat1 != {1, 8, 7, 6, 5, 4, 3, 2, 1});  // 不知为何，这两种写法会报错
+
+    static constexpr rmdev::ArmMatrix<float, 3, 3> sta_conexpr_mat{};
+    global_mat1.clear();
+    RMDEV_TEST_ASSERT(global_mat1 == sta_conexpr_mat);
 
     rmdev::ArmMatrix<float, 3, 3> mat1;
 
@@ -269,7 +296,7 @@ static void armMatrixCalcTest()
     }
     RMDEV_TEST_ASSERT(mat1_mul_5_is_equal_to_expected);
 
-    mat1_mul_5 = {};
+    mat1_mul_5.clear();
     rmdev::mul(mat1_mul_5, 5.0f, mat1);
     mat1_mul_5_is_equal_to_expected = true;
     for (std::size_t i = 1; i <= 3; ++i) {

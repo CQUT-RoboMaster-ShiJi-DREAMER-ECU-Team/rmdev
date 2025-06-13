@@ -29,14 +29,14 @@ export namespace rmdev {
 
 template<typename Type, std::size_t row, std::size_t col>
     requires ArithmeticType<Type>
-ArmMatrix<Type, row, col>::ArmMatrix()
+constexpr ArmMatrix<Type, row, col>::ArmMatrix()
 {
     ArmMatrixTraits<Type>::init(&matrix, row, col, this->data.data());
 }
 
 template<typename Type, std::size_t row, std::size_t col>
     requires ArithmeticType<Type>
-ArmMatrix<Type, row, col>::ArmMatrix(const ArmMatrix& other)
+constexpr ArmMatrix<Type, row, col>::ArmMatrix(const ArmMatrix& other)
 {
     this->data = other.data;
 
@@ -45,7 +45,7 @@ ArmMatrix<Type, row, col>::ArmMatrix(const ArmMatrix& other)
 
 template<typename Type, std::size_t row, std::size_t col>
     requires ArithmeticType<Type>
-ArmMatrix<Type, row, col>::ArmMatrix(const MatrixType type)
+constexpr ArmMatrix<Type, row, col>::ArmMatrix(const MatrixType type)
 {
     if constexpr (row == col) {
         switch (type) {
@@ -88,23 +88,24 @@ ArmMatrix<Type, row, col>::ArmMatrix(const MatrixType type)
 
 template<typename Type, std::size_t row, std::size_t col>
     requires ArithmeticType<Type>
-ArmMatrix<Type, row, col>::ArmMatrix(const Type mat_data[row * col])
+constexpr ArmMatrix<Type, row, col>::ArmMatrix(const Type mat_data[row * col])
 {
-    std::memcpy(this->data.data(), mat_data, this->data.size() * sizeof(Type));
+    std::copy(mat_data, mat_data + row * col, this->data.data());
     ArmMatrixTraits<Type>::init(&matrix, row, col, this->data.data());
 }
 
 template<typename Type, std::size_t row, std::size_t col>
     requires ArithmeticType<Type>
-ArmMatrix<Type, row, col>::ArmMatrix(const Type mat_data[row][col])
+constexpr ArmMatrix<Type, row, col>::ArmMatrix(const Type mat_data[row][col])
 {
-    std::memcpy(this->data.data(), mat_data, this->data.size() * sizeof(Type));
+    const Type* p_data = &mat_data[0][0];
+    std::copy(p_data, p_data + row * col, this->data.data());
     ArmMatrixTraits<Type>::init(&matrix, row, col, this->data.data());
 }
 
 template<typename Type, std::size_t row, std::size_t col>
     requires ArithmeticType<Type>
-ArmMatrix<Type, row, col>::ArmMatrix(const std::initializer_list<Type> mat_data)
+constexpr ArmMatrix<Type, row, col>::ArmMatrix(std::initializer_list<Type> mat_data)
 {
     std::copy(mat_data.begin(), mat_data.end(), this->data.begin());
     ArmMatrixTraits<Type>::init(&matrix, row, col, this->data.data());
@@ -112,7 +113,7 @@ ArmMatrix<Type, row, col>::ArmMatrix(const std::initializer_list<Type> mat_data)
 
 template<typename Type, std::size_t row, std::size_t col>
     requires ArithmeticType<Type>
-ArmMatrix<Type, row, col>::ArmMatrix(const std::initializer_list<std::initializer_list<Type>> mat_data)
+constexpr ArmMatrix<Type, row, col>::ArmMatrix(std::initializer_list<std::initializer_list<Type>> mat_data)
 {
     std::size_t i = 0U;
     for (const auto& row_data : mat_data) {
@@ -124,15 +125,95 @@ ArmMatrix<Type, row, col>::ArmMatrix(const std::initializer_list<std::initialize
 
 template<typename Type, std::size_t row, std::size_t col>
     requires ArithmeticType<Type>
-ArmMatrix<Type, row, col>& ArmMatrix<Type, row, col>::operator=(const ArmMatrix& other)
+constexpr Type* ArmMatrix<Type, row, col>::at(const std::size_t r, const std::size_t c)
+{
+    if (r < 1U || c < 1U) {
+        return nullptr;
+    }
+    if ((r - 1U) >= row || (c - 1U) >= col) {
+        return nullptr;
+    }
+
+    return &data[(r - 1U) * col + (c - 1U)];
+}
+
+template<typename Type, std::size_t row, std::size_t col>
+    requires ArithmeticType<Type>
+constexpr const Type* ArmMatrix<Type, row, col>::at(const std::size_t r, const std::size_t c) const
+{
+    return const_cast<ArmMatrix*>(this)->at(r, c);
+}
+
+template<typename Type, std::size_t row, std::size_t col>
+    requires ArithmeticType<Type>
+constexpr Type& ArmMatrix<Type, row, col>::operator()(const std::size_t r, const std::size_t c)
+{
+    return data[(r - 1U) * col + (c - 1U)];
+}
+
+template<typename Type, std::size_t row, std::size_t col>
+    requires ArithmeticType<Type>
+constexpr const Type& ArmMatrix<Type, row, col>::operator()(const std::size_t r, const std::size_t c) const
+{
+    return const_cast<ArmMatrix*>(this)->operator()(r, c);
+}
+
+template<typename Type, std::size_t row, std::size_t col>
+    requires ArithmeticType<Type>
+constexpr Type ArmMatrix<Type, row, col>::det() const
+{
+    if constexpr (row != col) {
+        return 0;
+    }
+
+    Type det;  // todo 待完成行列式计算方法
+
+    return det;
+}
+
+template<typename Type, std::size_t row, std::size_t col>
+    requires ArithmeticType<Type>
+constexpr void ArmMatrix<Type, row, col>::fill(Type value)
+{
+    data.fill(value);
+}
+
+template<typename Type, std::size_t row, std::size_t col>
+    requires ArithmeticType<Type>
+constexpr void ArmMatrix<Type, row, col>::clear()
+{
+    this->fill(static_cast<Type>(0));
+}
+
+template<typename Type, std::size_t row, std::size_t col>
+    requires ArithmeticType<Type>
+constexpr ArmMatrix<Type, row, col>& ArmMatrix<Type, row, col>::operator=(const ArmMatrix& other)
 {
     if (this != &other) {
         std::copy(other.data.begin(), other.data.end(), this->data.begin());
-
-        if (this->matrix.pData == nullptr || this->matrix.pData == other.matrix.pData) {
-            ArmMatrixTraits<Type>::init(&this->matrix, row, col, this->data.data());
-        }
     }
+    return *this;
+}
+
+template<typename Type, std::size_t row, std::size_t col>
+    requires ArithmeticType<Type>
+constexpr ArmMatrix<Type, row, col>& ArmMatrix<Type, row, col>::operator=(std::initializer_list<Type> mat_data)
+{
+    std::copy(mat_data.begin(), mat_data.end(), this->data.begin());
+    return *this;
+}
+
+template<typename Type, std::size_t row, std::size_t col>
+    requires ArithmeticType<Type>
+constexpr ArmMatrix<Type, row, col>& ArmMatrix<Type, row, col>::operator=(
+    std::initializer_list<std::initializer_list<Type>> mat_data)
+{
+    std::size_t i = 0U;
+    for (const auto& row_data : mat_data) {
+        std::copy(row_data.begin(), row_data.end(), this->data.begin() + i * col);
+        ++i;
+    }
+
     return *this;
 }
 
@@ -145,12 +226,57 @@ constexpr bool ArmMatrix<Type, row, col>::operator==(const ArmMatrix& other) con
 
 template<typename Type, std::size_t row, std::size_t col>
     requires ArithmeticType<Type>
+constexpr bool ArmMatrix<Type, row, col>::operator==(std::initializer_list<Type> mat_data) const
+{
+    return this->equ(mat_data);
+}
+
+template<typename Type, std::size_t row, std::size_t col>
+    requires ArithmeticType<Type>
+constexpr bool ArmMatrix<Type, row, col>::operator==(std::initializer_list<std::initializer_list<Type>> mat_data) const
+{
+    return this->equ(mat_data);
+}
+
+template<typename Type, std::size_t row, std::size_t col>
+    requires ArithmeticType<Type>
 constexpr bool ArmMatrix<Type, row, col>::equ(const ArmMatrix& other) const
 {
     return std::equal(this->data.begin(),
-                      this->data.begin() + row * col,
+                      this->data.end(),
                       other.data.begin(),
+                      other.data.end(),
                       [](const auto a, const auto b) -> bool { return floatEqu(a, b); });
+}
+
+template<typename Type, std::size_t row, std::size_t col>
+    requires ArithmeticType<Type>
+constexpr bool ArmMatrix<Type, row, col>::equ(std::initializer_list<Type> mat_data) const
+{
+    return std::equal(this->data.begin(),
+                      this->data.end(),
+                      mat_data.begin(),
+                      mat_data.end(),
+                      [](const auto a, const auto b) -> bool { return floatEqu(a, b); });
+}
+
+template<typename Type, std::size_t row, std::size_t col>
+    requires ArithmeticType<Type>
+constexpr bool ArmMatrix<Type, row, col>::equ(std::initializer_list<std::initializer_list<Type>> mat_data) const
+{
+    std::size_t i = 0U;
+    for (const auto& row_data : mat_data) {
+        if (std::equal(row_data.begin(),
+                       row_data.end(),
+                       this->data.begin() + i * col,
+                       this->data.begin() + i * col + col,
+                       [](const auto a, const auto b) -> bool { return floatEqu(a, b); }) == false) {
+            return false;
+        }
+        i++;
+    }
+
+    return true;
 }
 
 template<typename Type, std::size_t row, std::size_t col>
@@ -158,9 +284,41 @@ template<typename Type, std::size_t row, std::size_t col>
 constexpr bool ArmMatrix<Type, row, col>::equ(const ArmMatrix& other, const Type error) const
 {
     return std::equal(this->data.begin(),
-                      this->data.begin() + row * col,
+                      this->data.end(),
                       other.data.begin(),
+                      other.data.end(),
                       [error](const auto a, const auto b) -> bool { return floatEqu(a, b, error); });
+}
+
+template<typename Type, std::size_t row, std::size_t col>
+    requires ArithmeticType<Type>
+constexpr bool ArmMatrix<Type, row, col>::equ(std::initializer_list<Type> mat_data, const Type error) const
+{
+    return std::equal(this->data.begin(),
+                      this->data.end(),
+                      mat_data.begin(),
+                      mat_data.end(),
+                      [error](const auto a, const auto b) -> bool { return floatEqu(a, b, error); });
+}
+
+template<typename Type, std::size_t row, std::size_t col>
+    requires ArithmeticType<Type>
+constexpr bool ArmMatrix<Type, row, col>::equ(std::initializer_list<std::initializer_list<Type>> mat_data,
+                                              const Type error) const
+{
+    std::size_t i = 0U;
+    for (const auto& row_data : mat_data) {
+        if (std::equal(row_data.begin(),
+                       row_data.end(),
+                       this->data.begin() + i * col,
+                       this->data.begin() + i * col + col,
+                       [error](const auto a, const auto b) -> bool { return floatEqu(a, b, error); }) == false) {
+            return false;
+        }
+        i++;
+    }
+
+    return true;
 }
 
 template<typename Type, std::size_t row, std::size_t col>
@@ -172,6 +330,20 @@ constexpr bool ArmMatrix<Type, row, col>::operator!=(const ArmMatrix& other) con
 
 template<typename Type, std::size_t row, std::size_t col>
     requires ArithmeticType<Type>
+constexpr bool ArmMatrix<Type, row, col>::operator!=(std::initializer_list<Type> mat_data) const
+{
+    return !(this->operator==(mat_data));
+}
+
+template<typename Type, std::size_t row, std::size_t col>
+    requires ArithmeticType<Type>
+constexpr bool ArmMatrix<Type, row, col>::operator!=(std::initializer_list<std::initializer_list<Type>> mat_data) const
+{
+    return !(this->operator==(mat_data));
+}
+
+template<typename Type, std::size_t row, std::size_t col>
+    requires ArithmeticType<Type>
 constexpr bool ArmMatrix<Type, row, col>::notequ(const ArmMatrix& other) const
 {
     return !equ(other);
@@ -179,9 +351,38 @@ constexpr bool ArmMatrix<Type, row, col>::notequ(const ArmMatrix& other) const
 
 template<typename Type, std::size_t row, std::size_t col>
     requires ArithmeticType<Type>
+constexpr bool ArmMatrix<Type, row, col>::notequ(std::initializer_list<Type> mat_data) const
+{
+    return !(this->equ(mat_data));
+}
+
+template<typename Type, std::size_t row, std::size_t col>
+    requires ArithmeticType<Type>
+constexpr bool ArmMatrix<Type, row, col>::notequ(std::initializer_list<std::initializer_list<Type>> mat_data) const
+{
+    return !(this->equ(mat_data));
+}
+
+template<typename Type, std::size_t row, std::size_t col>
+    requires ArithmeticType<Type>
 constexpr bool ArmMatrix<Type, row, col>::notequ(const ArmMatrix& other, const Type error) const
 {
     return !equ(other, error);
+}
+
+template<typename Type, std::size_t row, std::size_t col>
+    requires ArithmeticType<Type>
+constexpr bool ArmMatrix<Type, row, col>::notequ(std::initializer_list<Type> mat_data, const Type error) const
+{
+    return !(this->equ(mat_data, error));
+}
+
+template<typename Type, std::size_t row, std::size_t col>
+    requires ArithmeticType<Type>
+constexpr bool ArmMatrix<Type, row, col>::notequ(std::initializer_list<std::initializer_list<Type>> mat_data,
+                                                 const Type error) const
+{
+    return !(this->equ(mat_data, error));
 }
 
 /**

@@ -26,91 +26,6 @@ import rmdev.util.MatrixType;
 namespace rmdev {
 
 /**
- * ArmMatrixBase 是一个基类模板，用于实现 CMSIS-DSP 矩阵的基本操作。
- * @tparam Type 数据类型
- * @tparam row 矩阵行数
- * @tparam col 矩阵列数
- */
-template<typename Type, std::size_t row, std::size_t col>
-    requires ArithmeticType<Type>
-class ArmMatrixBase
-{
-public:
-    /**
-     * 获取矩阵的第 r 行 c 列的元素（带有边界检查，如果越界，返回 nullptr）
-     * @param r 第几行（从 1 开始计数）
-     * @param c 第几列（从 1 开始计数）
-     * @return 第 r 行 c 列的元素的地址（如果越界，返回 nullptr）
-     */
-    [[nodiscard]] Type* at(const std::size_t r, const std::size_t c)
-    {
-        if (r < 1U || c < 1U) {
-            return nullptr;
-        }
-        if ((r - 1U) >= row || (c - 1U) >= col) {
-            return nullptr;
-        }
-
-        return &data[(r - 1U) * col + (c - 1U)];
-    }
-
-    /**
-     * 获取矩阵的第 r 行 c 列的元素 - 带有 const 修饰（带有边界检查，如果越界，返回 nullptr）
-     * @param r 第几行（从 1 开始计数）
-     * @param c 第几列（从 1 开始计数）
-     * @return 第 r 行 c 列的元素的常量地址（如果越界，返回 nullptr）
-     */
-    [[nodiscard]] const Type* at(const std::size_t r, const std::size_t c) const
-    {
-        return const_cast<ArmMatrixBase*>(this)->at(r, c);
-    }
-
-    /**
-     * 获取矩阵的第 r 行 c 列的元素（没有边界检查）
-     * @param r 第几行（从 1 开始计数）
-     * @param c 第几列（从 1 开始计数）
-     * @return 第 r 行 c 列的元素的引用
-     */
-    [[nodiscard]] Type& operator()(const std::size_t r, const std::size_t c)
-    {
-        return data[(r - 1U) * col + (c - 1U)];
-    }
-
-    /**
-     * 获取矩阵的第 r 行 c 列的元素 - 带有 const 修饰（没有边界检查）
-     * @param r 第几行（从 1 开始计数）
-     * @param c 第几列（从 1 开始计数）
-     * @return 第 r 行 c 列的元素的常量引用
-     */
-    [[nodiscard]] const Type& operator()(const std::size_t r, const std::size_t c) const
-    {
-        return const_cast<ArmMatrixBase*>(this)->operator()(r, c);
-    }
-
-    /**
-     * 计算矩阵的行列式。
-     * @return 行列式计算结果（如果不是方阵，则返回 0）
-     */
-    [[nodiscard]] Type det() const
-    {
-        if constexpr (row != col) {
-            return 0;
-        }
-
-        Type det;  // todo 待完成行列式计算方法
-
-        return det;
-    }
-
-protected:
-    ArmMatrixBase() = default;
-    ~ArmMatrixBase() = default;
-
-    /// 存储的矩阵数据
-    std::array<Type, row * col> data{};
-};
-
-/**
  * ArmMatrix 矩阵类，用于封装 CMSIS-DSP 的矩阵操作。
  * @tparam Type 数据类型
  * @tparam row 行数
@@ -118,7 +33,7 @@ protected:
  */
 export template<typename Type, std::size_t row, std::size_t col>
     requires ArithmeticType<Type>
-class ArmMatrix : public ArmMatrixBase<Type, row, col>
+class ArmMatrix
 {
 public:
     // 由于 CMSIS-DSP 的矩阵加法函数需要分配一个新的矩阵，常规运算符难以实现，因此删除基本运算符
@@ -132,52 +47,115 @@ public:
     /**
      * 默认构造函数
      */
-    ArmMatrix();
+    constexpr ArmMatrix();
 
     /**
      * 拷贝构造函数
      * @param other 另一个 ArmMatrix 矩阵
      */
-    ArmMatrix(const ArmMatrix& other);
+    constexpr ArmMatrix(const ArmMatrix& other);
 
     /**
      * 构造特殊矩阵
      * @param type 特殊矩阵类型
      */
-    explicit ArmMatrix(MatrixType type);
+    explicit constexpr ArmMatrix(MatrixType type);
 
     /**
      * 通过一维数组构造矩阵
      * @attention 请确保这个数组的大小大于等于 row * col，否则会导致数组越界访问
      * @param mat_data 含有矩阵数据的一维数组
      */
-    explicit ArmMatrix(const Type mat_data[row * col]);
+    explicit constexpr ArmMatrix(const Type mat_data[row * col]);
 
     /**
      * 通过二维数组构造矩阵
      * @attention 请确保这个数组的大小大于等于 row * col，否则会导致数组越界访问
      * @param mat_data 含有矩阵数据的二维数组
      */
-    explicit ArmMatrix(const Type mat_data[row][col]);
+    explicit constexpr ArmMatrix(const Type mat_data[row][col]);
 
     /**
      * 一维列表初始化
      * @param mat_data 初始化列表
      */
-    ArmMatrix(std::initializer_list<Type> mat_data);
+    constexpr ArmMatrix(std::initializer_list<Type> mat_data);
 
     /**
      * 二维列表初始化
      * @param mat_data 二维初始化列表
      */
-    ArmMatrix(std::initializer_list<std::initializer_list<Type>> mat_data);
+    constexpr ArmMatrix(std::initializer_list<std::initializer_list<Type>> mat_data);
+
+    /**
+     * 获取矩阵的第 r 行 c 列的元素（带有边界检查，如果越界，返回 nullptr）
+     * @param r 第几行（从 1 开始计数）
+     * @param c 第几列（从 1 开始计数）
+     * @return 第 r 行 c 列的元素的地址（如果越界，返回 nullptr）
+     */
+    [[nodiscard]] constexpr Type* at(std::size_t r, std::size_t c);
+
+    /**
+     * 获取矩阵的第 r 行 c 列的元素 - 带有 const 修饰（带有边界检查，如果越界，返回 nullptr）
+     * @param r 第几行（从 1 开始计数）
+     * @param c 第几列（从 1 开始计数）
+     * @return 第 r 行 c 列的元素的常量地址（如果越界，返回 nullptr）
+     */
+    [[nodiscard]] constexpr const Type* at(std::size_t r, std::size_t c) const;
+
+    /**
+     * 获取矩阵的第 r 行 c 列的元素（没有边界检查）
+     * @param r 第几行（从 1 开始计数）
+     * @param c 第几列（从 1 开始计数）
+     * @return 第 r 行 c 列的元素的引用
+     */
+    [[nodiscard]] constexpr Type& operator()(std::size_t r, std::size_t c);
+
+    /**
+     * 获取矩阵的第 r 行 c 列的元素 - 带有 const 修饰（没有边界检查）
+     * @param r 第几行（从 1 开始计数）
+     * @param c 第几列（从 1 开始计数）
+     * @return 第 r 行 c 列的元素的常量引用
+     */
+    [[nodiscard]] constexpr const Type& operator()(std::size_t r, std::size_t c) const;
+
+    /**
+     * 计算矩阵的行列式。
+     * @return 行列式计算结果（如果不是方阵，则返回 0）
+     */
+    [[nodiscard]] constexpr Type det() const;
+
+    /**
+     * 将矩阵的所有元素全部设置为给定值
+     * @param value 值
+     */
+    constexpr void fill(Type value);
+
+    /**
+     * 将矩阵的所有元素全部清零
+     */
+    constexpr void clear();
 
     /**
      * 赋值运算符
      * @param other 另一个 ArmMatrix 矩阵
      * @return 赋值后的 ArmMatrix 矩阵的引用
      */
-    ArmMatrix& operator=(const ArmMatrix& other);
+    constexpr ArmMatrix& operator=(const ArmMatrix& other);
+
+    /**
+     * 赋值运算符
+     * @param mat_data 一个一维的初始化列表
+     * @return 赋值后的 ArmMatrix 矩阵的引用
+     */
+    constexpr ArmMatrix& operator=(std::initializer_list<Type> mat_data);
+
+    /**
+     * 赋值运算符
+     * @param mat_data 一个二维的初始化列表
+     * @return 赋值后的 ArmMatrix 矩阵的引用
+     */
+    constexpr ArmMatrix& operator=(std::initializer_list<std::initializer_list<Type>> mat_data);
 
     /**
      * 判断两个矩阵是否相等（浮点数误差值使用默认的）
@@ -188,10 +166,38 @@ public:
 
     /**
      * 判断两个矩阵是否相等（浮点数误差值使用默认的）
+     * @param mat_data 矩阵的一维初始化列表
+     * @return 两个矩阵是否相等
+     */
+    constexpr bool operator==(std::initializer_list<Type> mat_data) const;
+
+    /**
+     * 判断两个矩阵是否相等（浮点数误差值使用默认的）
+     * @param mat_data 矩阵的二维初始化列表
+     * @return 两个矩阵是否相等
+     */
+    constexpr bool operator==(std::initializer_list<std::initializer_list<Type>> mat_data) const;
+
+    /**
+     * 判断两个矩阵是否相等（浮点数误差值使用默认的）
      * @param other 另一个矩阵的引用
      * @return 两个矩阵是否相等
      */
     constexpr bool equ(const ArmMatrix& other) const;
+
+    /**
+     * 判断两个矩阵是否相等（浮点数误差值使用默认的）
+     * @param mat_data 矩阵的一维初始化列表
+     * @return 两个矩阵是否相等
+     */
+    constexpr bool equ(std::initializer_list<Type> mat_data) const;
+
+    /**
+     * 判断两个矩阵是否相等（浮点数误差值使用默认的）
+     * @param mat_data 矩阵的二维初始化列表
+     * @return 两个矩阵是否相等
+     */
+    constexpr bool equ(std::initializer_list<std::initializer_list<Type>> mat_data) const;
 
     /**
      * 判断两个矩阵是否相等
@@ -202,11 +208,41 @@ public:
     constexpr bool equ(const ArmMatrix& other, Type error) const;
 
     /**
+     * 判断两个矩阵是否相等
+     * @param mat_data 矩阵的一维初始化列表
+     * @param error 允许的误差（a、b 之差的绝对值小于这个值即认为相等）
+     * @return 两个矩阵是否相等
+     */
+    constexpr bool equ(std::initializer_list<Type> mat_data, Type error) const;
+
+    /**
+     * 判断两个矩阵是否相等
+     * @param mat_data 矩阵的二维初始化列表
+     * @param error 允许的误差（a、b 之差的绝对值小于这个值即认为相等）
+     * @return 两个矩阵是否相等
+     */
+    constexpr bool equ(std::initializer_list<std::initializer_list<Type>> mat_data, Type error) const;
+
+    /**
      * 判断两个矩阵是否不相等（浮点数误差值使用默认的）
      * @param other 另一个矩阵的引用
      * @return 两个矩阵是否不相等
      */
     constexpr bool operator!=(const ArmMatrix& other) const;
+
+    /**
+     * 判断两个矩阵是否不相等（浮点数误差值使用默认的）
+     * @param mat_data 矩阵的一维初始化列表
+     * @return 两个矩阵是否不相等
+     */
+    constexpr bool operator!=(std::initializer_list<Type> mat_data) const;
+
+    /**
+     * 判断两个矩阵是否不相等（浮点数误差值使用默认的）
+     * @param mat_data 矩阵的二维初始化列表
+     * @return 两个矩阵是否不相等
+     */
+    constexpr bool operator!=(std::initializer_list<std::initializer_list<Type>> mat_data) const;
 
     /**
      * 判断两个矩阵是否不相等（浮点数误差值使用默认的）
@@ -216,12 +252,42 @@ public:
     constexpr bool notequ(const ArmMatrix& other) const;
 
     /**
+     * 判断两个矩阵是否不相等（浮点数误差值使用默认的）
+     * @param mat_data 矩阵的一维初始化列表
+     * @return 两个矩阵是否不相等
+     */
+    constexpr bool notequ(std::initializer_list<Type> mat_data) const;
+
+    /**
+     * 判断两个矩阵是否不相等（浮点数误差值使用默认的）
+     * @param mat_data 矩阵的二维初始化列表
+     * @return 两个矩阵是否不相等
+     */
+    constexpr bool notequ(std::initializer_list<std::initializer_list<Type>> mat_data) const;
+
+    /**
      * 判断两个矩阵是否不相等
      * @param other 另一个矩阵的引用
      * @param error 允许的误差（a、b 之差的绝对值小于这个值即认为相等）
      * @return 两个矩阵是否不相等
      */
     constexpr bool notequ(const ArmMatrix& other, Type error) const;
+
+    /**
+     * 判断两个矩阵是否不相等
+     * @param mat_data 矩阵的一维初始化列表
+     * @param error 允许的误差（a、b 之差的绝对值小于这个值即认为相等）
+     * @return 两个矩阵是否不相等
+     */
+    constexpr bool notequ(std::initializer_list<Type> mat_data, Type error) const;
+
+    /**
+     * 判断两个矩阵是否不相等
+     * @param mat_data 矩阵的二维初始化列表
+     * @param error 允许的误差（a、b 之差的绝对值小于这个值即认为相等）
+     * @return 两个矩阵是否不相等
+     */
+    constexpr bool notequ(std::initializer_list<std::initializer_list<Type>> mat_data, Type error) const;
 
     template<typename Type_, std::size_t row_, std::size_t col_>
         requires ArithmeticType<Type_>
@@ -298,7 +364,8 @@ public:
                                                  const ArmMatrix<Type_, rowb, colb>& b);
 
 private:
-    typename ArmMatrixTraits<Type>::ArmMatrixInstance matrix;
+    std::array<Type, row * col> data{};                          ///< 存储的矩阵数据
+    typename ArmMatrixTraits<Type>::ArmMatrixInstance matrix{};  ///< Arm 矩阵实例
 };
 
 }  // namespace rmdev
