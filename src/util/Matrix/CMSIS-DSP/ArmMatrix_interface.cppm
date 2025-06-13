@@ -1,9 +1,9 @@
 /**
- * @file ArmMatrix.cppm
- * @module rmdev.util.Matrix:ArmMatrix_interface
+ * @file ArmMatrix_interface.cppm
+ * @module rmdev.util.ArmMatrix:interface
  * @author 杜以成
  * @date 2025-06-03
- * @brief CMSIS-DSP 矩阵运算封装
+ * @brief CMSIS-DSP 矩阵运算封装接口
  */
 
 #if RMDEV_USE_CMSIS_DSP
@@ -18,8 +18,10 @@ module;
 
 #include "rmdev/concepts.hpp"
 
-export module rmdev.util.Matrix:ArmMatrix_interface;
-import :Type;
+export module rmdev.util.ArmMatrix:interface;
+import :traits;
+
+import rmdev.util.MatrixType;
 
 namespace rmdev {
 
@@ -116,22 +118,9 @@ protected:
  */
 export template<typename Type, std::size_t row, std::size_t col>
     requires ArithmeticType<Type>
-class ArmMatrix;
-
-/**
- * ArmMatrix<float, row, col> 是 ArmMatrix 的特化版本，专门用于处理 float 类型的矩阵。
- * @tparam row 行数
- * @tparam col 列数
- */
-export template<std::size_t row, std::size_t col>
-class ArmMatrix<float, row, col> : public ArmMatrixBase<float, row, col>
+class ArmMatrix : public ArmMatrixBase<Type, row, col>
 {
 public:
-    static_assert(std::is_same_v<float, float32_t>);
-
-    using Type = float;
-    using ArmMatrixType = arm_matrix_instance_f32;
-
     // 由于 CMSIS-DSP 的矩阵加法函数需要分配一个新的矩阵，常规运算符难以实现，因此删除基本运算符
     ArmMatrix& operator+(const ArmMatrix& other) = delete;
     ArmMatrix& operator-(const ArmMatrix& other) = delete;
@@ -234,80 +223,83 @@ public:
      */
     bool notequ(const ArmMatrix& other, Type error) const;
 
-    template<std::size_t row_, std::size_t col_>
-    friend ArmMatrix<Type, row_, col_>& add(ArmMatrix<Type, row_, col_>& result,
-                                            const ArmMatrix<Type, row_, col_>& a,
-                                            const ArmMatrix<Type, row_, col_>& b);
+    template<typename Type_, std::size_t row_, std::size_t col_>
+        requires ArithmeticType<Type_>
+    friend ArmMatrix<Type_, row_, col_>& add(ArmMatrix<Type_, row_, col_>& result,
+                                             const ArmMatrix<Type_, row_, col_>& a,
+                                             const ArmMatrix<Type_, row_, col_>& b);
 
-    template<std::size_t row_, std::size_t col_>
-    friend ArmMatrix<Type, row_, col_>& sub(ArmMatrix<Type, row_, col_>& result,
-                                            const ArmMatrix<Type, row_, col_>& a,
-                                            const ArmMatrix<Type, row_, col_>& b);
+    template<typename Type_, std::size_t row_, std::size_t col_>
+        requires ArithmeticType<Type_>
+    friend ArmMatrix<Type_, row_, col_>& sub(ArmMatrix<Type_, row_, col_>& result,
+                                             const ArmMatrix<Type_, row_, col_>& a,
+                                             const ArmMatrix<Type_, row_, col_>& b);
 
-    template<std::size_t rowa, std::size_t cola, std::size_t rowb, std::size_t colb>
-        requires MatrixCouldMultiplied<rowa, cola, rowb, colb>
-    friend ArmMatrix<Type, rowa, colb>& mul(ArmMatrix<Type, rowa, colb>& result,
-                                            const ArmMatrix<Type, rowa, cola>& a,
-                                            const ArmMatrix<Type, rowb, colb>& b);
+    template<typename Type_, std::size_t rowa, std::size_t cola, std::size_t rowb, std::size_t colb>
+        requires ArithmeticType<Type_> && MatrixCouldMultiplied<rowa, cola, rowb, colb>
+    friend ArmMatrix<Type_, rowa, colb>& mul(ArmMatrix<Type_, rowa, colb>& result,
+                                             const ArmMatrix<Type_, rowa, cola>& a,
+                                             const ArmMatrix<Type_, rowb, colb>& b);
 
-    template<std::size_t row_, std::size_t col_>
-    friend ArmMatrix<Type, row_, col_>& mul(ArmMatrix<Type, row_, col_>& result,
-                                            const ArmMatrix<Type, row_, col_>& a,
-                                            Type scalar);
+    template<typename Type_, std::size_t row_, std::size_t col_>
+        requires ArithmeticType<Type_>
+    friend ArmMatrix<Type_, row_, col_>& mul(ArmMatrix<Type_, row_, col_>& result,
+                                             const ArmMatrix<Type_, row_, col_>& a,
+                                             Type_ scalar);
 
-    template<std::size_t row_, std::size_t col_>
-    friend ArmMatrix<Type, row_, col_>& mul(ArmMatrix<Type, row_, col_>& result,
-                                            Type scalar,
-                                            const ArmMatrix<Type, row_, col_>& a);
+    template<typename Type_, std::size_t row_, std::size_t col_>
+        requires ArithmeticType<Type_>
+    friend ArmMatrix<Type_, row_, col_>& mul(ArmMatrix<Type_, row_, col_>& result,
+                                             Type_ scalar,
+                                             const ArmMatrix<Type_, row_, col_>& a);
 
-    template<std::size_t row_, std::size_t col_>
-    friend ArmMatrix<Type, col_, row_>& trans(ArmMatrix<Type, col_, row_>& result,
-                                              const ArmMatrix<Type, row_, col_>& a);
+    template<typename Type_, std::size_t row_, std::size_t col_>
+        requires ArithmeticType<Type_>
+    friend ArmMatrix<Type_, col_, row_>& trans(ArmMatrix<Type_, col_, row_>& result,
+                                               const ArmMatrix<Type_, row_, col_>& a);
 
-    template<std::size_t row_, std::size_t col_>
-        requires SquareMatrix<row_, col_>
-    friend ArmMatrix<Type, row_, col_>* inv(ArmMatrix<Type, row_, col_>& result, ArmMatrix<Type, row_, col_>& a);
+    template<typename Type_, std::size_t row_, std::size_t col_>
+        requires ArithmeticType<Type_> && SquareMatrix<row_, col_>
+    friend ArmMatrix<Type_, row_, col_>* inv(ArmMatrix<Type_, row_, col_>& result, ArmMatrix<Type_, row_, col_>& a);
 
-    template<std::size_t row_, std::size_t col_>
-        requires SquareMatrix<row_, col_>
-    friend ArmMatrix<Type, row_, col_>* invKeep(ArmMatrix<Type, row_, col_>& result,
-                                                const ArmMatrix<Type, row_, col_>& a);
+    template<typename Type_, std::size_t row_, std::size_t col_>
+        requires ArithmeticType<Type_> && SquareMatrix<row_, col_>
+    friend ArmMatrix<Type_, row_, col_>* invKeep(ArmMatrix<Type_, row_, col_>& result,
+                                                 const ArmMatrix<Type_, row_, col_>& a);
 
-    template<std::size_t row_, std::size_t col_>
-    friend ArmMatrix<Type, row_, col_>* div(ArmMatrix<Type, row_, col_>& result,
-                                            const ArmMatrix<Type, row_, col_>& a,
-                                            Type scalar);
+    template<typename Type_, std::size_t row_, std::size_t col_>
+        requires ArithmeticType<Type_>
+    friend ArmMatrix<Type_, row_, col_>* div(ArmMatrix<Type_, row_, col_>& result,
+                                             const ArmMatrix<Type_, row_, col_>& a,
+                                             Type_ scalar);
 
-    template<std::size_t row_, std::size_t col_>
-        requires SquareMatrix<row_, col_>
-    friend ArmMatrix<Type, row_, col_>* div(ArmMatrix<Type, row_, col_>& result,
-                                            Type scalar,
-                                            ArmMatrix<Type, row_, col_>& a);
+    template<typename Type_, std::size_t row_, std::size_t col_>
+        requires ArithmeticType<Type_> && SquareMatrix<row_, col_>
+    friend ArmMatrix<Type_, row_, col_>* div(ArmMatrix<Type_, row_, col_>& result,
+                                             Type_ scalar,
+                                             ArmMatrix<Type_, row_, col_>& a);
 
-    template<std::size_t row_, std::size_t col_>
-        requires SquareMatrix<row_, col_>
-    friend ArmMatrix<Type, row_, col_>* divKeep(ArmMatrix<Type, row_, col_>& result,
-                                                Type scalar,
-                                                const ArmMatrix<Type, row_, col_>& a);
+    template<typename Type_, std::size_t row_, std::size_t col_>
+        requires ArithmeticType<Type_> && SquareMatrix<row_, col_>
+    friend ArmMatrix<Type_, row_, col_>* divKeep(ArmMatrix<Type_, row_, col_>& result,
+                                                 Type_ scalar,
+                                                 const ArmMatrix<Type_, row_, col_>& a);
 
-    template<std::size_t rowa, std::size_t cola, std::size_t rowb, std::size_t colb>
-        requires SquareMatrix<rowb, colb> && MatrixCouldMultiplied<rowa, cola, rowb, colb>
-    friend ArmMatrix<Type, rowa, colb>* div(ArmMatrix<Type, rowa, colb>& result,
-                                            const ArmMatrix<Type, rowa, cola>& a,
-                                            ArmMatrix<Type, rowb, colb>& b);
+    template<typename Type_, std::size_t rowa, std::size_t cola, std::size_t rowb, std::size_t colb>
+        requires ArithmeticType<Type_> && SquareMatrix<rowb, colb> && MatrixCouldMultiplied<rowa, cola, rowb, colb>
+    friend ArmMatrix<Type_, rowa, colb>* div(ArmMatrix<Type_, rowa, colb>& result,
+                                             const ArmMatrix<Type_, rowa, cola>& a,
+                                             ArmMatrix<Type_, rowb, colb>& b);
 
-    template<std::size_t rowa, std::size_t cola, std::size_t rowb, std::size_t colb>
-        requires SquareMatrix<rowb, colb> && MatrixCouldMultiplied<rowa, cola, rowb, colb>
-    friend ArmMatrix<Type, rowa, colb>* divKeep(ArmMatrix<Type, rowa, colb>& result,
-                                                const ArmMatrix<Type, rowa, cola>& a,
-                                                const ArmMatrix<Type, rowb, colb>& b);
+    template<typename Type_, std::size_t rowa, std::size_t cola, std::size_t rowb, std::size_t colb>
+        requires ArithmeticType<Type_> && SquareMatrix<rowb, colb> && MatrixCouldMultiplied<rowa, cola, rowb, colb>
+    friend ArmMatrix<Type_, rowa, colb>* divKeep(ArmMatrix<Type_, rowa, colb>& result,
+                                                 const ArmMatrix<Type_, rowa, cola>& a,
+                                                 const ArmMatrix<Type_, rowb, colb>& b);
 
 private:
-    ArmMatrixType matrix{};  ///< CMSIS-DSP 矩阵实例
+    typename ArmMatrixTraits<Type>::ArmMatrixInstance matrix;
 };
-
-export template<std::size_t row, std::size_t col>
-class ArmMatrix<double, row, col>;  // todo 待完成其他类型的特化
 
 }  // namespace rmdev
 

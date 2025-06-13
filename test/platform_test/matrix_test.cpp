@@ -336,7 +336,7 @@ static void armMatrixCalcTest()
 
     mat5 = mat5_origin;
     TestMatrix mat5_div_0;
-    p_result = rmdev::div(mat5_div_0, mat5, 0);
+    p_result = rmdev::div(mat5_div_0, mat5, 0.0f);
     RMDEV_TEST_ASSERT(p_result == nullptr);
 
     mat5 = mat5_origin;
