@@ -10,4 +10,5 @@
 extern "C" void test_main(void)
 {
     matrixTest();
+    initOnceTest();
 }

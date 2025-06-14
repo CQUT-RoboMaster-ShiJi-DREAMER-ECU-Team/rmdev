@@ -23,7 +23,9 @@ if (DEFINED RMDEV_PLATFORM_TEST_PLATFORM)
 
         target_sources(${PROJECT_NAME} INTERFACE
             test_main.cpp
+
             matrix_test.cpp
+            InitOnce_test.cpp
         )
 
         target_link_libraries(${PROJECT_NAME} INTERFACE rmdev rmdev_test_framework)

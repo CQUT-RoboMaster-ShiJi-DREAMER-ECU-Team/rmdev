@@ -10,5 +10,6 @@
 #define TEST_MAIN_HPP
 
 void matrixTest();
+void initOnceTest();
 
 #endif // !TEST_MAIN_HPP
