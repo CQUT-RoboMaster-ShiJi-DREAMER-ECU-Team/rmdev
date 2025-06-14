@@ -35,13 +35,15 @@ export enum class ErrorCode : std::int8_t {
 /**
  * 致命错误回调函数指针
  */
-using FaultHandlerCallBack = void (*)(const char* message);
+using FaultHandlerCallBack = void (*)(const char* file, int line, const char* message);
 
 /**
  * 默认的致命错误处理函数
+ * @param file 所在文件名
+ * @param line 所在行号
  * @param message 错误消息
  */
-RMDEV_NO_RETURN void defaultFaultHandler(const char* message = "");
+RMDEV_NO_RETURN void defaultFaultHandler(const char* file, int line, const char* message);
 
 /**
  * 致命错误回调函数（编译期初始化为默认的回调函数）
@@ -49,12 +51,16 @@ RMDEV_NO_RETURN void defaultFaultHandler(const char* message = "");
 constinit FaultHandlerCallBack faultHandlerCallback = defaultFaultHandler;
 
 /**
- * 致命错误处理
+ * 致命错误处理函数
+ * @note 建议使用宏 RMDEV_FAULT_HANDLER，可以自动填充文件名与行号，但需要
+ * 引入头文件 rmdev/fault_handler.hpp
+ * @param file 所在文件名
+ * @param line 所在行号
  * @param message 错误信息
  */
-export void faultHandler(const char* message = "")
+export void faultHandler(const char* file, const int line, const char* message = "")
 {
-    faultHandlerCallback(message);
+    faultHandlerCallback(file, line, message);
 }
 
 /**

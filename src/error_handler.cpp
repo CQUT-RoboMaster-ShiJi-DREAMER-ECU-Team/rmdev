@@ -13,8 +13,10 @@ module rmdev.error_handler;
 
 namespace rmdev {
 
-RMDEV_NO_RETURN void defaultFaultHandler(const char* message)
+RMDEV_NO_RETURN void defaultFaultHandler(const char* file, const int line, const char* message)
 {
+    RMDEV_UNUSED(file);
+    RMDEV_UNUSED(line);
     RMDEV_UNUSED(message);
 
     while (true) {
