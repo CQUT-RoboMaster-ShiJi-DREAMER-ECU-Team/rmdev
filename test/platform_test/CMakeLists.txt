@@ -30,5 +30,5 @@ if (DEFINED RMDEV_PLATFORM_TEST_PLATFORM)
     endif ()
 
 else ()
-    message(WARNING "RMDEV_PLATFORM_TEST_PLATFORM is not defined, so platform_test skipped. Please set it to a valid platform (e.g., STM32F407).")
+    message(WARNING "RMDEV_PLATFORM_TEST_PLATFORM is not defined, so platform_test skipped. Please set it to a valid platform (e.g., stm32f407ighx).")
 endif ()
