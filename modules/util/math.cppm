@@ -76,7 +76,7 @@ constexpr Type sgn(const Type n)
  * @retval -1.0f n 小于零
  */
 template<>
-constexpr float sgn(const float n)
+constexpr float sgn<float>(const float n)
 {
     return ((n) >= 0.0f ? (1.0f) : (-1.0f));
 }
@@ -88,7 +88,7 @@ constexpr float sgn(const float n)
  * @retval -1.0 n 小于零
  */
 template<>
-constexpr double sgn(const double n)
+constexpr double sgn<double>(const double n)
 {
     return ((n) >= 0.0 ? (1.0) : (-1.0));
 }

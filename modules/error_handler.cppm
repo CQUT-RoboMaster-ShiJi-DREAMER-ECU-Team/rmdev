@@ -9,18 +9,17 @@
 module;
 
 #include <cstdint>
+
 #include "rmdev/attributes_and_useful_macros.h"
 
 export module rmdev.error_handler;
 
-export RMDEV_NO_RETURN void rmdevFaultHandler(const char* message);
-
-export namespace rmdev {
+namespace rmdev {
 
 /**
  * 错误码
  */
-enum class ErrorCode : std::int8_t {
+export enum class ErrorCode : std::int8_t {
     Success = 0,            ///< 成功
     UnknownError = -1,      ///< 未知错误
     InvalidArgument = -2,   ///< 无效参数
@@ -32,5 +31,37 @@ enum class ErrorCode : std::int8_t {
     NotImplemented = -8,    ///< 未实现
     InternalError = -9      ///< 内部错误
 };
+
+/**
+ * 致命错误回调函数指针
+ */
+using FaultHandlerCallBack = void (*)(const char* message);
+
+/**
+ * 默认的致命错误处理函数
+ * @param message 错误消息
+ */
+RMDEV_NO_RETURN void defaultFaultHandler(const char* message = "");
+
+/**
+ * 致命错误回调函数（编译期初始化为默认的回调函数）
+ */
+constinit FaultHandlerCallBack faultHandlerCallback = defaultFaultHandler;
+
+/**
+ * 致命错误处理
+ * @param message 错误信息
+ */
+export void faultHandler(const char* message = "")
+{
+    faultHandlerCallback(message);
+}
+
+/**
+ * 注册致命错误回调函数（不具备线程安全性，建议只在初始化的时候调用）。
+ * 如果不调用这个函数，那么将采用默认的致命错误回调函数
+ * @param callback 回调函数
+ */
+export void registerFaultHandler(FaultHandlerCallBack callback);
 
 }  // namespace rmdev
