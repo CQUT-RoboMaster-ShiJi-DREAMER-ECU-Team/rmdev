@@ -6,7 +6,7 @@
  * @brief CMSIS-DSP 矩阵封装模块接口单元
  */
 
-#if RMDEV_USE_CMSIS_DSP
+#ifdef RMDEV_USE_CMSIS_DSP
 
 module;
 

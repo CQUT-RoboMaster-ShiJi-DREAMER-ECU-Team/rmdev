@@ -6,7 +6,7 @@
  * @brief 类型特征
  */
 
-#if RMDEV_USE_CMSIS_DSP
+#ifdef RMDEV_USE_CMSIS_DSP
 
 module;
 

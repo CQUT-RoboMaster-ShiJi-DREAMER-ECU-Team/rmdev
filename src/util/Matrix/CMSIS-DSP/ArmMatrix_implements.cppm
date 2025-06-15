@@ -6,7 +6,7 @@
  * @brief CMSIS-DSP 矩阵运算封装 - 实现
  */
 
-#if RMDEV_USE_CMSIS_DSP
+#ifdef RMDEV_USE_CMSIS_DSP
 
 module;
 

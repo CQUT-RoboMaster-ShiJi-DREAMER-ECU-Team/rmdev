@@ -41,7 +41,7 @@ if (RMDEV_ENABLE_TESTS)
 endif ()
 
 if (RMDEV_USE_CMSIS_DSP)
-    add_definitions(-DRMDEV_USE_CMSIS_DSP)
+    add_definitions(-DRMDEV_USE_CMSIS_DSP=1)
 
     if (RMDEV_USE_STM32CUBEMX)
         enable_language(ASM)

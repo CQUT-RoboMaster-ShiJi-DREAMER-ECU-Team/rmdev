@@ -14,7 +14,7 @@ export module rmdev.util.Matrix;
 
 export import rmdev.util.MatrixType;
 
-#if RMDEV_USE_CMSIS_DSP
+#ifdef RMDEV_USE_CMSIS_DSP
 
 export import rmdev.util.ArmMatrix;
 
