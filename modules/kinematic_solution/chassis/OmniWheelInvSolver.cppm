@@ -9,7 +9,6 @@
 module;
 
 #include <cmath>
-#include <array>
 
 #include "rmdev/concepts.hpp"
 
@@ -21,28 +20,49 @@ import rmdev.util.math;
 
 export namespace rmdev {
 
+/**
+ * 全向轮逆运动学解算类
+ * @tparam Type 数据类型
+ * @tparam wheel_num 底盘轮组数量（默认4个）
+ */
 template<ArithmeticType Type, std::size_t wheel_num = 4>
 class OmniWheelInvSolver;
 
+/**
+ * 全向轮逆运动学解算类 - 四轮轮组特化
+ * @tparam Type 数据类型
+ */
 template<ArithmeticType Type>
 class OmniWheelInvSolver<Type, 4> : public FourWheelChassisSolver<OmniWheelInvSolver<Type, 4>>
 {
 public:
+    /**
+     * 数据类型
+     */
     using ScaleType = Type;
 
     OmniWheelInvSolver() = delete;
 
+    /**
+     * 通过底盘宽度和长度构造全向轮逆运动学解算器
+     * @param width 底盘宽度
+     * @param length 底盘长度
+     */
     constexpr OmniWheelInvSolver(const ScaleType width, const ScaleType length) noexcept
-        : width_(width), length_(length)
+        : FourWheelChassisSolver<OmniWheelInvSolver>(width, length)
     {
     }
 
+    /**
+     * 构造正方形底盘的全向轮逆运动学解算器
+     * @param square_length 底盘边长
+     */
     explicit constexpr OmniWheelInvSolver(const ScaleType square_length) noexcept
         : OmniWheelInvSolver(square_length, square_length)
     {
     }
 
-    auto solve_impl(const TargetSpeed<Type> speed) const -> WheelSpeed<ScaleType>
+    auto solve_impl(const ChassisTargetSpeed<Type> speed) const -> ChassisWheelsSpeed<ScaleType>
     {
         const Matrix<ScaleType, 3, 1> target_speed{speed[WHEEL_VX], speed[WHEEL_VY], speed[WHEEL_OMEGA]};
 
@@ -55,23 +75,11 @@ public:
     }
 
 private:
-    const ScaleType width_;
-    const ScaleType length_;
-
     /* clang-format off */
-    const std::array<ScaleType, 4> rx{ length_ / ScaleType(2),
-                                      -length_ / ScaleType(2),
-                                      -length_ / ScaleType(2),
-                                       length_ / ScaleType(2)};
-    const std::array<ScaleType, 4> ry{ width_ / ScaleType(2),
-                                       width_ / ScaleType(2),
-                                      -width_ / ScaleType(2),
-                                      -width_ / ScaleType(2)};
-
-    const Matrix<ScaleType, 4, 3> traits_matrix{{1, -1, -rx[1] - ry[1]},
-                                                {1,  1,  rx[2] - ry[2]},
-                                                {1, -1, -rx[3] - ry[3]},
-                                                {1,  1,  rx[4] - ry[4]}};
+    const Matrix<ScaleType, 4, 3> traits_matrix{{1, -1, -this->rx[1] - this->ry[1]},
+                                                {1,  1,  this->rx[2] - this->ry[2]},
+                                                {1, -1, -this->rx[3] - this->ry[3]},
+                                                {1,  1,  this->rx[4] - this->ry[4]}};
     /* clang-format on */
 };
 
