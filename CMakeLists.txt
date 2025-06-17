@@ -36,17 +36,28 @@ target_sources(${PROJECT_NAME}
         ${RMDEV_PUBLIC_SOURCES}
 )
 
-if (RMDEV_ENABLE_TESTS)
-    add_subdirectory(test/unit_test)
+if (RMDEV_USE_STM32CUBEMX)
+    enable_language(ASM)
+    target_link_libraries(${PROJECT_NAME} PUBLIC stm32cubemx)
 endif ()
 
 if (RMDEV_USE_CMSIS_DSP)
-    add_definitions(-DRMDEV_USE_CMSIS_DSP=1)
-
     if (RMDEV_USE_STM32CUBEMX)
-        enable_language(ASM)
-        target_link_libraries(${PROJECT_NAME} PUBLIC stm32cubemx)
+        add_definitions(-DRMDEV_USE_CMSIS_DSP=1)
+
+    elseif ((DEFINED RMDEV_ARM_MATH_HEADER_DIR) AND
+            (DEFINED RMDEV_CMSIS_DSP_LIB_DIR) AND
+            (DEFINED RMDEV_CMSIS_DSP_LIB_NAME))
+        target_include_directories(${PROJECT_NAME} PUBLIC ${RMDEV_ARM_MATH_HEADER_DIR})
+        target_link_directories(${PROJECT_NAME} PUBLIC ${RMDEV_CMSIS_DSP_LIB_DIR})
+        target_link_libraries(${PROJECT_NAME} PUBLIC :${RMDEV_CMSIS_DSP_LIB_NAME})
+
+        add_definitions(-DRMDEV_USE_CMSIS_DSP=1)
     else ()
-        # todo 后续增加对其他平台的支持
+        message(FATAL_ERROR "Use of CMSIS-DSP requires either RMDEV_USE_STM32CUBEMX to be enabled or RMDEV_ARM_MATH_HEADER_DIR, RMDEV_CMSIS_DSP_LIB_DIR, and RMDEV_CMSIS_DSP_LIB_NAME to be defined.")
     endif ()
+endif ()
+
+if (RMDEV_ENABLE_TESTS)
+    add_subdirectory(test/unit_test)
 endif ()
