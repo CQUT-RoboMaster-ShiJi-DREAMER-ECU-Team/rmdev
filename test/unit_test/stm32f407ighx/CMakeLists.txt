@@ -55,7 +55,7 @@ target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE
     stm32cubemx
 
     # Add user defined libraries
-    platform_test
+    unit_test
 )
 
 # Add include paths

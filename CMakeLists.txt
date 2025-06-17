@@ -37,7 +37,7 @@ target_sources(${PROJECT_NAME}
 )
 
 if (RMDEV_ENABLE_TESTS)
-    add_subdirectory(test/platform_test)
+    add_subdirectory(test/unit_test)
 endif ()
 
 if (RMDEV_USE_CMSIS_DSP)
