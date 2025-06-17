@@ -14,7 +14,7 @@
  * @param ClassName 待删除的类名
  */
 #define RMDEV_DELETE_COPY_CONSTRUCTOR(ClassName) \
-    ClassName(const ClassName&) = delete;  \
+    ClassName(const ClassName&) = delete;        \
     ClassName& operator=(const ClassName&) = delete
 
 /**
@@ -22,7 +22,7 @@
  * @param ClassName 待删除的类名
  */
 #define RMDEV_DELETE_MOVE_CONSTRUCTOR(ClassName) \
-    ClassName(ClassName&&) = delete;       \
+    ClassName(ClassName&&) = delete;             \
     ClassName& operator=(const ClassName&&) = delete
 
 /**
@@ -30,7 +30,7 @@
  * @param ClassName 待删除的类名
  */
 #define RMDEV_DELETE_COPY_AND_MOVE(ClassName) \
-    DELETE_COPY_CONSTRUCTOR(ClassName); \
-    DELETE_MOVE_CONSTRUCTOR(ClassName)
+    RMDEV_DELETE_COPY_CONSTRUCTOR(ClassName); \
+    RMDEV_DELETE_MOVE_CONSTRUCTOR(ClassName)
 
 #endif  // !RMDEV_SIMPLIFY_DECL_HPP
