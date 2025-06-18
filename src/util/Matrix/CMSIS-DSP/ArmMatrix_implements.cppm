@@ -246,7 +246,7 @@ constexpr bool ArmMatrix<Type, row, col>::equ(const ArmMatrix& other) const
                       this->data.end(),
                       other.data.begin(),
                       other.data.end(),
-                      [](const auto a, const auto b) -> bool { return floatEqu(a, b); });
+                      [](const auto a, const auto b) -> bool { return weakEqu(a, b); });
 }
 
 template<typename Type, std::size_t row, std::size_t col>
@@ -257,7 +257,7 @@ constexpr bool ArmMatrix<Type, row, col>::equ(std::initializer_list<Type> mat_da
                       this->data.end(),
                       mat_data.begin(),
                       mat_data.end(),
-                      [](const auto a, const auto b) -> bool { return floatEqu(a, b); });
+                      [](const auto a, const auto b) -> bool { return weakEqu(a, b); });
 }
 
 template<typename Type, std::size_t row, std::size_t col>
@@ -270,7 +270,7 @@ constexpr bool ArmMatrix<Type, row, col>::equ(std::initializer_list<std::initial
                        row_data.end(),
                        this->data.begin() + i * col,
                        this->data.begin() + i * col + col,
-                       [](const auto a, const auto b) -> bool { return floatEqu(a, b); }) == false) {
+                       [](const auto a, const auto b) -> bool { return weakEqu(a, b); }) == false) {
             return false;
         }
         i++;
@@ -287,7 +287,7 @@ constexpr bool ArmMatrix<Type, row, col>::equ(const ArmMatrix& other, const Type
                       this->data.end(),
                       other.data.begin(),
                       other.data.end(),
-                      [error](const auto a, const auto b) -> bool { return floatEqu(a, b, error); });
+                      [error](const auto a, const auto b) -> bool { return weakEqu(a, b, error); });
 }
 
 template<typename Type, std::size_t row, std::size_t col>
@@ -298,7 +298,7 @@ constexpr bool ArmMatrix<Type, row, col>::equ(std::initializer_list<Type> mat_da
                       this->data.end(),
                       mat_data.begin(),
                       mat_data.end(),
-                      [error](const auto a, const auto b) -> bool { return floatEqu(a, b, error); });
+                      [error](const auto a, const auto b) -> bool { return weakEqu(a, b, error); });
 }
 
 template<typename Type, std::size_t row, std::size_t col>
@@ -312,7 +312,7 @@ constexpr bool ArmMatrix<Type, row, col>::equ(std::initializer_list<std::initial
                        row_data.end(),
                        this->data.begin() + i * col,
                        this->data.begin() + i * col + col,
-                       [error](const auto a, const auto b) -> bool { return floatEqu(a, b, error); }) == false) {
+                       [error](const auto a, const auto b) -> bool { return weakEqu(a, b, error); }) == false) {
             return false;
         }
         i++;

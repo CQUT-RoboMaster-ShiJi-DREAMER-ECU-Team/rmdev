@@ -36,7 +36,7 @@ export template<typename Type, std::size_t row, std::size_t col>
 class ArmMatrix
 {
 public:
-    // 由于 CMSIS-DSP 的矩阵加法函数需要分配一个新的矩阵，常规运算符难以实现，因此删除基本运算符
+    // todo 待实现这些运算符
     ArmMatrix& operator+(const ArmMatrix& other) = delete;
     ArmMatrix& operator-(const ArmMatrix& other) = delete;
     ArmMatrix& operator*(const ArmMatrix& other) = delete;

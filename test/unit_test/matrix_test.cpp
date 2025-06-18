@@ -37,11 +37,11 @@ static void armMatCInterfaceTest()
     RMDEV_TEST_ASSERT(std::equal(mat1_inv.pData,
                                  mat1_inv.pData + 3 * 3,
                                  mat1_inv_expected_data,
-                                 [](const float a, const float b) -> bool { return rmdev::floatEqu(a, b); }));
+                                 [](const float a, const float b) -> bool { return rmdev::weakEqu(a, b); }));
     // 需要注意的是 arm_mat_inverse 运算完成后会把待求逆的矩阵化为单位矩阵，因此计算完成后，原来的数据会丢失
     RMDEV_TEST_ASSERT(
         !std::equal(mat1_inv.pData, mat1_inv.pData + 3 * 3, mat1_origin_data, [](const float a, const float b) -> bool {
-            return rmdev::floatEqu(a, b);
+            return rmdev::weakEqu(a, b);
         }));
 }
 
@@ -51,18 +51,18 @@ constexpr rmdev::ArmMatrix<float, 3, 3> global_mat1_origin{1, 2, 3, 4, 5, 6, 7, 
 
 static void armMatrixBasicTest()
 {
-    using rmdev::floatEqu;
+    using rmdev::weakEqu;
 
     RMDEV_TEST_ITEM("ArmMatrix Basic Test");
 
-    RMDEV_TEST_ASSERT(floatEqu(global_mat1(1, 1), 1.0f));
-    RMDEV_TEST_ASSERT(floatEqu(global_mat1(2, 2), 5.0f));
+    RMDEV_TEST_ASSERT(weakEqu(global_mat1(1, 1), 1.0f));
+    RMDEV_TEST_ASSERT(weakEqu(global_mat1(2, 2), 5.0f));
     RMDEV_TEST_ASSERT(global_mat1 == global_mat2);
 
     global_mat1 = {9, 8, 7, 6, 5, 4, 3, 2, 1};
     global_mat2 = {{9, 8, 7}, {6, 5, 4}, {3, 2, 1}};
 
-    RMDEV_TEST_ASSERT(floatEqu(global_mat1(1, 1), 9.0f) && floatEqu(global_mat1(2, 1), 6.0f));
+    RMDEV_TEST_ASSERT(weakEqu(global_mat1(1, 1), 9.0f) && weakEqu(global_mat1(2, 1), 6.0f));
     RMDEV_TEST_ASSERT(global_mat1 == global_mat2);
     RMDEV_TEST_ASSERT(global_mat1 != global_mat1_origin);
 
@@ -79,18 +79,18 @@ static void armMatrixBasicTest()
 
     rmdev::ArmMatrix<float, 3, 3> mat1;
 
-    RMDEV_TEST_ASSERT(floatEqu(mat1(1, 1), 0.0f));
+    RMDEV_TEST_ASSERT(weakEqu(mat1(1, 1), 0.0f));
 
     mat1(1, 1) = 1.0f;
     mat1(2, 1) = 2.0f;
     mat1(3, 3) = 3.0f;
-    RMDEV_TEST_ASSERT(floatEqu(mat1(1, 1), 1.0f) && floatEqu(mat1(2, 1), 2.0f) && floatEqu(mat1(3, 3), 3.0f));
+    RMDEV_TEST_ASSERT(weakEqu(mat1(1, 1), 1.0f) && weakEqu(mat1(2, 1), 2.0f) && weakEqu(mat1(3, 3), 3.0f));
 
     *mat1.at(3, 1) = 245.0f;
     *mat1.at(2, 3) = 123.0f;
     *mat1.at(1, 2) = 456.0f;
-    RMDEV_TEST_ASSERT(floatEqu(*mat1.at(3, 1), 245.0f) && floatEqu(*mat1.at(2, 3), 123.0f) &&
-                      floatEqu(*mat1.at(1, 2), 456.0f));
+    RMDEV_TEST_ASSERT(weakEqu(*mat1.at(3, 1), 245.0f) && weakEqu(*mat1.at(2, 3), 123.0f) &&
+                      weakEqu(*mat1.at(1, 2), 456.0f));
 
     std::array nullnum_in_mat1{mat1.at(0, 0),
                                mat1.at(0, 2),
@@ -107,14 +107,14 @@ static void armMatrixBasicTest()
     rmdev::ArmMatrix<float, 3, 3> mat2{1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f, 7.0f, 8.0f, 9.0f};
     rmdev::ArmMatrix<float, 3, 3> mat3{{1.0f, 2.0f, 3.0f}, {4.0f, 5.0f, 6.0f}, {7.0f, 8.0f, 9.0f}};
     RMDEV_TEST_ASSERT(
-        rmdev::floatEqu(mat2(1, 1), 1.0f) && rmdev::floatEqu(mat2(1, 2), 2.0f) && rmdev::floatEqu(mat2(1, 3), 3.0f) &&
-        rmdev::floatEqu(mat2(2, 1), 4.0f) && rmdev::floatEqu(mat2(2, 2), 5.0f) && rmdev::floatEqu(mat2(2, 3), 6.0f) &&
-        rmdev::floatEqu(mat2(3, 1), 7.0f) && rmdev::floatEqu(mat2(3, 2), 8.0f) && rmdev::floatEqu(mat2(3, 3), 9.0f));
+        rmdev::weakEqu(mat2(1, 1), 1.0f) && rmdev::weakEqu(mat2(1, 2), 2.0f) && rmdev::weakEqu(mat2(1, 3), 3.0f) &&
+        rmdev::weakEqu(mat2(2, 1), 4.0f) && rmdev::weakEqu(mat2(2, 2), 5.0f) && rmdev::weakEqu(mat2(2, 3), 6.0f) &&
+        rmdev::weakEqu(mat2(3, 1), 7.0f) && rmdev::weakEqu(mat2(3, 2), 8.0f) && rmdev::weakEqu(mat2(3, 3), 9.0f));
 
     bool mat2_and_mat3_are_equal = true;
     for (std::size_t i = 1; i <= 3; ++i) {
         for (std::size_t j = 1; j <= 3; ++j) {
-            if (!rmdev::floatEqu(mat2(i, j), mat3(i, j))) {
+            if (!rmdev::weakEqu(mat2(i, j), mat3(i, j))) {
                 mat2_and_mat3_are_equal = false;
                 break;
             }
@@ -161,7 +161,7 @@ static void armMatrixBasicTest()
     bool mat2_and_mat8_are_equal = true;
     for (std::size_t i = 1; i <= 3; ++i) {
         for (std::size_t j = 1; j <= 3; ++j) {
-            if (!floatEqu(mat2(i, j), mat8_const(i, j))) {
+            if (!weakEqu(mat2(i, j), mat8_const(i, j))) {
                 mat2_and_mat8_are_equal = false;
                 break;
             }
@@ -175,7 +175,7 @@ static void armMatrixBasicTest()
     bool mat2_and_mat8_are_equal_use_at = true;
     for (std::size_t i = 1; i <= 3; ++i) {
         for (std::size_t j = 1; j <= 3; ++j) {
-            if (!floatEqu(*mat8_const.at(i, j), mat2(i, j))) {
+            if (!weakEqu(*mat8_const.at(i, j), mat2(i, j))) {
                 mat2_and_mat8_are_equal_use_at = false;
                 break;
             }
@@ -251,7 +251,7 @@ static void armMatrixCalcTest()
     bool mat1_add_mat2_is_equal_to_expected = true;
     for (std::size_t i = 1; i <= 3; ++i) {
         for (std::size_t j = 1; j <= 3; ++j) {
-            if (!rmdev::floatEqu(mat1_add_mat2(i, j), mat1_add_mat2_expected(i, j))) {
+            if (!rmdev::weakEqu(mat1_add_mat2(i, j), mat1_add_mat2_expected(i, j))) {
                 mat1_add_mat2_is_equal_to_expected = false;
                 break;
             }
@@ -268,7 +268,7 @@ static void armMatrixCalcTest()
     bool mat1_sub_mat2_is_equal_to_expected = true;
     for (std::size_t i = 1; i <= 3; ++i) {
         for (std::size_t j = 1; j <= 3; ++j) {
-            if (!rmdev::floatEqu(mat1_sub_mat2(i, j), mat1_sub_mat2_expected(i, j))) {
+            if (!rmdev::weakEqu(mat1_sub_mat2(i, j), mat1_sub_mat2_expected(i, j))) {
                 mat1_sub_mat2_is_equal_to_expected = false;
                 break;
             }
@@ -285,7 +285,7 @@ static void armMatrixCalcTest()
     bool mat1_mul_5_is_equal_to_expected = true;
     for (std::size_t i = 1; i <= 3; ++i) {
         for (std::size_t j = 1; j <= 3; ++j) {
-            if (!rmdev::floatEqu(mat1_mul_5(i, j), mat1_mul_5_expected(i, j))) {
+            if (!rmdev::weakEqu(mat1_mul_5(i, j), mat1_mul_5_expected(i, j))) {
                 mat1_mul_5_is_equal_to_expected = false;
                 break;
             }
@@ -301,7 +301,7 @@ static void armMatrixCalcTest()
     mat1_mul_5_is_equal_to_expected = true;
     for (std::size_t i = 1; i <= 3; ++i) {
         for (std::size_t j = 1; j <= 3; ++j) {
-            if (!rmdev::floatEqu(mat1_mul_5(i, j), mat1_mul_5_expected(i, j))) {
+            if (!rmdev::weakEqu(mat1_mul_5(i, j), mat1_mul_5_expected(i, j))) {
                 mat1_mul_5_is_equal_to_expected = false;
                 break;
             }
@@ -318,7 +318,7 @@ static void armMatrixCalcTest()
     bool mat1_mul_mat2_is_equal_to_expected = true;
     for (std::size_t i = 1; i <= 3; ++i) {
         for (std::size_t j = 1; j <= 3; ++j) {
-            if (!rmdev::floatEqu(mat1_mul_mat2(i, j), mat1_mul_mat2_expected(i, j))) {
+            if (!rmdev::weakEqu(mat1_mul_mat2(i, j), mat1_mul_mat2_expected(i, j))) {
                 mat1_mul_mat2_is_equal_to_expected = false;
                 break;
             }

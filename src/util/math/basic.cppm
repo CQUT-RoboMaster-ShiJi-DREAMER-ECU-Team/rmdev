@@ -79,20 +79,37 @@ constexpr double sgn<double>(const double n)
 }
 
 /**
- * 浮点数等于比较
- * @tparam FloatType 具体的浮点类型
+ * 弱等于
+ * @tparam Type 类型
  * @param a 第一个数
  * @param b 第二个数
  * @param error 允许的误差（a、b 之差的绝对值小于这个值即认为相等）
  * @return a、b 是否相等
  */
-template<typename FloatType>
-    requires FloatingPointType<FloatType>
-constexpr bool floatEqu(FloatType a,
-                        FloatType b,
-                        FloatType error = static_cast<FloatType>(float_equ_default_error_value))
+template<typename Type>
+    requires ArithmeticType<Type>
+constexpr bool weakEqu(const Type a, const Type b, Type error)
 {
-    return std::abs(a - b) < error;
+    return std::abs(a - b) <= error;
+}
+
+/**
+ * 弱等于
+ * @note 如果是浮点数，则使用默认的误差值进行弱等于比较；否则表示严格等于
+ * @tparam Type 类型
+ * @param a 第一个数
+ * @param b 第二个数
+ * @return a、b 是否相等
+ */
+template<typename Type>
+    requires ArithmeticType<Type>
+constexpr bool weakEqu(const Type a, const Type b)
+{
+    if constexpr (std::is_floating_point_v<Type>) {
+        return weakEqu(a, b, Type(float_equ_default_error_value));
+    }
+
+    return (a == b);
 }
 
 }  // namespace rmdev

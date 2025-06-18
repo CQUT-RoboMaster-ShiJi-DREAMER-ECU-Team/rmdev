@@ -33,16 +33,16 @@ static void basicTest()
     RMDEV_TEST_ASSERT(a == 114514 && a() != 2472);
 
     InitOnce<float> f;
-    RMDEV_TEST_ASSERT(rmdev::floatEqu(f(), 0.0f));
+    RMDEV_TEST_ASSERT(rmdev::weakEqu(f(), 0.0f));
 
     error_code = f.init(2.3f);
-    RMDEV_TEST_ASSERT(error_code == rmdev::ErrorCode::Success && rmdev::floatEqu(f(), 2.3f));
+    RMDEV_TEST_ASSERT(error_code == rmdev::ErrorCode::Success && rmdev::weakEqu(f(), 2.3f));
 
     f = 114514.1919810f;
-    RMDEV_TEST_ASSERT(rmdev::floatEqu(f(), 2.3f));
+    RMDEV_TEST_ASSERT(rmdev::weakEqu(f(), 2.3f));
 
     error_code = f.init(4235.2);
-    RMDEV_TEST_ASSERT(rmdev::floatEqu(f(), 2.3f) && error_code == rmdev::ErrorCode::AlreadyExists);
+    RMDEV_TEST_ASSERT(rmdev::weakEqu(f(), 2.3f) && error_code == rmdev::ErrorCode::AlreadyExists);
 
     InitOnce<short> b(8);
     RMDEV_TEST_ASSERT(b == 8);
@@ -54,7 +54,7 @@ static void basicTest()
     RMDEV_TEST_ASSERT(c == 2 && c() == 2);
 
     constexpr InitOnce d{2.3f};
-    RMDEV_TEST_ASSERT(rmdev::floatEqu<float>(d, 2.3f));
+    RMDEV_TEST_ASSERT(rmdev::weakEqu<float>(d, 2.3f));
 }
 
 constinit rmdev::InitOnce global1{5};
@@ -80,7 +80,7 @@ static void globalTest()
     err = global2.init(23415);
     RMDEV_TEST_ASSERT(global2 == 2 && err == rmdev::ErrorCode::AlreadyExists);
 
-    RMDEV_TEST_ASSERT(rmdev::floatEqu(global3(), 5.4));
+    RMDEV_TEST_ASSERT(rmdev::weakEqu(global3(), 5.4));
 
     RMDEV_TEST_ASSERT(global4 == 5);
 
