@@ -27,9 +27,11 @@ export enum class ErrorCode : std::int8_t {
     NotFound = -4,          ///< 未找到
     PermissionDenied = -5,  ///< 权限被拒绝
     Timeout = -6,           ///< 超时
-    AlreadyExists = -7,     ///< 已存在
-    NotImplemented = -8,    ///< 未实现
-    InternalError = -9      ///< 内部错误
+    Full = -7,              ///< 已满
+    Empty = -8,             ///< 为空
+    AlreadyExists = -9,     ///< 已存在
+    NotImplemented = -10,   ///< 未实现
+    InternalError = -11     ///< 内部错误
 };
 
 /**

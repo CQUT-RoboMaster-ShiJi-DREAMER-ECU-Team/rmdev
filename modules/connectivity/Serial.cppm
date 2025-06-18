@@ -14,6 +14,8 @@ module;
 
 export module rmdev.connectivity.Serial;
 
+export import rmdev.error_handler;
+
 import rmdev.connectivity.Connect;
 
 export namespace rmdev {
@@ -25,6 +27,10 @@ public:
     RMDEV_DELETE_COPY_AND_MOVE(Serial);
 
     Serial(const std::string_view name, const ConnectMethod tx, const ConnectMethod rx) : Connect(name, tx, rx) {}
+
+    ErrorCode tx(const uint8_t* data, std::size_t size) const noexcept;
+
+    ErrorCode rx(const uint8_t* data, std::size_t size) const noexcept;
 };
 
 }  // namespace rmdev
