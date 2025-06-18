@@ -20,27 +20,27 @@ module;
 export module rmdev.thread.message_queue:implements;
 import :interface;
 
-export namespace rmdev {
+namespace rmdev {
 
-template<typename Type, std::size_t length>
-class MessageQueue : public MessageQueueInterface<MessageQueue<Type, length>>
+export template<typename Type, std::size_t length>
+class MessageQueueView : public MessageQueueInterface<MessageQueueView<Type, length>>
 {
 public:
     using DataType = Type;
 
-    MessageQueue() : handle(xQueueCreateStatic(length, sizeof(DataType), storge_memory, &queue_buffer))
+    explicit MessageQueueView(QueueHandle_t handle) : handle_(handle)
     {
         if (handle == nullptr) {
             RMDEV_FAULT_HANDLER("Failed to create message queue!");
         }
     }
 
-private:
+protected:
     ErrorCode push_impl(const bool in_isr, const Type& data, const std::size_t timeout)
     {
         if (in_isr) {
             BaseType_t xHigherPriorityTaskWokenByPost = pdFALSE;
-            const auto ret = xQueueSendFromISR(handle, &data, &xHigherPriorityTaskWokenByPost);
+            const auto ret = xQueueSendFromISR(handle_, &data, &xHigherPriorityTaskWokenByPost);
 
             ErrorCode final_ret;
 
@@ -58,7 +58,7 @@ private:
             return final_ret;
         }
         else {
-            const auto ret = xQueueSend(handle, &data, timeout);
+            const auto ret = xQueueSend(handle_, &data, timeout);
             if (ret == pdTRUE) {
                 return ErrorCode::Success;
             }
@@ -72,7 +72,7 @@ private:
     {
         if (in_isr) {
             BaseType_t xHigherPriorityTaskWokenByPost = pdFALSE;
-            const auto ret = xQueueReceiveFromISR(handle, &data, &xHigherPriorityTaskWokenByPost);
+            const auto ret = xQueueReceiveFromISR(handle_, &data, &xHigherPriorityTaskWokenByPost);
 
             ErrorCode final_ret;
 
@@ -90,7 +90,7 @@ private:
             return final_ret;
         }
         else {
-            const auto ret = xQueueReceive(handle, &data, timeout);
+            const auto ret = xQueueReceive(handle_, &data, timeout);
             if (ret == pdTRUE) {
                 return ErrorCode::Success;
             }
@@ -109,7 +109,7 @@ private:
     ErrorCode peek_impl(bool in_isr, Type& data, std::size_t timeout)
     {
         if (in_isr) {
-            const auto ret = xQueuePeekFromISR(handle, &data);
+            const auto ret = xQueuePeekFromISR(handle_, &data);
 
             ErrorCode final_ret;
 
@@ -123,7 +123,7 @@ private:
             return final_ret;
         }
         else {
-            const auto ret = xQueuePeek(handle, &data, timeout);
+            const auto ret = xQueuePeek(handle_, &data, timeout);
             if (ret == pdTRUE) {
                 return ErrorCode::Success;
             }
@@ -135,18 +135,38 @@ private:
 
     [[nodiscard]] std::size_t size_impl() const
     {
-        return uxQueueMessagesWaiting(handle);
+        return uxQueueMessagesWaiting(handle_);
     }
 
     [[nodiscard]] std::size_t remainSize_impl() const
     {
-        return uxQueueSpacesAvailable(handle);
+        return uxQueueSpacesAvailable(handle_);
+    }
+
+protected:
+    QueueHandle_t handle_;
+};
+
+export template<typename Type, std::size_t length>
+class MessageQueue : MessageQueueView<Type, length>
+{
+public:
+    MessageQueue()
+        : MessageQueueView<Type, length>(xQueueCreateStatic(length,
+                                                            sizeof(typename MessageQueueView<Type, length>::DataType),
+                                                            storge_memory,
+                                                            &queue_buffer))
+    {
+    }
+
+    [[nodiscard]] QueueHandle_t getHandle() const
+    {
+        return this->handle_;
     }
 
 private:
-    QueueHandle_t handle;
     StaticQueue_t queue_buffer{};
-    ubyte_t storge_memory[length * sizeof(DataType)]{};
+    ubyte_t storge_memory[length * sizeof(Type)]{};
 };
 
 }  // namespace rmdev
