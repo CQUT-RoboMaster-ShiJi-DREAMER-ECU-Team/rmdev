@@ -146,7 +146,7 @@ private:
 private:
     QueueHandle_t handle;
     StaticQueue_t queue_buffer{};
-    ubyte_t storge_memory[length]{};
+    ubyte_t storge_memory[length * sizeof(DataType)]{};
 };
 
 }  // namespace rmdev

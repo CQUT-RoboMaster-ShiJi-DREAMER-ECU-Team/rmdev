@@ -84,8 +84,15 @@ if (NOT(DEFINED RMDEV_DISABLE_MATRIX))
 endif ()
 
 if (NOT(DEFINED RMDEV_DISABLE_THREAD))
-    file(GLOB_RECURSE RMDEV_THREAD_MODULES
-        "System/*.cppm"
+    if (NOT(DEFINED RMDEV_THREAD_SYSTEM))
+        message("Undefined RMDEV_THREAD_SYSTEM, defaulting to use 'FreeRTOS'")
+
+        set(RMDEV_THREAD_SYSTEM "FreeRTOS")
+    endif ()
+
+    file(GLOB RMDEV_THREAD_MODULES
+        "System/Interface/*.cppm"
+        "System/Implements/${RMDEV_THREAD_SYSTEM}/*.cppm"
         "modules/thread/*.cppm"
     )
     target_sources(${PROJECT_NAME}
