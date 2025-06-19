@@ -19,8 +19,8 @@ rmdev: RoboMaster Development
 
 ### 安装
 
-使用 `git clone` 或 `git submodule`（推荐）将本库克隆到你的项目中，然后通过
-`add_subdirectory` 将其添加到你的 CMake 项目中。
+使用 `git clone` 或 `git submodule`（推荐）将代码克隆到您的项目中，然后通过
+`add_subdirectory` 将其添加到您的 CMake 项目中。
 
 ### 配置
 
