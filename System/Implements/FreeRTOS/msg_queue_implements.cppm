@@ -28,11 +28,18 @@ class MessageQueueView : public MessageQueueInterface<MessageQueueView<Type, len
 public:
     using DataType = Type;
 
+    MessageQueueView() = delete;
+
     explicit MessageQueueView(QueueHandle_t handle) : handle_(handle)
     {
         if (handle == nullptr) {
             RMDEV_FAULT_HANDLER("Failed to create message queue!");
         }
+    }
+
+    [[nodiscard]] QueueHandle_t getHandle() const
+    {
+        return this->handle_;
     }
 
 protected:
@@ -157,11 +164,6 @@ public:
                                                             storge_memory,
                                                             &queue_buffer))
     {
-    }
-
-    [[nodiscard]] QueueHandle_t getHandle() const
-    {
-        return this->handle_;
     }
 
 private:

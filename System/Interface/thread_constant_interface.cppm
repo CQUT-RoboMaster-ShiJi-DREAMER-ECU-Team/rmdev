@@ -12,6 +12,9 @@ export module rmdev.thread.constant:interface;
 
 export namespace rmdev::thread {
 
+/**
+ * 等待时间最大值
+ */
 consteval auto MAX_DELAY() noexcept;
 
 }  // namespace rmdev::thread
