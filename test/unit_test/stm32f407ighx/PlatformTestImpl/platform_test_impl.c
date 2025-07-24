@@ -42,12 +42,7 @@ static void testPrintf(const char* format, ...)
     va_end(args);
 }
 
-static void testDelay(const unsigned int ms)
-{
-    HAL_Delay(ms);
-}
-
-static void testItem(void)
+static void testEntry(void)
 {
     test_main();
 }
@@ -58,5 +53,6 @@ static void testItem(void)
  */
 void stm32f407ighx_test_main(void)
 {
-    rmdev_test_framework_main("\r\n", testPrintf, testDelay, testItem);
+    const rmdev_test_Callbacks callbacks = {.printfCallback = testPrintf, .testEntryCallback = testEntry};
+    rmdev_test_framework_main("\r\n", &callbacks, NULL);
 }

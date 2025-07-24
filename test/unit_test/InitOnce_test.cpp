@@ -12,49 +12,51 @@
 import rmdev.util.InitOnce;
 import rmdev.util.math;
 
-static void basicTest()
+static TEST_SUIT(BasicTest)
 {
-    RMDEV_TEST_ITEM("InitOnce Basic Test");
+    TEST_CASE_BEGIN(InitOnceBasicTest);
+    {
+        using rmdev::InitOnce;
 
-    using rmdev::InitOnce;
+        InitOnce<int> a;
+        EXPECT_TRUE(a == 0);
+        EXPECT_TRUE(a() == 0);
 
-    InitOnce<int> a;
-    RMDEV_TEST_ASSERT(a == 0);
-    RMDEV_TEST_ASSERT(a() == 0);
+        a = 114514;
+        EXPECT_TRUE(a == 114514);
 
-    a = 114514;
-    RMDEV_TEST_ASSERT(a == 114514);
+        a = 1;
+        EXPECT_TRUE(a() == 114514 && a != 1);
 
-    a = 1;
-    RMDEV_TEST_ASSERT(a() == 114514 && a != 1);
+        auto error_code = a.init(2472);
+        EXPECT_TRUE(error_code == rmdev::ErrorCode::AlreadyExists);
+        EXPECT_TRUE(a == 114514 && a() != 2472);
 
-    auto error_code = a.init(2472);
-    RMDEV_TEST_ASSERT(error_code == rmdev::ErrorCode::AlreadyExists);
-    RMDEV_TEST_ASSERT(a == 114514 && a() != 2472);
+        InitOnce<float> f;
+        EXPECT_TRUE(rmdev::weakEqu(f(), 0.0f));
 
-    InitOnce<float> f;
-    RMDEV_TEST_ASSERT(rmdev::weakEqu(f(), 0.0f));
+        error_code = f.init(2.3f);
+        EXPECT_TRUE(error_code == rmdev::ErrorCode::Success && rmdev::weakEqu(f(), 2.3f));
 
-    error_code = f.init(2.3f);
-    RMDEV_TEST_ASSERT(error_code == rmdev::ErrorCode::Success && rmdev::weakEqu(f(), 2.3f));
+        f = 114514.1919810f;
+        EXPECT_TRUE(rmdev::weakEqu(f(), 2.3f));
 
-    f = 114514.1919810f;
-    RMDEV_TEST_ASSERT(rmdev::weakEqu(f(), 2.3f));
+        error_code = f.init(4235.2);
+        EXPECT_TRUE(rmdev::weakEqu(f(), 2.3f) && error_code == rmdev::ErrorCode::AlreadyExists);
 
-    error_code = f.init(4235.2);
-    RMDEV_TEST_ASSERT(rmdev::weakEqu(f(), 2.3f) && error_code == rmdev::ErrorCode::AlreadyExists);
+        InitOnce<short> b(8);
+        EXPECT_TRUE(b == 8);
 
-    InitOnce<short> b(8);
-    RMDEV_TEST_ASSERT(b == 8);
+        b = 1;
+        EXPECT_TRUE(b == 8 && b() == 8);
 
-    b = 1;
-    RMDEV_TEST_ASSERT(b == 8 && b() == 8);
+        const auto c = static_cast<InitOnce<signed char>>(2);
+        EXPECT_TRUE(c == 2 && c() == 2);
 
-    const auto c = static_cast<InitOnce<signed char>>(2);
-    RMDEV_TEST_ASSERT(c == 2 && c() == 2);
-
-    constexpr InitOnce d{2.3f};
-    RMDEV_TEST_ASSERT(rmdev::weakEqu<float>(d, 2.3f));
+        constexpr InitOnce d{2.3f};
+        EXPECT_TRUE(rmdev::weakEqu<float>(d, 2.3f));
+    }
+    TEST_CASE_END();
 }
 
 constinit rmdev::InitOnce global1{5};
@@ -63,34 +65,40 @@ constinit const rmdev::InitOnce global3{5.4};
 constexpr rmdev::InitOnce global4{5};
 constinit const rmdev::InitOnce<int> global5;
 
-static void globalTest()
+static TEST_SUIT(GlobalTest)
 {
-    RMDEV_TEST_ITEM("InitOnce Global Test");
+    TEST_CASE_BEGIN(InitOnceGlobalTest);
+    {
+        global1 = 1;
+        EXPECT_TRUE(global1() == 5);
 
-    global1 = 1;
-    RMDEV_TEST_ASSERT(global1() == 5);
+        auto err = global1.init(23415);
+        EXPECT_TRUE(global1 == 5 && err == rmdev::ErrorCode::AlreadyExists);
 
-    auto err = global1.init(23415);
-    RMDEV_TEST_ASSERT(global1 == 5 && err == rmdev::ErrorCode::AlreadyExists);
+        EXPECT_TRUE(global2 == 0);
+        global2 = 2;
+        EXPECT_TRUE(global2 == 2);
 
-    RMDEV_TEST_ASSERT(global2 == 0);
-    global2 = 2;
-    RMDEV_TEST_ASSERT(global2 == 2);
+        err = global2.init(23415);
+        EXPECT_TRUE(global2 == 2 && err == rmdev::ErrorCode::AlreadyExists);
 
-    err = global2.init(23415);
-    RMDEV_TEST_ASSERT(global2 == 2 && err == rmdev::ErrorCode::AlreadyExists);
+        EXPECT_TRUE(rmdev::weakEqu(global3(), 5.4));
 
-    RMDEV_TEST_ASSERT(rmdev::weakEqu(global3(), 5.4));
+        EXPECT_TRUE(global4 == 5);
 
-    RMDEV_TEST_ASSERT(global4 == 5);
-
-    RMDEV_TEST_ASSERT(global5 == 0);
+        EXPECT_TRUE(global5 == 0);
+    }
+    TEST_CASE_END();
 }
 
-static void moveTest()
+// only for suit MoveTest
+bool test_allocate_failed = false;
+void allocateFailed()
 {
-    RMDEV_TEST_ITEM("Class Move Test");
-
+    test_allocate_failed = true;
+}
+static TEST_SUIT(MoveTest)
+{
     class Test final
     {
     public:
@@ -98,7 +106,7 @@ static void moveTest()
         {
             p_data = new int[5];
             if (p_data == nullptr) {
-                RMDEV_TEST_ASSERT(false);
+                allocateFailed();
             }
         }
 
@@ -106,7 +114,7 @@ static void moveTest()
         {
             p_data = new int[5];
             if (p_data == nullptr) {
-                RMDEV_TEST_ASSERT(false);
+                allocateFailed();
             }
             auto size = data.size();
             if (size > 5) {
@@ -119,7 +127,7 @@ static void moveTest()
         {
             p_data = new int[5];
             if (p_data == nullptr) {
-                RMDEV_TEST_ASSERT(false);
+                allocateFailed();
             }
             std::copy_n(other.p_data, 5, p_data);
         }
@@ -130,7 +138,7 @@ static void moveTest()
                 if (p_data == nullptr) {
                     p_data = new int[5];
                     if (p_data == nullptr) {
-                        RMDEV_TEST_ASSERT(false);
+                        allocateFailed();
                     }
                 }
                 std::copy_n(other.p_data, 5, p_data);
@@ -185,63 +193,87 @@ static void moveTest()
         int* p_data = nullptr;
     };
 
+    test_allocate_failed = false;
+    TEST_CASE_BEGIN(ClassMoveTest);
     {
         const Test a{1, 2, 3, 4, 5};
+        ASSERT_FALSE(test_allocate_failed, "");
         Test b{a};
 
-        RMDEV_TEST_ASSERT(a == b);
+        ASSERT_FALSE(test_allocate_failed, "");
+
+        EXPECT_TRUE(a == b);
 
         Test c(std::move(b));
-        RMDEV_TEST_ASSERT(c == a && b.data() == nullptr);
+        ASSERT_FALSE(test_allocate_failed, "");
+        EXPECT_TRUE(c == a && b.data() == nullptr);
 
         b = a;
-        RMDEV_TEST_ASSERT(b == a);
+        EXPECT_TRUE(b == a);
 
         Test d{};
+        ASSERT_FALSE(test_allocate_failed, "");
         d = a;
-        RMDEV_TEST_ASSERT(d == a);
+        EXPECT_TRUE(d == a);
 
         d = std::move(b);
-        RMDEV_TEST_ASSERT(d == a && b.data() == nullptr);
+        ASSERT_FALSE(test_allocate_failed, "");
+        EXPECT_TRUE(d == a && b.data() == nullptr);
     }
+    TEST_CASE_END();
 
-    RMDEV_TEST_ITEM("InitOnce Move Test");
+    test_allocate_failed = false;
+    TEST_CASE_BEGIN(InitOnceMoveTest);
 
     {
         using rmdev::InitOnce;
 
         InitOnce<Test> b;
+        ASSERT_FALSE(test_allocate_failed, "");
         const Test a{1, 2, 3, 4, 5};
+        ASSERT_FALSE(test_allocate_failed, "");
         const Test dummy{114514, 1919, 810, 24, 251};
+        ASSERT_FALSE(test_allocate_failed, "");
 
         Test dummy_2(dummy);
+        ASSERT_FALSE(test_allocate_failed, "");
 
         b = a;
-        RMDEV_TEST_ASSERT(b() == a);
+        ASSERT_FALSE(test_allocate_failed, "");
+        EXPECT_TRUE(b() == a);
         b = dummy;
-        RMDEV_TEST_ASSERT(b() == a);
+        ASSERT_FALSE(test_allocate_failed, "");
+        EXPECT_TRUE(b() == a);
         b = std::move(dummy_2);
-        RMDEV_TEST_ASSERT(b() == a && dummy_2.data() != nullptr);
+        ASSERT_FALSE(test_allocate_failed, "");
+        EXPECT_TRUE(b() == a && dummy_2.data() != nullptr);
 
         InitOnce<Test> c, d;
+        ASSERT_FALSE(test_allocate_failed, "");
         c = a;
-        RMDEV_TEST_ASSERT(c() == a);
+        ASSERT_FALSE(test_allocate_failed, "");
+        EXPECT_TRUE(c() == a);
         c = dummy;
-        RMDEV_TEST_ASSERT(c() == a);
+        ASSERT_FALSE(test_allocate_failed, "");
+        EXPECT_TRUE(c() == a);
 
         d = std::move(c);
-        RMDEV_TEST_ASSERT(d() == a && c().data() == nullptr);
+        ASSERT_FALSE(test_allocate_failed, "");
+        EXPECT_TRUE(d() == a && c().data() == nullptr);
         d = dummy;
-        RMDEV_TEST_ASSERT(d() == a && c().data() == nullptr);
+        ASSERT_FALSE(test_allocate_failed, "");
+        EXPECT_TRUE(d() == a && c().data() == nullptr);
 
         InitOnce<Test> e(b);
-        RMDEV_TEST_ASSERT(e() == b() && e() == a);
+        ASSERT_FALSE(test_allocate_failed, "");
+        EXPECT_TRUE(e() == b() && e() == a);
     }
+    TEST_CASE_END();
 }
 
 void initOnceTest()
 {
-    basicTest();
-    globalTest();
-    moveTest();
+    RUN_SUIT(BasicTest);
+    RUN_SUIT(GlobalTest);
+    RUN_SUIT(MoveTest);
 }
