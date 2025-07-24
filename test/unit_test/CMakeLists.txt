@@ -21,11 +21,11 @@ if (DEFINED RMDEV_UNIT_TEST_PLATFORM)
 
         add_library(${PROJECT_NAME} INTERFACE)
 
+        file(GLOB_RECURSE RMDEV_UNIT_TEST_TEST_SUITS_SRCS "test_suits/*.cpp")
         target_sources(${PROJECT_NAME} INTERFACE
             test_main.cpp
 
-            test_suits/matrix_test.cpp
-            test_suits/InitOnce_test.cpp
+            ${RMDEV_UNIT_TEST_TEST_SUITS_SRCS}
         )
 
         target_link_libraries(${PROJECT_NAME} INTERFACE rmdev rmdev_test_framework)
