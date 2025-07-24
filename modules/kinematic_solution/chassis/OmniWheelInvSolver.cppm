@@ -14,7 +14,7 @@ module;
 
 export module rmdev.kinematic_solution.chassis.OmniWheelInvSolver;
 
-import rmdev.kinematic_solution.chassis.FourWheelChassisSolver;
+export import rmdev.kinematic_solution.chassis.FourWheelChassisSolver;
 export import rmdev.util.Matrix;
 import rmdev.util.math;
 
@@ -78,7 +78,7 @@ private:
         mul(wheel_speeds, traits_matrix, target_speed);
         mul(wheel_speeds, ScaleType(CONST_SQRT1_2), wheel_speeds);
 
-        return {wheel_speeds(1, 1), wheel_speeds(2, 1), wheel_speeds(3, 1), wheel_speeds(4, 1)};
+        return {.fl = wheel_speeds(1, 1), .bl = wheel_speeds(2, 1), .br = wheel_speeds(3, 1), .fr = wheel_speeds(4, 1)};
     }
 
     /* clang-format off */

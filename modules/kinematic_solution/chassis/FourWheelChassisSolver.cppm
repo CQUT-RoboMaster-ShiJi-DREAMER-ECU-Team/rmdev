@@ -15,6 +15,8 @@ module;
 
 export module rmdev.kinematic_solution.chassis.FourWheelChassisSolver;
 
+import rmdev.util.ArrayTraitsAggregate;
+
 export namespace rmdev {
 
 /**
@@ -32,7 +34,12 @@ enum ChassisWheelsIndex : std::uint8_t {
  * @tparam Type 数据类型
  */
 template<ArithmeticType Type>
-using ChassisWheelsSpeed = std::array<Type, 4>;
+struct ChassisWheelsSpeed : public ArrayTraitsAggregate<Type, 4> {
+    Type fl;
+    Type bl;
+    Type br;
+    Type fr;
+};
 
 /**
  * 底盘目标速度向量的索引
@@ -49,7 +56,11 @@ enum ChassisTargetSpeedIndex : std::uint8_t {
  * @note 该向量包含三个分量：前进速度、侧向速度和旋转角速度，构成右手系
  */
 template<ArithmeticType Type>
-using ChassisTargetSpeed = std::array<Type, 3>;
+struct ChassisTargetSpeed : public ArrayTraitsAggregate<Type, 3> {
+    Type vx;
+    Type vy;
+    Type omega;
+};
 
 /**
  * 四轮底盘解算接口（使用 CRTP 模式）

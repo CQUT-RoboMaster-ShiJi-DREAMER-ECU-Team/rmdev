@@ -46,112 +46,19 @@ if (RMDEV_USE_CMSIS_DSP)
     else ()
         message(FATAL_ERROR "Use of CMSIS-DSP requires either RMDEV_USE_STM32CUBEMX to be enabled or RMDEV_ARM_MATH_HEADER_DIR, RMDEV_CMSIS_DSP_LIB_DIR, and RMDEV_CMSIS_DSP_LIB_NAME to be defined.")
     endif ()
+
     target_compile_definitions(${PROJECT_NAME} PRIVATE -DRMDEV_USE_CMSIS_DSP=1)
 endif ()
 
+file(GLOB_RECURSE RMDEV_MODULES "modules/*.cppm" "src/*.cppm" "System/*.cppm")
 target_sources(${PROJECT_NAME}
     PUBLIC
         FILE_SET rmdev_error_handler_module TYPE CXX_MODULES FILES
-            modules/error_handler.cppm
-            modules/util/InitOnce.cppm
+            ${RMDEV_MODULES}
 
     PUBLIC
         src/error_handler.cpp
 )
-
-option(RMDEV_DISABLE_MATH               OFF)
-option(RMDEV_DISABLE_MATRIX             OFF)
-option(RMDEV_DISABLE_THREAD             OFF)
-option(RMDEV_DISABLE_CONTROL_ALGORITHM  OFF)
-option(RMDEV_DISABLE_KINEMATIC_SOLUTION OFF)
-option(RMDEV_DISABLE_CONNECTIVITY       OFF)
-
-if (NOT RMDEV_DISABLE_MATH)
-    file(GLOB RMDEV_MATH_PARTS "src/util/math/*.cppm")
-    target_sources(${PROJECT_NAME}
-        PUBLIC
-            FILE_SET rmdev_math_module TYPE CXX_MODULES FILES
-                modules/util/math.cppm
-                ${RMDEV_MATH_PARTS}
-    )
-endif ()
-
-if (NOT RMDEV_DISABLE_MATRIX)
-    if (RMDEV_DISABLE_MATH)
-        message(FATAL_ERROR "Matrix module requires math module, but you disabled it!")
-    endif ()
-
-    file(GLOB_RECURSE RMDEV_MATRIX_MODULES
-        "src/util/Matrix/*.cppm"
-        "modules/util/Matrix/*.cppm"
-    )
-    target_sources(${PROJECT_NAME}
-        PUBLIC
-            FILE_SET rmdev_matrix_module TYPE CXX_MODULES FILES
-                modules/util/Matrix.cppm
-                ${RMDEV_MATRIX_MODULES}
-    )
-endif ()
-
-if (NOT RMDEV_DISABLE_THREAD)
-    if (NOT(DEFINED RMDEV_THREAD_SYSTEM))
-        message("Undefined RMDEV_THREAD_SYSTEM, defaulting to use 'FreeRTOS'")
-
-        set(RMDEV_THREAD_SYSTEM "FreeRTOS")
-    endif ()
-
-    file(GLOB RMDEV_THREAD_MODULES
-        "System/Interface/*.cppm"
-        "System/Implements/${RMDEV_THREAD_SYSTEM}/*.cppm"
-        "modules/thread/*.cppm"
-    )
-    target_sources(${PROJECT_NAME}
-        PUBLIC
-            FILE_SET rmdev_thread_module TYPE CXX_MODULES FILES
-                ${RMDEV_THREAD_MODULES}
-    )
-endif ()
-
-if (NOT RMDEV_DISABLE_CONTROL_ALGORITHM)
-    if (RMDEV_DISABLE_MATH)
-        message(FATAL_ERROR "Control algorithm module requires math module, but you disabled it!")
-    endif ()
-
-    file(GLOB_RECURSE RMDEV_CONTROL_ALGORITHM_MODULES
-        "modules/control_algorithm/*.cppm"
-    )
-    target_sources(${PROJECT_NAME}
-        PUBLIC
-            FILE_SET rmdev_control_algorithm_module TYPE CXX_MODULES FILES
-                ${RMDEV_CONTROL_ALGORITHM_MODULES}
-    )
-endif ()
-
-if (NOT RMDEV_DISABLE_KINEMATIC_SOLUTION)
-    if (RMDEV_DISABLE_MATRIX)
-        message(FATAL_ERROR "Kinematic solution module requires matrix module, but you disabled it!")
-    endif ()
-
-    file(GLOB_RECURSE RMDEV_KINEMATIC_SOLUTION_MODULES
-        "modules/kinematic_solution/*.cppm"
-    )
-    target_sources(${PROJECT_NAME}
-        PUBLIC
-            FILE_SET rmdev_kinematic_solution_module TYPE CXX_MODULES FILES
-                ${RMDEV_KINEMATIC_SOLUTION_MODULES}
-    )
-endif ()
-
-if (NOT RMDEV_DISABLE_CONNECTIVITY)
-    file(GLOB_RECURSE RMDEV_CONNECTIVITY_MODULES
-        "modules/connectivity/*.cppm"
-    )
-    target_sources(${PROJECT_NAME}
-        PUBLIC
-            FILE_SET rmdev_connectivity_module TYPE CXX_MODULES FILES
-                ${RMDEV_CONNECTIVITY_MODULES}
-    )
-endif ()
 
 if (RMDEV_ENABLE_TESTS)
     add_subdirectory(test/unit_test)

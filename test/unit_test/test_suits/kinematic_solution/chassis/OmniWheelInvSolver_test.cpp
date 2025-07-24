@@ -11,15 +11,15 @@ import rmdev.kinematic_solution.chassis.OmniWheelInvSolver;
 
 TEST_SUIT(FourWheelsOmniWheelInvSolverTest)
 {
-    rmdev::OmniWheelInvSolver<float, 4> chassis_solver{0.5};
+    const rmdev::OmniWheelInvSolver<float, 4> chassis_solver{0.5};
 
     TEST_CASE_BEGIN(StrightTest)
     {
-        auto result = chassis_solver.solve({1.0f,0.0f, 0.0f});
-    }TEST_CASE_END();
+        auto result = chassis_solver.solve({.vx = 1.0f, .vy = 0.0f, .omega = 0.0f});
+        FP_EXPECT_GT(result.fl, 0.0f);
+        FP_EXPECT_GT(result.fr, 0.0f);
+    }
+    TEST_CASE_END();
 }
 
-void OmniWheelInvSolverTest()
-{
-
-}
+void OmniWheelInvSolverTest() {}

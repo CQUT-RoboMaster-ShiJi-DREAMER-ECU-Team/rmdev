@@ -14,6 +14,7 @@
 #include "main.h"
 #include "usart.h"
 #include "rmdev_test_framework.h"
+#include "cmsis_os2.h"
 
 extern void test_main(void);
 
@@ -21,9 +22,12 @@ static void serialPrint(const char* buffer, const uint16_t size)
 {
     for (uint16_t i = 0; i < size; ++i) {
         while (HAL_UART_GetState(&huart6) != HAL_UART_STATE_READY) {
+            osDelay(1);
         }
 
-        while (HAL_UART_Transmit(&huart6, (const uint8_t*)&buffer[i], sizeof(char), HAL_MAX_DELAY) != HAL_OK) {
+        const uint8_t ch = buffer[i];
+        while (HAL_UART_Transmit(&huart6, &ch, sizeof(uint8_t), HAL_MAX_DELAY) != HAL_OK) {
+            osDelay(1);
         }
     }
 }
@@ -35,11 +39,16 @@ static void testPrintf(const char* format, ...)
 
     char printf_buffer[1000] = {'\0'};
 
-    vsprintf(printf_buffer, format, args);
-
-    serialPrint(printf_buffer, strlen(printf_buffer));
-
+    const int len = vsprintf(printf_buffer, format, args);
     va_end(args);
+
+    if (len < 0 || len != strlen(printf_buffer)) {
+        const char* error_msg = "\r\nvsprintf out error!\r\n";
+        serialPrint(error_msg, strlen(error_msg));
+        return;
+    }
+
+    serialPrint(printf_buffer, len);
 }
 
 static void testEntry(void)
