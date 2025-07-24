@@ -26,6 +26,9 @@ target_include_directories(${PROJECT_NAME}
         inc/
 )
 
+option(RMDEV_USE_STM32CUBEMX "Will link stm32cubemx lib to rmdev" OFF)
+option(RMDEV_USE_CMSIS_DSP "Will link CMSIS-DSP lib to rmdev" OFF)
+
 if (RMDEV_USE_STM32CUBEMX)
     enable_language(ASM)
     target_link_libraries(${PROJECT_NAME} PUBLIC stm32cubemx)
@@ -56,7 +59,14 @@ target_sources(${PROJECT_NAME}
         src/error_handler.cpp
 )
 
-if (NOT(DEFINED RMDEV_DISABLE_MATH))
+option(RMDEV_DISABLE_MATH               OFF)
+option(RMDEV_DISABLE_MATRIX             OFF)
+option(RMDEV_DISABLE_THREAD             OFF)
+option(RMDEV_DISABLE_CONTROL_ALGORITHM  OFF)
+option(RMDEV_DISABLE_KINEMATIC_SOLUTION OFF)
+option(RMDEV_DISABLE_CONNECTIVITY       OFF)
+
+if (NOT RMDEV_DISABLE_MATH)
     file(GLOB RMDEV_MATH_PARTS "src/util/math/*.cppm")
     target_sources(${PROJECT_NAME}
         PUBLIC
@@ -66,8 +76,8 @@ if (NOT(DEFINED RMDEV_DISABLE_MATH))
     )
 endif ()
 
-if (NOT(DEFINED RMDEV_DISABLE_MATRIX))
-    if (DEFINED RMDEV_DISABLE_MATH)
+if (NOT RMDEV_DISABLE_MATRIX)
+    if (RMDEV_DISABLE_MATH)
         message(FATAL_ERROR "Matrix module requires math module, but you disabled it!")
     endif ()
 
@@ -83,7 +93,7 @@ if (NOT(DEFINED RMDEV_DISABLE_MATRIX))
     )
 endif ()
 
-if (NOT(DEFINED RMDEV_DISABLE_THREAD))
+if (NOT RMDEV_DISABLE_THREAD)
     if (NOT(DEFINED RMDEV_THREAD_SYSTEM))
         message("Undefined RMDEV_THREAD_SYSTEM, defaulting to use 'FreeRTOS'")
 
@@ -102,8 +112,8 @@ if (NOT(DEFINED RMDEV_DISABLE_THREAD))
     )
 endif ()
 
-if (NOT(DEFINED RMDEV_DISABLE_CONTROL_ALGORITHM))
-    if (DEFINED RMDEV_DISABLE_MATH)
+if (NOT RMDEV_DISABLE_CONTROL_ALGORITHM)
+    if (RMDEV_DISABLE_MATH)
         message(FATAL_ERROR "Control algorithm module requires math module, but you disabled it!")
     endif ()
 
@@ -117,8 +127,8 @@ if (NOT(DEFINED RMDEV_DISABLE_CONTROL_ALGORITHM))
     )
 endif ()
 
-if (NOT(DEFINED RMDEV_DISABLE_KINEMATIC_SOLUTION))
-    if (DEFINED RMDEV_DISABLE_MATRIX)
+if (NOT RMDEV_DISABLE_KINEMATIC_SOLUTION)
+    if (RMDEV_DISABLE_MATRIX)
         message(FATAL_ERROR "Kinematic solution module requires matrix module, but you disabled it!")
     endif ()
 
@@ -132,7 +142,7 @@ if (NOT(DEFINED RMDEV_DISABLE_KINEMATIC_SOLUTION))
     )
 endif ()
 
-if (NOT(DEFINED RMDEV_DISABLE_CONNECTIVITY))
+if (NOT RMDEV_DISABLE_CONNECTIVITY)
     file(GLOB_RECURSE RMDEV_CONNECTIVITY_MODULES
         "modules/connectivity/*.cppm"
     )
