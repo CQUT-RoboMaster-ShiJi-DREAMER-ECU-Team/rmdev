@@ -16,7 +16,7 @@ TEST_SUIT(ArrayTraitsAggregateTest)
         struct A : public rmdev::ArrayTraitsAggregate<int, 0> {
         };
 
-        [[maybe_unused]] A a;
+        A a;
 
         static_assert(sizeof(A) == 1);
         static_assert(sizeof a == 1);
@@ -27,7 +27,7 @@ TEST_SUIT(ArrayTraitsAggregateTest)
 
     TEST_CASE_BEGIN(OneTest);
     {
-        struct A : public rmdev::ArrayTraitsAggregate<int, 0> {
+        struct A : public rmdev::ArrayTraitsAggregate<int, 1> {
             int a;
         };
 
