@@ -11,6 +11,6 @@ extern "C" void test_main(void)
 {
     matrixTest();
     initOnceTest();
-    OmniWheelInvSolverTest();
     arrayTraitsAggregateTest();
+    OmniWheelInvSolverTest();
 }

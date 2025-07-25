@@ -32,7 +32,7 @@ set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
 # MCU specific flags
 set(TARGET_FLAGS "-mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard ")
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${TARGET_FLAGS}")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${TARGET_FLAGS} -u _printf_float")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wpedantic -fdata-sections -ffunction-sections")
 
 if (CMAKE_BUILD_TYPE MATCHES "Debug")

@@ -11,20 +11,12 @@ set(CMAKE_CXX_SCAN_FOR_MODULES ON)
 
 add_library(${PROJECT_NAME} STATIC)
 
-if (NOT(${CMAKE_CXX_FLAGS} MATCHES "-fmodules-ts"))
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fmodules-ts")
-endif ()
-if (NOT(${CMAKE_CXX_FLAGS} MATCHES "-fno-exceptions"))
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-exceptions")
-endif ()
-if (NOT(${CMAKE_CXX_FLAGS} MATCHES "-fno-rtti"))
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-rtti")
-endif ()
-
-target_include_directories(${PROJECT_NAME}
-    PUBLIC
-        inc/
+target_compile_options(${PROJECT_NAME} PUBLIC
+    $<$<COMPILE_LANGUAGE:CXX>:-fno-rtti -fmodules-ts -fno-exceptions -fno-rtti -Wno-psabi>
+    # 添加 -Wno-psabi 的原因见 https://gcc.gnu.org/bugzilla/show_bug.cgi?id=111516
 )
+
+target_include_directories(${PROJECT_NAME} PUBLIC inc/)
 
 option(RMDEV_USE_STM32CUBEMX "Will link stm32cubemx lib to rmdev" OFF)
 option(RMDEV_USE_CMSIS_DSP "Will link CMSIS-DSP lib to rmdev" OFF)
