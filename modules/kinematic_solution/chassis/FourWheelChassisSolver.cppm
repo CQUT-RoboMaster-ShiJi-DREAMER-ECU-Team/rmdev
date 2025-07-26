@@ -35,10 +35,10 @@ enum ChassisWheelsIndex : std::uint8_t {
  */
 template<ArithmeticType Type>
 struct ChassisWheelsSpeed : public ArrayTraitsAggregate<Type, 4> {
-    Type fl;
-    Type bl;
-    Type br;
-    Type fr;
+    Type fl;  ///< 左前轮
+    Type bl;  ///< 左后轮
+    Type br;  ///< 右后轮
+    Type fr;  ///< 右前轮
 };
 
 /**
@@ -57,9 +57,9 @@ enum ChassisTargetSpeedIndex : std::uint8_t {
  */
 template<ArithmeticType Type>
 struct ChassisTargetSpeed : public ArrayTraitsAggregate<Type, 3> {
-    Type vx;
-    Type vy;
-    Type omega;
+    Type vx;     ///< 前进速度
+    Type vy;     ///< 侧向速度
+    Type omega;  ///< 旋转角速度
 };
 
 /**
@@ -91,10 +91,7 @@ protected:
      * @param length 底盘长度
      */
     constexpr FourWheelChassisSolver(const ScaleType_ width, const ScaleType_ length) noexcept
-        : width_(width),
-          length_(length),
-          rx{length_ / ScaleType_(2), -length_ / ScaleType_(2), -length_ / ScaleType_(2), length_ / ScaleType_(2)},
-          ry{width_ / ScaleType_(2), width_ / ScaleType_(2), -width_ / ScaleType_(2), -width_ / ScaleType_(2)}
+        : width_(width), length_(length)
     {
     }
 
@@ -106,10 +103,18 @@ protected:
     // 算法参考浙江大学的开源文档：
     // https://zju-helloworld.github.io/Wiki/%E7%BB%84%E4%BB%B6%E8%AF%B4%E6%98%8E%EF%BC%88%E6%97%A7%EF%BC%89/%E6%9C%BA%E5%99%A8%E4%BA%BA%E9%80%9A%E7%94%A8%E7%BB%84%E4%BB%B6/%E7%AE%97%E6%B3%95/%E5%BA%95%E7%9B%98%E9%80%86%E8%BF%90%E5%8A%A8%E5%AD%A6%E8%A7%A3%E7%AE%97/
 
+    /* clang-format off */
     /// 各个轮组对旋转中心的位失的 x 方向的分量
-    const std::array<ScaleType_, 4> rx;
+    const std::array<ScaleType_, 4> rx{ length_ / ScaleType_(2),
+                                       -length_ / ScaleType_(2),
+                                       -length_ / ScaleType_(2),
+                                        length_ / ScaleType_(2)};
     /// 各个轮组对旋转中心的位失的 y 方向的分量
-    const std::array<ScaleType_, 4> ry;
+    const std::array<ScaleType_, 4> ry{ width_ / ScaleType_(2),
+                                        width_ / ScaleType_(2),
+                                       -width_ / ScaleType_(2),
+                                       -width_ / ScaleType_(2)};
+    /* clang-format on */
 };
 
 }  // namespace rmdev

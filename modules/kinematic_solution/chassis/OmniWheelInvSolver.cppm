@@ -26,11 +26,7 @@ export namespace rmdev {
  * @tparam wheel_num 底盘轮组数量（默认4个）
  */
 template<ArithmeticType Type, std::size_t wheel_num = 4>
-class OmniWheelInvSolver
-{
-public:
-    using ScaleType = Type;
-};
+class OmniWheelInvSolver;
 
 /**
  * 全向轮逆运动学解算类 - 四轮轮组特化
@@ -82,10 +78,10 @@ private:
     }
 
     /* clang-format off */
-    const Matrix<ScaleType, 4, 3> traits_matrix{{1, -1, -this->rx[1] - this->ry[1]},
-                                                {1,  1,  this->rx[2] - this->ry[2]},
-                                                {1, -1, -this->rx[3] - this->ry[3]},
-                                                {1,  1,  this->rx[4] - this->ry[4]}};
+    const Matrix<ScaleType, 4, 3> traits_matrix{{1, -1, -this->rx[WHEEL_FL] - this->ry[WHEEL_FL]},
+                                                {1,  1,  this->rx[WHEEL_BL] - this->ry[WHEEL_BL]},
+                                                {1, -1, -this->rx[WHEEL_BR] - this->ry[WHEEL_BR]},
+                                                {1,  1,  this->rx[WHEEL_FR] - this->ry[WHEEL_FR]}};
     /* clang-format on */
 };
 
