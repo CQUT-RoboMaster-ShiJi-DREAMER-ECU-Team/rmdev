@@ -1,0 +1,13 @@
+cmake_minimum_required(VERSION 3.28)
+
+project(rmdev_matrix CXX)
+
+add_library(${PROJECT_NAME} OBJECT)
+
+target_link_libraries(${PROJECT_NAME} PUBLIC rmdev_public_headers rmdev_math)
+
+target_sources(${PROJECT_NAME} PUBLIC
+    FILE_SET rmdev_thread_modules TYPE CXX_MODULES FILES
+        Matrix.cppm
+        MatrixType.cppm
+)

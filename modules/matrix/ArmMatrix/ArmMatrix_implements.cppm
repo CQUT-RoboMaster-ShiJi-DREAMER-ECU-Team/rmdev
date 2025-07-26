@@ -6,8 +6,6 @@
  * @brief CMSIS-DSP 矩阵运算封装 - 实现
  */
 
-#ifdef RMDEV_USE_CMSIS_DSP
-
 module;
 
 #include <cstring>
@@ -679,5 +677,3 @@ ArmMatrix<Type, rowa, colb>* divKeep(ArmMatrix<Type, rowa, colb>& result,
 }
 
 }  // namespace rmdev
-
-#endif  // RMDEV_USE_CMSIS_DSP

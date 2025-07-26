@@ -11,7 +11,8 @@
 
 void matrixTest();
 void initOnceTest();
-void OmniWheelInvSolverTest();
 void arrayTraitsAggregateTest();
+
+void OmniWheelInvSolverTest();
 
 #endif  // !TEST_MAIN_HPP

@@ -9,46 +9,36 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 set(CMAKE_CXX_SCAN_FOR_MODULES ON)
 
+add_subdirectory(inc)
+
 add_library(${PROJECT_NAME} STATIC)
 
 target_compile_options(${PROJECT_NAME} PRIVATE
     $<$<COMPILE_LANGUAGE:CXX>:-fno-rtti -fmodules-ts -fno-exceptions -fno-rtti>
 )
 
-target_include_directories(${PROJECT_NAME} PUBLIC inc/)
+target_link_libraries(${PROJECT_NAME} PUBLIC rmdev_public_headers)
 
 option(RMDEV_USE_STM32CUBEMX "Will link stm32cubemx lib to rmdev" OFF)
 option(RMDEV_USE_CMSIS_DSP "Will link CMSIS-DSP lib to rmdev" OFF)
 
-if (RMDEV_USE_STM32CUBEMX)
-    enable_language(ASM)
-    target_link_libraries(${PROJECT_NAME} PUBLIC stm32cubemx)
-endif ()
-
-if (RMDEV_USE_CMSIS_DSP)
-    if (RMDEV_USE_STM32CUBEMX)
-        # do nothing
-    elseif ((DEFINED RMDEV_ARM_MATH_HEADER_DIR) AND
-            (DEFINED RMDEV_CMSIS_DSP_LIB_DIR) AND
-            (DEFINED RMDEV_CMSIS_DSP_LIB_NAME))
-        target_include_directories(${PROJECT_NAME} PUBLIC ${RMDEV_ARM_MATH_HEADER_DIR})
-        target_link_directories(${PROJECT_NAME} PUBLIC ${RMDEV_CMSIS_DSP_LIB_DIR})
-        target_link_libraries(${PROJECT_NAME} PUBLIC :${RMDEV_CMSIS_DSP_LIB_NAME})
-    else ()
-        message(FATAL_ERROR "Use of CMSIS-DSP requires either RMDEV_USE_STM32CUBEMX to be enabled or RMDEV_ARM_MATH_HEADER_DIR, RMDEV_CMSIS_DSP_LIB_DIR, and RMDEV_CMSIS_DSP_LIB_NAME to be defined.")
-    endif ()
-
-    target_compile_definitions(${PROJECT_NAME} PRIVATE -DRMDEV_USE_CMSIS_DSP=1)
-endif ()
-
-file(GLOB_RECURSE RMDEV_MODULES "modules/*.cppm" "src/*.cppm" "System/*.cppm")
+file(GLOB_RECURSE RMDEV_EXPORTED_MODULES "modules/*.cppm")
 target_sources(${PROJECT_NAME}
     PUBLIC
-        FILE_SET rmdev_error_handler_module TYPE CXX_MODULES FILES
-            ${RMDEV_MODULES}
+        FILE_SET rmdev_modules TYPE CXX_MODULES FILES
+            ${RMDEV_EXPORTED_MODULES}
+)
 
-    PUBLIC
-        src/error_handler.cpp
+add_subdirectory(modules)
+target_link_libraries(${PROJECT_NAME} PUBLIC
+    rmdev__src_dir_resources
+    rmdev__system_dir_resources
+    rmdev_error_handler
+    rmdev_control_algorithm
+    rmdev_kinematic_solution
+    rmdev_connectivity
+    rmdev_thread
+    rmdev_math
 )
 
 if (RMDEV_ENABLE_TESTS)

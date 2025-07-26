@@ -6,8 +6,6 @@
  * @brief CMSIS-DSP 矩阵封装模块接口单元
  */
 
-#ifdef RMDEV_USE_CMSIS_DSP
-
 module;
 
 export module rmdev.util.ArmMatrix;
@@ -15,5 +13,3 @@ export module rmdev.util.ArmMatrix;
 export import :traits;
 export import :interface;
 export import :implements;
-
-#endif

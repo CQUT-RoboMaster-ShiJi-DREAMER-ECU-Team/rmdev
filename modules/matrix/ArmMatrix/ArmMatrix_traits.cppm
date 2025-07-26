@@ -6,8 +6,6 @@
  * @brief 类型特征
  */
 
-#ifdef RMDEV_USE_CMSIS_DSP
-
 module;
 
 #include <type_traits>
@@ -22,7 +20,7 @@ namespace rmdev {
  * ArmMatrix 类型特征 - 用于根据数据类型自动选择相应接口
  * @tparam ScaleType 数据类型
  */
-template<typename ScaleType = void>
+template<typename ScaleType>
 struct ArmMatrixTraits;
 
 // todo 待实现其他类型的特化（不过其他类型的用得少，不写也不是不行）））
@@ -132,5 +130,3 @@ struct ArmMatrixTraits<double> {
 };
 
 }  // namespace rmdev
-
-#endif  // RMDEV_USE_CMSIS_DSP
