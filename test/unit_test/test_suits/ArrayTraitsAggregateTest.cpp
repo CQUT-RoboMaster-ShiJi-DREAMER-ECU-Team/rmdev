@@ -18,8 +18,8 @@ TEST_SUIT(ArrayTraitsAggregateTest)
 
         A a;
 
-        static_assert(sizeof(A) == 1);
-        static_assert(sizeof a == 1);
+        static_assert(sizeof(A) == sizeof(int));
+        static_assert(sizeof a == sizeof(int));
 
         EXPECT_TRUE(a.at(0) == nullptr);
     }
@@ -33,7 +33,8 @@ TEST_SUIT(ArrayTraitsAggregateTest)
 
         [[maybe_unused]] A a{.a = 114514};
 
-        static_assert(sizeof a == sizeof(int));
+        // 要加上 ArrayTraitsAggregate 中用于占位的那一个成员的大小
+        static_assert(sizeof a == sizeof(int) + sizeof(int));
         INT_EXPECT_EQ(a.a, a[0])->MESSAGE("a.a = %d, a[0] = %d", a.a, a[0]);
         INT_EXPECT_EQ(a.a, 114514);
 
@@ -60,7 +61,7 @@ TEST_SUIT(ArrayTraitsAggregateTest)
 
         [[maybe_unused]] A a{.a = 114514, .b = -143, .c = 1919810};
 
-        static_assert(sizeof a == sizeof(int) * 3);
+        static_assert(sizeof a == sizeof(int) * 3 + sizeof(int));
         INT_EXPECT_EQ(a.a, a[0])->MESSAGE("a.a = %d, a[0] = %d", a.a, a[0]);
         INT_EXPECT_EQ(a.a, 114514);
         INT_EXPECT_EQ(a.b, a[1])->MESSAGE("a.b = %d, b[1] = %d", a.b, a[0]);

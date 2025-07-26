@@ -11,9 +11,8 @@ set(CMAKE_CXX_SCAN_FOR_MODULES ON)
 
 add_library(${PROJECT_NAME} STATIC)
 
-target_compile_options(${PROJECT_NAME} PUBLIC
-    $<$<COMPILE_LANGUAGE:CXX>:-fno-rtti -fmodules-ts -fno-exceptions -fno-rtti -Wno-psabi>
-    # 添加 -Wno-psabi 的原因见 https://gcc.gnu.org/bugzilla/show_bug.cgi?id=111516
+target_compile_options(${PROJECT_NAME} PRIVATE
+    $<$<COMPILE_LANGUAGE:CXX>:-fno-rtti -fmodules-ts -fno-exceptions -fno-rtti>
 )
 
 target_include_directories(${PROJECT_NAME} PUBLIC inc/)

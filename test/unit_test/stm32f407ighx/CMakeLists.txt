@@ -45,6 +45,8 @@ target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user defined symbols
 )
 
+target_compile_definitions(rmdev PRIVATE -DRMDEV_UTIL_ARRAY_TRAITS_AGGREGATE_ADD_RESERVE_MEMBER=true)
+
 # Link directories setup
 target_link_directories(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user defined library search paths
