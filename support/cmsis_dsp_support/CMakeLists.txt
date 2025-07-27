@@ -18,5 +18,5 @@ if (RMDEV_USE_CMSIS_DSP)
         message(FATAL_ERROR "Use of CMSIS-DSP requires either RMDEV_USE_STM32CUBEMX to be enabled or RMDEV_ARM_MATH_HEADER_DIR, RMDEV_CMSIS_DSP_LIB_DIR, and RMDEV_CMSIS_DSP_LIB_NAME to be defined.")
     endif ()
 
-    target_compile_definitions(${PROJECT_NAME} PRIVATE -DRMDEV_USE_CMSIS_DSP=1)
+    target_compile_definitions(${PROJECT_NAME} INTERFACE RMDEV_USE_CMSIS_DSP=1)
 endif ()

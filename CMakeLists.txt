@@ -22,17 +22,14 @@ target_link_libraries(${PROJECT_NAME} PUBLIC rmdev_public_headers)
 option(RMDEV_USE_STM32CUBEMX "Will link stm32cubemx lib to rmdev" OFF)
 option(RMDEV_USE_CMSIS_DSP "Will link CMSIS-DSP lib to rmdev" OFF)
 
-file(GLOB_RECURSE RMDEV_EXPORTED_MODULES "modules/*.cppm")
-target_sources(${PROJECT_NAME}
-    PUBLIC
-        FILE_SET rmdev_modules TYPE CXX_MODULES FILES
-            ${RMDEV_EXPORTED_MODULES}
-)
+if (RMDEV_USE_STM32CUBEMX)
+    enable_language(ASM)
+endif ()
 
 add_subdirectory(modules)
+add_subdirectory(support/cmsis_dsp_support)
+add_subdirectory(support/stm32cubemx_support)
 target_link_libraries(${PROJECT_NAME} PUBLIC
-    rmdev__src_dir_resources
-    rmdev__system_dir_resources
     rmdev_error_handler
     rmdev_control_algorithm
     rmdev_kinematic_solution
