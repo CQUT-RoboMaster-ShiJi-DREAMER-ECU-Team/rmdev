@@ -7,7 +7,7 @@ add_subdirectory(ArmMatrix)
 
 add_library(${PROJECT_NAME} OBJECT)
 
-target_link_libraries(${PROJECT_NAME} PUBLIC rmdev_public_headers rmdev_math rmdev_matrix_arm_matrix)
+target_link_libraries(${PROJECT_NAME} PUBLIC rmdev_core rmdev_math rmdev_matrix_arm_matrix)
 
 target_sources(${PROJECT_NAME} PUBLIC
     FILE_SET rmdev_thread_modules TYPE CXX_MODULES FILES

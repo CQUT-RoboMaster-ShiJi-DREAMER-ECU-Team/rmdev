@@ -4,7 +4,7 @@ project(rmdev_util CXX)
 
 add_library(${PROJECT_NAME} OBJECT)
 
-target_link_libraries(${PROJECT_NAME} PUBLIC rmdev_public_headers rmdev_error_handler)
+target_link_libraries(${PROJECT_NAME} PUBLIC rmdev_core)
 
 target_sources(${PROJECT_NAME} PUBLIC
     FILE_SET rmdev_util_modules TYPE CXX_MODULES FILES

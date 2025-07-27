@@ -4,7 +4,7 @@ project(rmdev_math CXX)
 
 add_library(${PROJECT_NAME} OBJECT)
 
-target_link_libraries(${PROJECT_NAME} PUBLIC rmdev_public_headers)
+target_link_libraries(${PROJECT_NAME} PUBLIC rmdev_core)
 
 file(GLOB RMDEV_MATH_IMPL_MODULES "impl/*.cppm")
 target_sources(${PROJECT_NAME} PUBLIC

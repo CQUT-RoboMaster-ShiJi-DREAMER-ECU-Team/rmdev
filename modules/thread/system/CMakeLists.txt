@@ -16,4 +16,4 @@ target_sources(${PROJECT_NAME}
             ${SYSTEM_FILES}
 )
 
-target_link_libraries(${PROJECT_NAME} PUBLIC rmdev_public_headers rmdev_error_handler)
+target_link_libraries(${PROJECT_NAME} PUBLIC rmdev_core)
