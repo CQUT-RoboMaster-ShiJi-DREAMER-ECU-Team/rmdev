@@ -9,12 +9,25 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 set(CMAKE_CXX_SCAN_FOR_MODULES ON)
 
-option(RMDEV_USE_STM32CUBEMX "Will link stm32cubemx to emdevif" ON)
+option(RMDEV_USE_STM32CUBEMX "Will link stm32cubemx to rmdev" ON)
 
-set(EMDEVIF_USE_STM32CUBEMX RMDEV_USE_STM32CUBEMX)
+if (NOT (DEFINED RMDEV_THREAD_SYSTEM))
+    set(RMDEV_THREAD_SYSTEM "FreeRTOS")
+endif ()
+
+set(EMDEVIF_THREAD_SYSTEM ${RMDEV_THREAD_SYSTEM})
+set(EMDEVIF_USE_STM32CUBEMX ${RMDEV_USE_STM32CUBEMX})
+
+if (${RMDEV_THREAD_SYSTEM} STREQUAL "FreeRTOS")
+    option(RMDEV_FREERTOS_USE_STM32CUBEMX "Will use stm32cubemx generated FreeRTOS sources" ON)
+
+    set(EMDEVIF_FREERTOS_USE_STM32CUBEMX ${RMDEV_FREERTOS_USE_STM32CUBEMX})
+endif ()
+
 if (RMDEV_USE_STM32CUBEMX)
     enable_language(ASM)
 endif ()
+
 add_subdirectory(emdevif_home/emdevif)
 
 add_subdirectory(modules/rmdev_math)
