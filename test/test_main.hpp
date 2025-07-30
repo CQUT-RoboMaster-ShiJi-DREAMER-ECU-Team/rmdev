@@ -6,13 +6,11 @@
  */
 
 #pragma once
-#ifndef TEST_MAIN_HPP
-#define TEST_MAIN_HPP
+#ifndef RMDEV_TEST_MAIN_HPP
+#define RMDEV_TEST_MAIN_HPP
 
 void matrixTest();
-void initOnceTest();
-void arrayTraitsAggregateTest();
 
 void OmniWheelInvSolverTest();
 
-#endif  // !TEST_MAIN_HPP
+#endif  // !RMDEV_TEST_MAIN_HPP

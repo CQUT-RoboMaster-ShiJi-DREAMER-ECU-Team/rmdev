@@ -7,11 +7,13 @@
 
 #include "test_main.hpp"
 
-extern "C" void test_main(void)
+extern "C" void emdevif_testEntry(void);
+
+extern "C" void rmdev_testEntry(void)
 {
+    emdevif_testEntry();
+
     matrixTest();
-    initOnceTest();
-    arrayTraitsAggregateTest();
 
     OmniWheelInvSolverTest();
 }

@@ -28,6 +28,9 @@ if (RMDEV_USE_STM32CUBEMX)
     enable_language(ASM)
 endif ()
 
+if (RMDEV_ENABLE_TESTS)
+    set(EMDEVIF_ENABLE_TESTS ON)
+endif ()
 add_subdirectory(emdevif_home/emdevif)
 
 add_subdirectory(modules/rmdev_math)
@@ -45,5 +48,6 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
 )
 
 if (RMDEV_ENABLE_TESTS)
-    add_subdirectory(test/unit_test)
+    enable_testing()
+    add_subdirectory(test)
 endif ()

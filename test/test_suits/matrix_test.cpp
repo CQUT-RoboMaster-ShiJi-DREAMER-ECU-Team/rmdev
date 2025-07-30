@@ -8,7 +8,7 @@
 #include <array>
 #include <algorithm>
 
-#include "rmdev_test_framework.h"
+#include "emdevif_test_framework.h"
 
 #include "arm_math.h"
 
@@ -196,7 +196,7 @@ static TEST_SUIT(ArmMatrixSpecialConstructTest)
     TEST_CASE_BEGIN(ArmMatrixSpecialConstructTest);
     {
         // 方阵
-        [RMDEV_TEST_LAMBDA_CAPTURE] {
+        [EMDEVIF_TEST_LAMBDA_CAPTURE] {
             using SquareMatrix = rmdev::ArmMatrix<float, 3, 3>;
 
             const SquareMatrix zero_expected{0, 0, 0, 0, 0, 0, 0, 0, 0};
@@ -218,7 +218,7 @@ static TEST_SUIT(ArmMatrixSpecialConstructTest)
         }();
 
         // 非方阵
-        [RMDEV_TEST_LAMBDA_CAPTURE] {
+        [EMDEVIF_TEST_LAMBDA_CAPTURE] {
             using NotSquareMatrix = rmdev::ArmMatrix<float, 3, 2>;
 
             const NotSquareMatrix zero_expected{0, 0, 0, 0, 0, 0};
