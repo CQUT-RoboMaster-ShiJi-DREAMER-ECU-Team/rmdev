@@ -6,12 +6,14 @@
  */
 
 #include "test_main.hpp"
+#include "emdevif_test_framework.h"
 
 extern "C" void emdevif_testEntry(void);
 
 extern "C" void rmdev_testEntry(void)
 {
     emdevif_testEntry();
+    TEST_LOG("emdevif test finished.");
 
     matrixTest();
 
