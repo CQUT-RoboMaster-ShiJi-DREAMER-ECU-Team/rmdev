@@ -4,11 +4,13 @@ project(rmdev_unit_test C CXX)
 
 add_library(${PROJECT_NAME} STATIC)
 
-file(GLOB_RECURSE RMDEV_UNIT_TEST_TEST_SUITS_SRCS "test_suits/*.cpp")
-target_sources(${PROJECT_NAME} PRIVATE
-    test_main.cpp
+block()
+    file(GLOB_RECURSE rmdevUnitTestTestSuitsSrcs "test_suits/*.cpp")
+    target_sources(${PROJECT_NAME} PRIVATE
+        test_main.cpp
 
-    ${RMDEV_UNIT_TEST_TEST_SUITS_SRCS}
-)
+        ${rmdevUnitTestTestSuitsSrcs}
+    )
+endblock()
 
 target_link_libraries(${PROJECT_NAME} PRIVATE rmdev emdevif_test_framework emdevif_unit_test)
