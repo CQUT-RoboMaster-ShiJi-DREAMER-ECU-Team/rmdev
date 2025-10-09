@@ -12,4 +12,13 @@
 	url = https://github.com/CQUT-RoboMaster-ShiJi-DREAMER-ECU-Team/rmdev_kinematic_solution.git
 [submodule "emdevif_home/emdevif_stm32_peripheral"]
 	path = emdevif_home/emdevif_stm32_peripheral
-	url = git@github.com:CQUT-RoboMaster-ShiJi-DREAMER-ECU-Team/emdevif_stm32_peripheral.git
+	url = https://github.com/CQUT-RoboMaster-ShiJi-DREAMER-ECU-Team/emdevif_stm32_peripheral.git
+[submodule "modules/rmdev_ins"]
+	path = modules/rmdev_ins
+	url = https://github.com/CQUT-RoboMaster-ShiJi-DREAMER-ECU-Team/rmdev_ins.git
+[submodule "modules/rmdev_device_model"]
+	path = modules/rmdev_device_model
+	url = https://github.com/CQUT-RoboMaster-ShiJi-DREAMER-ECU-Team/rmdev_device_model.git
+[submodule "drivers/rmdev_driver_BMI088"]
+	path = drivers/rmdev_driver_BMI088
+	url = https://github.com/CQUT-RoboMaster-ShiJi-DREAMER-ECU-Team/rmdev_driver_BMI088.git
