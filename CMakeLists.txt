@@ -10,6 +10,9 @@ set(CMAKE_CXX_SCAN_FOR_MODULES ON)
 
 option(RMDEV_ENABLE_TESTS "Enable the test for rmdev." OFF)
 option(RMDEV_USE_STM32CUBEMX "Will link stm32cubemx to rmdev." ON)
+option(RMDEV_ENABLE_INS_MODULE "Enable the rmdev_ins module." OFF)
+
+set(RMDEV_ENABLED_DRIVER_LIST "" CACHE STRING "Select which device driver to use.")
 
 set(RMDEV_THREAD_SYSTEM "FreeRTOS" CACHE STRING "Set this variable to choose which system to use. Use \"FreeRTOS\" as default.")
 
@@ -34,6 +37,7 @@ add_subdirectory(emdevif_home/emdevif)
 add_subdirectory(modules/rmdev_math)
 add_subdirectory(modules/rmdev_control_algorithm)
 add_subdirectory(modules/rmdev_kinematic_solution)
+add_subdirectory(modules/rmdev_device_model)
 
 add_library(${PROJECT_NAME} STATIC)
 
@@ -43,9 +47,33 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
     rmdev_math
     rmdev_control_algorithm
     rmdev_kinematic_solution
+    rmdev_device_model
 )
+
+if (NOT (RMDEV_ENABLED_DRIVER_LIST STREQUAL ""))
+    block()
+        foreach (usedDriverName IN LISTS RMDEV_ENABLED_DRIVER_LIST)
+            set(subDirName "rmdev_driver_")
+            string(APPEND subDirName ${usedDriverName})
+
+            set(libName ${subDirName})
+
+            add_subdirectory(drivers/${subDirName})
+            target_link_libraries(${PROJECT_NAME} PUBLIC ${libName})
+
+            message("[rmdev]: Enabled driver lib \"${libName}\"")
+        endforeach ()
+    endblock()
+endif ()
+
+if (RMDEV_ENABLE_INS_MODULE)
+    add_subdirectory(modules/rmdev_ins)
+    target_link_libraries(${PROJECT_NAME} PUBLIC rmdev_ins)
+    message("[${PROJECT_NAME}]: Enabled \"INS\" lib.")
+endif ()
 
 if (RMDEV_ENABLE_TESTS)
     enable_testing()
     add_subdirectory(test)
+    message("[${PROJECT_NAME}]: Enabled tests.")
 endif ()
