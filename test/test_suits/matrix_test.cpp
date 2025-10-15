@@ -12,8 +12,8 @@
 
 #include "arm_math.h"
 
-import rmdev.util.matrix;
-import rmdev.util.math;
+import rmdev.matrix;
+import rmdev.math;
 
 static TEST_SUIT(ArmMatCInterfaceTest)
 {
