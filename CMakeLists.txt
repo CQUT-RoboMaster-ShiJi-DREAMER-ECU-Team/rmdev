@@ -38,6 +38,7 @@ add_subdirectory(modules/rmdev_math)
 add_subdirectory(modules/rmdev_control_algorithm)
 add_subdirectory(modules/rmdev_kinematic_solution)
 add_subdirectory(modules/rmdev_device_model)
+add_subdirectory(modules/rmdev_debug_assistance)
 
 add_library(${PROJECT_NAME} STATIC)
 
@@ -48,6 +49,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
     rmdev_control_algorithm
     rmdev_kinematic_solution
     rmdev_device_model
+    rmdev_debug_assistance
 )
 
 if (NOT (RMDEV_ENABLED_DRIVER_LIST STREQUAL ""))
