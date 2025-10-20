@@ -1,6 +1,5 @@
 /**
  * @file vofa.cppm
- * @module rmdev.debugAssistance.vofa
  * @author DuYicheng
  * @date 2025-10-17
  * @brief VOFA 上位机适配
