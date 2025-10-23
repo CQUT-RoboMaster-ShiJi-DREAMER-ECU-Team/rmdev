@@ -201,19 +201,19 @@ static TEST_SUIT(ArmMatrixSpecialConstructTest)
 
             const SquareMatrix zero_expected{0, 0, 0, 0, 0, 0, 0, 0, 0};
 
-            SquareMatrix zero(rmdev::MatrixType::Zero);
-            SquareMatrix normal(rmdev::MatrixType::Normal);
+            SquareMatrix zero(rmdev::MatrixBase::Zero);
+            SquareMatrix normal(rmdev::MatrixBase::Normal);
             EXPECT_TRUE(zero == zero_expected);
             EXPECT_TRUE(normal.equ(zero_expected));
 
             const SquareMatrix e_expected{{1, 0, 0}, {0, 1, 0}, {0, 0, 1}};
 
-            SquareMatrix e{rmdev::MatrixType::E};
+            SquareMatrix e{rmdev::MatrixBase::E};
             EXPECT_TRUE(e == e_expected);
 
             const SquareMatrix one_expected{1, 1, 1, 1, 1, 1, 1, 1, 1};
 
-            SquareMatrix one{rmdev::MatrixType::One};
+            SquareMatrix one{rmdev::MatrixBase::One};
             EXPECT_TRUE(one_expected == one);
         }();
 
@@ -223,19 +223,19 @@ static TEST_SUIT(ArmMatrixSpecialConstructTest)
 
             const NotSquareMatrix zero_expected{0, 0, 0, 0, 0, 0};
 
-            NotSquareMatrix zero(rmdev::MatrixType::Zero);
-            NotSquareMatrix normal(rmdev::MatrixType::Normal);
+            NotSquareMatrix zero(rmdev::MatrixBase::Zero);
+            NotSquareMatrix normal(rmdev::MatrixBase::Normal);
             EXPECT_TRUE(zero == zero_expected);
             EXPECT_TRUE(normal.equ(zero_expected));
 
             const NotSquareMatrix e_expected{zero_expected};
 
-            NotSquareMatrix e{rmdev::MatrixType::E};
+            NotSquareMatrix e{rmdev::MatrixBase::E};
             EXPECT_TRUE(e == e_expected);
 
             const NotSquareMatrix one_expected{1, 1, 1, 1, 1, 1};
 
-            NotSquareMatrix one{rmdev::MatrixType::One};
+            NotSquareMatrix one{rmdev::MatrixBase::One};
             EXPECT_TRUE(one_expected == one);
         }();
     }
