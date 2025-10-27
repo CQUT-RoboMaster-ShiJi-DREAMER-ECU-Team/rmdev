@@ -2,37 +2,24 @@ cmake_minimum_required(VERSION 3.28)
 
 project(rmdev C CXX)
 
-set(CMAKE_C_STANDARD 11)
-
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+if (NOT (TARGET emdevif))
+    message(FATAL_ERROR "[${PROJECT_NAME}]: emdevif target not found! Please add emdevif as a subdirectory before adding rmdev.")
+endif ()
 
 set(CMAKE_CXX_SCAN_FOR_MODULES ON)
 
 option(RMDEV_ENABLE_TESTS "Enable the test for rmdev." OFF)
-option(RMDEV_USE_STM32CUBEMX "Will link stm32cubemx to rmdev." ON)
 option(RMDEV_ENABLE_INS_MODULE "Enable the rmdev_ins module." OFF)
 
 set(RMDEV_ENABLED_DRIVER_LIST "" CACHE STRING "Select which device driver to use.")
 
-set(RMDEV_THREAD_SYSTEM "FreeRTOS" CACHE STRING "Set this variable to choose which system to use. Use \"FreeRTOS\" as default.")
-
-set(EMDEVIF_THREAD_SYSTEM ${RMDEV_THREAD_SYSTEM} CACHE STRING "" FORCE)
-set(EMDEVIF_USE_STM32CUBEMX ${RMDEV_USE_STM32CUBEMX} CACHE BOOL "" FORCE)
-
-if (${RMDEV_THREAD_SYSTEM} STREQUAL "FreeRTOS")
-    option(RMDEV_FREERTOS_USE_STM32CUBEMX "Will use stm32cubemx generated FreeRTOS sources" ON)
-
-    set(EMDEVIF_FREERTOS_USE_STM32CUBEMX ${RMDEV_FREERTOS_USE_STM32CUBEMX} CACHE BOOL "" FORCE)
-endif ()
-
-if (RMDEV_USE_STM32CUBEMX)
+if (EMDEVIF_USE_STM32CUBEMX)
     enable_language(ASM)
 endif ()
 
 if (RMDEV_ENABLE_TESTS)
     set(EMDEVIF_ENABLE_TESTS ON CACHE BOOL "" FORCE)
 endif ()
-add_subdirectory(emdevif_home/emdevif)
 
 add_subdirectory(modules/rmdev_math)
 add_subdirectory(modules/rmdev_control_algorithm)
