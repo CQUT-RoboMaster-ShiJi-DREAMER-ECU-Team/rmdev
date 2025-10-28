@@ -27,9 +27,9 @@ add_subdirectory(modules/rmdev_kinematic_solution)
 add_subdirectory(modules/rmdev_device_model)
 add_subdirectory(modules/rmdev_debug_assistance)
 
-add_library(${PROJECT_NAME} STATIC)
+add_library(${PROJECT_NAME} INTERFACE)
 
-target_link_libraries(${PROJECT_NAME} PUBLIC
+target_link_libraries(${PROJECT_NAME} INTERFACE
     emdevif
 
     rmdev_math
@@ -48,7 +48,7 @@ if (NOT (RMDEV_ENABLED_DRIVER_LIST STREQUAL ""))
             set(libName ${subDirName})
 
             add_subdirectory(drivers/${subDirName})
-            target_link_libraries(${PROJECT_NAME} PUBLIC ${libName})
+            target_link_libraries(${PROJECT_NAME} INTERFACE ${libName})
 
             message("[rmdev]: Enabled driver lib \"${libName}\"")
         endforeach ()
@@ -57,7 +57,7 @@ endif ()
 
 if (RMDEV_ENABLE_INS_MODULE)
     add_subdirectory(modules/rmdev_ins)
-    target_link_libraries(${PROJECT_NAME} PUBLIC rmdev_ins)
+    target_link_libraries(${PROJECT_NAME} INTERFACE rmdev_ins)
     message("[${PROJECT_NAME}]: Enabled \"INS\" lib.")
 endif ()
 
