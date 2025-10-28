@@ -1,8 +1,6 @@
 # rmdev
 
-rmdev: RoboMaster Development
-
-适用于 RoboMaster 电控的开发库。
+rmdev: RoboMaster Development。适用于 RoboMaster 电控的开发库。
 
 ## 特点
 
@@ -14,48 +12,113 @@ rmdev: RoboMaster Development
 
 * C++20 以上以及模块的支持。
 * CMake 3.28 以上版本。
+* [emdevif](https://github.com/CQUT-RoboMaster-ShiJi-DREAMER-ECU-Team/emdevif.git) 库。
+
+## 外部库
+
+子模块
+
+* [rmdev_math](https://github.com/CQUT-RoboMaster-ShiJi-DREAMER-ECU-Team/rmdev_math.git) 数学库
+* [rmdev_control_algorithm](https://github.com/CQUT-RoboMaster-ShiJi-DREAMER-ECU-Team/rmdev_control_algorithm.git) 控制算法
+* [rmdev_kinematic_solution](https://github.com/CQUT-RoboMaster-ShiJi-DREAMER-ECU-Team/rmdev_kinematic_solution.git)
+  运动学解算
+* [rmdev_device_model](https://github.com/CQUT-RoboMaster-ShiJi-DREAMER-ECU-Team/rmdev_device_model.git) 设备模型
+* [rmdev_ins](https://github.com/CQUT-RoboMaster-ShiJi-DREAMER-ECU-Team/rmdev_ins.git) 姿态解算
+
+驱动
+
+* [rmdev_driver_BMI088](https://github.com/CQUT-RoboMaster-ShiJi-DREAMER-ECU-Team/rmdev_driver_BMI088.git) BMI088 驱动
 
 ## 使用方法
 
-### 安装
+首先，请参考 [emdevif](https://github.com/CQUT-RoboMaster-ShiJi-DREAMER-ECU-Team/emdevif.git) 的文档，配置 emdevif 库。
 
-使用 `git clone` 或 `git submodule`（推荐）将代码克隆到您的项目中，然后通过
-`add_subdirectory` 将其添加到您的 CMake 项目中。
+完成后，文件结构将会变成：
 
-### 配置
-
-建议新建一个名为 `rmdev_config.cmake` 的文件，并在其中设置需要的宏。以下是配置模板，
-您可以将其复制到配置文件中并根据需要修改：
-
-```cmake
-# rmdev_config.cmake
-
-# 需要启用 CMake 的 C++20 模块支持
-if (NOT CMAKE_CXX_SCAN_FOR_MODULES)
-    set(CMAKE_CXX_SCAN_FOR_MODULES ON)
-endif ()
-
-# 以下配置与平台相关，请根据实际情况选择（目前不支持修改，仍在开发）
-set(RMDEV_USE_CMSIS_DSP ON)    # 是否使用 CMSIS DSP 库
-set(RMDEV_USE_STM32CUBEMX ON)  # 是否使用 STM32CubeMX 库
-
-# 以下配置与功能相关，可以视情况关闭一些功能
-#set(RMDEV_DISABLE_MATH)                # 取消注释以禁用数学库
-#set(RMDEV_DISABLE_MATRIX)              # 取消注释以禁用矩阵库
-#set(RMDEV_DISABLE_THREAD)              # 取消注释以禁用线程库
-#set(RMDEV_DISABLE_CONTROL_ALGORITHM)   # 取消注释以禁用控制算法库
-#set(RMDEV_DISABLE_KINEMATIC_SOLUTION)  # 取消注释以禁用运动学解算库
-
-# 注：目前连接通信库未开发完毕，必须禁用
-set(RMDEV_DISABLE_CONNECTIVITY)         # 取消注释以禁用连接通信库
-
-add_subdirectory(<path_to_rmdev>)  # 替换为实际的 rmdev 路径
+```
+project_root
+├── inc/
+│   └── ...
+├── src/
+│   └── ...
+├── CMakeLists.txt
+├── emdevif_collection/
+│   └── emdevif/
+│       └── ...
+└── ...
 ```
 
-然后在您的 CMakeLists.txt 中使用 `include` 把这个配置文件包含进来。
+rmdev 的配置方式与 emdevif 的配置方法稍有不同。emdevif 的主要模块都在一个仓库内，但 rmdev 根据功能，将子模块拆分到了不同仓库内。
+以下有两种方式配置：
 
-最后，通过 `target_link_libraries` 将 `rmdev` 库链接到您的目标中，即可开始使用。
+### 1、手动拉取需要的子模块
+
+我们推荐您先需要先确定需要使用哪些子模块，然后根据需要使用 `git clone` 或 `git submodule add` 将子模块加入您的工程中。
+
+假如需要 `rmdev_math`、`rmdev_control_algorithm` 库，使用示例如下：
+
+```Shell
+mkdir rmdev
+
+git submodule add https://github.com/CQUT-RoboMaster-ShiJi-DREAMER-ECU-Team/rmdev_math.git rmdev/rmdev_math
+git submodule add https://github.com/CQUT-RoboMaster-ShiJi-DREAMER-ECU-Team/rmdev_control_algorithm.git rmdev/rmdev_control_algorithm
+
+touch rmdev/CMakeLists.txt  # 需要手动创建 CMakeLists.txt
+```
+
+这样，文件结构将会变成：
+
+```
+project_root
+├── inc/
+│   └── ...
+├── src/
+│   └── ...
+├── CMakeLists.txt
+├── emdevif_collection/
+│   └── emdevif/
+│       └── ...
+├── rmdev/
+│   ├── CMakeLists.txt
+│   ├── rmdev_math/
+│   └── rmdev_control_algorithm/
+└── ...
+```
+
+手动创建的 CMakeLists.txt 示例：
+
+```CMake
+cmake_minimum_required(VERSION 3.28)
+
+project(rmdev C CXX)
+
+if (NOT (TARGET emdevif))
+    message(FATAL_ERROR "[${PROJECT_NAME}]: emdevif target not found! Please add emdevif as a subdirectory before adding rmdev.")
+endif ()
+
+add_library(${PROJECT_NAME} INTERFACE)
+
+target_link_libraries(${PROJECT_NAME} INTERFACE
+    emdevif
+
+    # 将需要的子模块添加在此处
+    rmdev_math
+    rmdev_control_algorithm
+)
+```
+
+### 2、直接拉取整个仓库
+
+您也可以直接拉取本仓库，然后将它添加到 CMake 的子路径中。只是有一些 CMake 缓存变量需要您配置：
+
+| CMake 缓存变量                | 类型     | 默认值  | 说明                    |
+|---------------------------|--------|------|-----------------------|
+| RMDEV_ENABLE_TESTS        | Bool   | OFF  | 是否启用测试                |
+| RMDEV_ENABLE_INS_MODULE   | Bool   | OFF  | 是否使用姿态解算模块            |
+| RMDEV_ENABLED_DRIVER_LIST | String | `""` | 要使用的驱动列表。驱动名称之间使用分号分隔 |
+
+说明：由于姿态解算库直接依赖 CMSISDSP，而驱动库往往依赖项较多。因此设置变量用于配置。
 
 ## 测试
 
-详见 [test/Test_Readme.md](./test/Test_Readme.md)。
+详见 [test](./test)。
