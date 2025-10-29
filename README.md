@@ -117,7 +117,7 @@ target_link_libraries(${PROJECT_NAME} INTERFACE
 | RMDEV_ENABLE_INS_MODULE   | Bool   | OFF  | 是否使用姿态解算模块            |
 | RMDEV_ENABLED_DRIVER_LIST | String | `""` | 要使用的驱动列表。驱动名称之间使用分号分隔 |
 
-说明：由于姿态解算库直接依赖 CMSISDSP，而驱动库往往依赖项较多。因此设置变量用于配置。
+说明：由于姿态解算库直接依赖 CMSISDSP，而驱动库往往依赖项较多，因此设置变量用于开关。
 
 ## 测试
 
