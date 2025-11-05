@@ -100,7 +100,7 @@ TEST_SUIT(FourWheelsOmniWheelInvSolverTest)
     TEST_CASE_END();
 }
 
-void OmniWheelInvSolverTest()
+void omniWheelInvSolverTest()
 {
     RUN_SUIT(FourWheelsOmniWheelInvSolverTest);
 }
