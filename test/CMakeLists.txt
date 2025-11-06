@@ -13,4 +13,4 @@ block()
     )
 endblock()
 
-target_link_libraries(${PROJECT_NAME} PRIVATE rmdev emdevif_test_framework emdevif_unit_test)
+target_link_libraries(${PROJECT_NAME} PRIVATE rmdev emdevif_test_framework)

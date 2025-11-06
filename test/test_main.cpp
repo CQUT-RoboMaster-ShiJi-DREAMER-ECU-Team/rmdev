@@ -10,7 +10,6 @@
 #include <string_view>
 
 #include "test_main.hpp"
-#include "emdevif_test_framework.h"
 
 #ifndef RMDEV_TEST_IGNORE_NAME_LIST
 #define RMDEV_TEST_IGNORE_NAME_LIST {""}
@@ -34,13 +33,8 @@ static constexpr bool inIgnoreNameList(const std::string_view& name) noexcept
     return false;
 }
 
-extern "C" void emdevif_testEntry(void);
-
 extern "C" void rmdev_testEntry(void)
 {
-    emdevif_testEntry();
-    TEST_LOG("emdevif test finished.");
-
     for (const auto& [test_name, test_func] : rmdev_test_list) {
         if (!inIgnoreNameList(test_name)) {
             test_func();
