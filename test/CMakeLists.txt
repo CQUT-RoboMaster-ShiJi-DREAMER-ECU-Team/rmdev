@@ -10,7 +10,7 @@ will ignore matrixTest and omniWheelInvSolverTest)."
 add_library(${PROJECT_NAME} STATIC)
 
 emdevif_listToCCppStringTypeInitializerList(rmdevUnitTestIgnoreNameList "${RMDEV_TEST_IGNORE_NAME_LIST}")
-message("[${PROJECT_NAME}]: macro `RMDEV_TEST_IGNORE_NAME_LIST\' defined to ${rmdevUnitTestIgnoreNameList}")
+message(STATUS "[${PROJECT_NAME}]: macro `RMDEV_TEST_IGNORE_NAME_LIST\' defined to ${rmdevUnitTestIgnoreNameList}")
 target_compile_definitions(${PROJECT_NAME} PRIVATE
     RMDEV_TEST_IGNORE_NAME_LIST=${rmdevUnitTestIgnoreNameList}
 )
