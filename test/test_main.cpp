@@ -12,7 +12,8 @@
 #include "test_main.hpp"
 
 #ifndef RMDEV_TEST_IGNORE_NAME_LIST
-#define RMDEV_TEST_IGNORE_NAME_LIST {""}
+#error \
+    "Please define the macro `RMDEV_TEST_IGNORE_NAME_LIST'. If nothing to ignore, define it to {""} ."
 #endif
 
 #define TEST_LIST_ARG(func_name) #func_name, func_name
