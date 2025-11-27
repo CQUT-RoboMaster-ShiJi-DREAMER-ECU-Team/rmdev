@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.28)
 
 project(rmdev_unit_test C CXX)
 
-set(RMDEV_TEST_IGNORE_NAME_LIST "\"\"" CACHE STRING "Set to ignore specific rmdev test. \
+set(RMDEV_TEST_IGNORE_NAME_LIST "" CACHE STRING "Set to ignore specific rmdev test. \
 You can use \';\' to set multiple tests(eg: set it equals to \"matrixTest;omniWheelInvSolverTest\" \
 will ignore matrixTest and omniWheelInvSolverTest)."
 )
