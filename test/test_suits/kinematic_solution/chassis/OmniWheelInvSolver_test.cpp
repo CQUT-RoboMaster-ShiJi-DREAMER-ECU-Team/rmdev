@@ -1,7 +1,5 @@
 /**
  * @file OmniWheelInvSolver_test.cpp
- * @author DuYicheng
- * @date 2025-07-24
  * @brief 全向轮逆运动学解算测试
  */
 

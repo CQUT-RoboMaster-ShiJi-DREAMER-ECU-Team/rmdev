@@ -1,7 +1,5 @@
 /**
  * @file test_main.hpp
- * @author 杜以成
- * @date 2025-06-04
  * @brief 测试主函数
  */
 

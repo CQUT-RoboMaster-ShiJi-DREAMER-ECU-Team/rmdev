@@ -1,7 +1,5 @@
 /**
  * @file matrix_test.cpp
- * @author 杜以成
- * @date 2025-06-04
  * @brief 矩阵运算测试
  */
 
