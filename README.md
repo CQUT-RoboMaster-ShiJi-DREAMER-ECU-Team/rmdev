@@ -4,9 +4,9 @@ rmdev: RoboMaster Development。适用于 RoboMaster 电控的开发库。
 
 ## 特点
 
-* 使用 C++20 的模块特性。
-* 支持多种平台（但还在开发中）。
-* 可以通过设置 CMake 宏来选择性关闭不需要的功能，被关闭的功能不会被编译进库中。
+* 使用 C++20 的模块组织工程。
+* 支持多种平台（STM32、ESP32 原生支持，其他平台也提供移植的方法）。
+* 可以通过设置 CMake 变量来选择性关闭不需要的功能，被关闭的功能不会被编译进库中。
 
 ## 依赖
 
@@ -96,6 +96,9 @@ if (NOT (TARGET emdevif))
     message(FATAL_ERROR "[${PROJECT_NAME}]: emdevif target not found! Please add emdevif as a subdirectory before adding rmdev.")
 endif ()
 
+add_subdirectory(rmdev_math)
+add_subdirectory(rmdev_control_algorithm)
+
 add_library(${PROJECT_NAME} INTERFACE)
 
 target_link_libraries(${PROJECT_NAME} INTERFACE
@@ -117,7 +120,7 @@ target_link_libraries(${PROJECT_NAME} INTERFACE
 | RMDEV_ENABLE_INS_MODULE   | Bool   | OFF  | 是否使用姿态解算模块            |
 | RMDEV_ENABLED_DRIVER_LIST | String | `""` | 要使用的驱动列表。驱动名称之间使用分号分隔 |
 
-说明：由于姿态解算库直接依赖 CMSISDSP，而驱动库往往依赖项较多，因此设置变量用于开关。
+说明：由于姿态解算库直接依赖 CMSISDSP，而驱动库往往依赖项较多，因此这两个模块设置变量用于开关。
 
 ## 测试
 
