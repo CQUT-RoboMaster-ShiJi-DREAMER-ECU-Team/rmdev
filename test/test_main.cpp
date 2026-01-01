@@ -8,16 +8,12 @@
 #include <string_view>
 
 #include "test_main.hpp"
+#include "rmdev_test_list.hpp"
 
 #ifndef RMDEV_TEST_IGNORE_NAME_LIST
 #error \
     "Please define the macro `RMDEV_TEST_IGNORE_NAME_LIST'. If nothing to ignore, define it to {""} ."
 #endif
-
-#define TEST_LIST_ARG(func_name) #func_name, func_name
-
-static constexpr auto rmdev_test_list = std::to_array<std::pair<std::string_view, void (*)()>>(
-    {{TEST_LIST_ARG(matrixTest)}, {TEST_LIST_ARG(omniWheelInvSolverTest)}});
 
 static constexpr auto rmdev_test_ignore_name_list = std::to_array<std::string_view>(RMDEV_TEST_IGNORE_NAME_LIST);
 
@@ -36,7 +32,9 @@ extern "C" void rmdev_testEntry(void)
 {
     for (const auto& [test_name, test_func] : rmdev_test_list) {
         if (!inIgnoreNameList(test_name)) {
-            test_func();
+            if (test_func != nullptr) {
+                test_func();
+            }
         }
     }
 }
