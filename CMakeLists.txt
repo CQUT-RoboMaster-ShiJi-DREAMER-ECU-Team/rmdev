@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.28)
+cmake_minimum_required(VERSION 3.28...4.0.2)
 
 project(rmdev C CXX)
 
@@ -26,6 +26,7 @@ add_subdirectory(modules/rmdev_control_algorithm)
 add_subdirectory(modules/rmdev_kinematic_solution)
 add_subdirectory(modules/rmdev_device_model)
 add_subdirectory(modules/rmdev_debug_assistance)
+add_subdirectory(modules/rmdev_message_manager)
 
 add_library(${PROJECT_NAME} INTERFACE)
 
@@ -37,6 +38,7 @@ target_link_libraries(${PROJECT_NAME} INTERFACE
     rmdev_kinematic_solution
     rmdev_device_model
     rmdev_debug_assistance
+    rmdev_message_manager
 )
 
 if (NOT (RMDEV_ENABLED_DRIVER_LIST STREQUAL ""))
