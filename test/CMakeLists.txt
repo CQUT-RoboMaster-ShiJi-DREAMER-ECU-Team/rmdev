@@ -22,4 +22,4 @@ target_sources(${PROJECT_NAME} PRIVATE
     ${rmdevUnitTestTestSuitsSrcs}
 )
 
-target_link_libraries(${PROJECT_NAME} PRIVATE rmdev emdevif_test_framework)
+target_link_libraries(${PROJECT_NAME} PRIVATE rmdev emdevif_test_framework emdevif_test_heap_checker)

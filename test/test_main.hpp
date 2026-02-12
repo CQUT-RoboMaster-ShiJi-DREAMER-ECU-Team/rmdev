@@ -12,5 +12,6 @@ void matrixTest();
 void omniWheelInvSolverTest();
 
 void subscriberTest();
+void topicTest();
 
 #endif  // !RMDEV_TEST_MAIN_HPP
