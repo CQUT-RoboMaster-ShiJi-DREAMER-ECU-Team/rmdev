@@ -143,7 +143,7 @@ TEST_SUIT(TopicTest)
         UINT_ASSERT_EQ(sub1.storeCount(), 0, "");
         UINT_ASSERT_EQ(sub1.remainCount(), 1, "");
 
-        auto [pub_ec, err_it] = topic.push(false, 1);
+        auto [pub_ec, err_it] = topic.forcePush(false, 1);
         EXPECT_TRUE(pub_ec == ErrorCode::Success)->MESSAGE("pub_ec is %d, ...", static_cast<int>(pub_ec));
         ASSERT_TRUE(err_it == topic.getQueueListInstance().end(),
                     "err_it - topic.getQueueListInstance().end() = %td",
@@ -166,14 +166,14 @@ TEST_SUIT(TopicTest)
         UINT_ASSERT_EQ(topic.getQueueListInstance().operator[](0).remainCount(), 0, "");
 
         auto sub2 = topic.addSubscriber<float>();
-        UINT_ASSERT_EQ(sub2.storeCount(), 1, "");
-        UINT_ASSERT_EQ(sub2.remainCount(), 0, "");
+        UINT_ASSERT_EQ(sub2.storeCount(), 0, "");
+        UINT_ASSERT_EQ(sub2.remainCount(), 1, "");
 
         UINT_ASSERT_EQ(topic.getQueueListInstance().size(), 2, "");
         UINT_ASSERT_EQ(topic.getQueueListInstance()[0].storeCount(), 1, "");
         UINT_ASSERT_EQ(topic.getQueueListInstance()[0].remainCount(), 0, "");
-        UINT_ASSERT_EQ(topic.getQueueListInstance()[1].storeCount(), 1, "");
-        UINT_ASSERT_EQ(topic.getQueueListInstance()[1].remainCount(), 0, "");
+        UINT_ASSERT_EQ(topic.getQueueListInstance()[1].storeCount(), 0, "");
+        UINT_ASSERT_EQ(topic.getQueueListInstance()[1].remainCount(), 1, "");
 
         for (const int i : {1, 4, 3, 3, 3, -1525345, 25253, 7}) {
             auto [ec, it] = topic.forcePush(false, i);
