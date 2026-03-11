@@ -10,8 +10,13 @@
 
 #include "arm_math.h"
 
+#ifdef EMDEVIF_USE_MODULES
 import rmdev.matrix;
 import rmdev.math;
+#else
+    #include "rmdev/math.hpp"
+    #include "rmdev/matrix.hpp"
+#endif
 
 static TEST_SUIT(ArmMatCInterfaceTest)
 {
@@ -33,14 +38,14 @@ static TEST_SUIT(ArmMatCInterfaceTest)
         constexpr float mat1_inv_expected_data[3 * 3] =
             {-0.88f, -0.16f, 0.36f, -0.08f, 0.44f, -0.24f, 0.68f, -0.24f, 0.04f};
         EXPECT_TRUE(std::equal(mat1_inv.pData,
-                                     mat1_inv.pData + 3 * 3,
-                                     mat1_inv_expected_data,
-                                     [](const float a, const float b) -> bool { return rmdev::weakEqu(a, b); }));
+                               mat1_inv.pData + 3 * 3,
+                               mat1_inv_expected_data,
+                               [](const float a, const float b) -> bool { return rmdev::weakEqu(a, b); }));
         // 需要注意的是 arm_mat_inverse 运算完成后会把待求逆的矩阵化为单位矩阵，因此计算完成后，原来的数据会丢失
         EXPECT_TRUE(!std::equal(mat1_inv.pData,
-                                      mat1_inv.pData + 3 * 3,
-                                      mat1_origin_data,
-                                      [](const float a, const float b) -> bool { return rmdev::weakEqu(a, b); }));
+                                mat1_inv.pData + 3 * 3,
+                                mat1_origin_data,
+                                [](const float a, const float b) -> bool { return rmdev::weakEqu(a, b); }));
     }
     TEST_CASE_END();
 }
@@ -90,7 +95,7 @@ static TEST_SUIT(MatrixBasicTest)
         *mat1.at(2, 3) = 123.0f;
         *mat1.at(1, 2) = 456.0f;
         EXPECT_TRUE(weakEqu(*mat1.at(3, 1), 245.0f) && weakEqu(*mat1.at(2, 3), 123.0f) &&
-                          weakEqu(*mat1.at(1, 2), 456.0f));
+                    weakEqu(*mat1.at(1, 2), 456.0f));
 
         std::array nullnum_in_mat1{mat1.at(0, 0),
                                    mat1.at(0, 2),

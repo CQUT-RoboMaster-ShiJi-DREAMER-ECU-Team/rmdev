@@ -10,12 +10,21 @@
 
 #include <initializer_list>
 
+#ifdef EMDEVIF_USE_MODULES
 import rmdev.message_manager.subscriber;
-import emdevif.sys.sysQueue;
-import emdevif.sys.sysMessageSlot;
+import emdevif.system.sys_queue;
+import emdevif.system.sys_message_slot;
 import emdevif.core.data_container.message_slot;
 import emdevif.core.data_container.message_queue;
 import emdevif.core.error_handler;
+#else
+    #include "rmdev/message_manager/subscriber.hpp"
+    #include "emdevif/core/data_container/message_queue.hpp"
+    #include "emdevif/core/data_container/message_slot.hpp"
+    #include "emdevif/core/error_handler.hpp"
+    #include "emdevif/system/sys_queue.hpp"
+    #include "emdevif/system/sys_message_slot.hpp"
+#endif
 
 TEST_SUIT(SubscriberTest)
 {
