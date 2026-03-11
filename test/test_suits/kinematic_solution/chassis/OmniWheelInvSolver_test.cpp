@@ -5,7 +5,7 @@
 
 #include "emdevif_test_framework.h"
 
-import rmdev.kinematicSolution.chassis.OmniWheelInvSolver;
+import rmdev.kinematic_solution.chassis.OmniWheelInvSolver;
 
 TEST_SUIT(FourWheelsOmniWheelInvSolverTest)
 {

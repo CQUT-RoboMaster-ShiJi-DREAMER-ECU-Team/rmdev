@@ -14,9 +14,10 @@
 #include <utility>
 #include <initializer_list>
 
-import rmdev.messageManager.subscriber;
-import rmdev.messageManager.topic;
-import emdevif.container.messageQueue;
+import rmdev.message_manager.subscriber;
+import rmdev.message_manager.topic;
+import emdevif.core.data_container.message_queue;
+import emdevif.core.error_handler;
 import emdevif.sys.sysQueue;
 import emdevif.sys.sysMessageSlot;
 import emdevif.sys.heap;

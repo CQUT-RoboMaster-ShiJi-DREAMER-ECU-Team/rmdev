@@ -4,17 +4,18 @@
  */
 
 #include "emdevif_test_framework.h"
-#include "emdevif/line_separator.h"
+#include "emdevif/core/line_separator.h"
 
 #include "heap_usage_checker.hpp"
 
 #include <initializer_list>
 
-import rmdev.messageManager.subscriber;
+import rmdev.message_manager.subscriber;
 import emdevif.sys.sysQueue;
 import emdevif.sys.sysMessageSlot;
-import emdevif.container.messageSlot;
-import emdevif.container.messageQueue;
+import emdevif.core.data_container.message_slot;
+import emdevif.core.data_container.message_queue;
+import emdevif.core.error_handler;
 
 TEST_SUIT(SubscriberTest)
 {

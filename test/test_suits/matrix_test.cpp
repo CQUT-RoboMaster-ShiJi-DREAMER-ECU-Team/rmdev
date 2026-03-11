@@ -15,7 +15,7 @@ import rmdev.math;
 
 static TEST_SUIT(ArmMatCInterfaceTest)
 {
-    TEST_CASE_BEGIN(ArmMatrixCInterfaceTest);
+    TEST_CASE_BEGIN(MatrixCInterfaceTest);
     {
         const float mat1_origin_data[3 * 3] = {1, 2, 3, 4, 7, 6, 7, 8, 10};
 
@@ -45,15 +45,15 @@ static TEST_SUIT(ArmMatCInterfaceTest)
     TEST_CASE_END();
 }
 
-rmdev::ArmMatrix<float, 3, 3> global_mat1{1, 2, 3, 4, 5, 6, 7, 8, 9};
-rmdev::ArmMatrix<float, 3, 3> global_mat2{{1, 2, 3}, {4, 5, 6}, {7, 8, 9}};
-constexpr rmdev::ArmMatrix<float, 3, 3> global_mat1_origin{1, 2, 3, 4, 5, 6, 7, 8, 9};
+rmdev::Matrix<float, 3, 3> global_mat1{1, 2, 3, 4, 5, 6, 7, 8, 9};
+rmdev::Matrix<float, 3, 3> global_mat2{{1, 2, 3}, {4, 5, 6}, {7, 8, 9}};
+constexpr rmdev::Matrix<float, 3, 3> global_mat1_origin{1, 2, 3, 4, 5, 6, 7, 8, 9};
 
-static TEST_SUIT(ArmMatrixBasicTest)
+static TEST_SUIT(MatrixBasicTest)
 {
     using rmdev::weakEqu;
 
-    TEST_CASE_BEGIN(ArmMatrixBasicTest);
+    TEST_CASE_BEGIN(MatrixBasicTest);
     {
         EXPECT_TRUE(weakEqu(global_mat1(1, 1), 1.0f));
         EXPECT_TRUE(weakEqu(global_mat1(2, 2), 5.0f));
@@ -73,11 +73,11 @@ static TEST_SUIT(ArmMatrixBasicTest)
         // EXPECT_TRUE(global_mat1 == {9, 8, 7, 6, 5, 4, 3, 2, 1});
         // EXPECT_TRUE(global_mat1 != {1, 8, 7, 6, 5, 4, 3, 2, 1});  // 不知为何，这两种写法会报错
 
-        static constexpr rmdev::ArmMatrix<float, 3, 3> sta_conexpr_mat{};
+        static constexpr rmdev::Matrix<float, 3, 3> sta_conexpr_mat{};
         global_mat1.clear();
         EXPECT_TRUE(global_mat1 == sta_conexpr_mat);
 
-        rmdev::ArmMatrix<float, 3, 3> mat1;
+        rmdev::Matrix<float, 3, 3> mat1;
 
         EXPECT_TRUE(weakEqu(mat1(1, 1), 0.0f));
 
@@ -104,8 +104,8 @@ static TEST_SUIT(ArmMatrixBasicTest)
         nullnum_in_mat1_expected.fill(nullptr);
         EXPECT_TRUE(nullnum_in_mat1 == nullnum_in_mat1_expected);
 
-        rmdev::ArmMatrix<float, 3, 3> mat2{1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f, 7.0f, 8.0f, 9.0f};
-        rmdev::ArmMatrix<float, 3, 3> mat3{{1.0f, 2.0f, 3.0f}, {4.0f, 5.0f, 6.0f}, {7.0f, 8.0f, 9.0f}};
+        rmdev::Matrix<float, 3, 3> mat2{1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f, 7.0f, 8.0f, 9.0f};
+        rmdev::Matrix<float, 3, 3> mat3{{1.0f, 2.0f, 3.0f}, {4.0f, 5.0f, 6.0f}, {7.0f, 8.0f, 9.0f}};
         EXPECT_TRUE(
             rmdev::weakEqu(mat2(1, 1), 1.0f) && rmdev::weakEqu(mat2(1, 2), 2.0f) && rmdev::weakEqu(mat2(1, 3), 3.0f) &&
             rmdev::weakEqu(mat2(2, 1), 4.0f) && rmdev::weakEqu(mat2(2, 2), 5.0f) && rmdev::weakEqu(mat2(2, 3), 6.0f) &&
@@ -133,29 +133,29 @@ static TEST_SUIT(ArmMatrixBasicTest)
         mat1 = mat2;
         EXPECT_TRUE(mat1 == mat2);
 
-        rmdev::ArmMatrix<float, 3, 3> mat4{mat1};
+        rmdev::Matrix<float, 3, 3> mat4{mat1};
         EXPECT_TRUE(mat4 == mat1);
 
-        rmdev::ArmMatrix<float, 3, 3> mat4_2(mat1);
+        rmdev::Matrix<float, 3, 3> mat4_2(mat1);
         EXPECT_TRUE(mat4_2 == mat1);
 
         const float data_equ_to_mat2[] = {1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f, 7.0f, 8.0f, 9.0f};
-        rmdev::ArmMatrix<float, 3, 3> mat5{data_equ_to_mat2};
-        rmdev::ArmMatrix<float, 3, 3> mat5_2(data_equ_to_mat2);
+        rmdev::Matrix<float, 3, 3> mat5{data_equ_to_mat2};
+        rmdev::Matrix<float, 3, 3> mat5_2(data_equ_to_mat2);
         EXPECT_TRUE(mat5 == mat2);
         EXPECT_TRUE(mat5_2 == mat2);
 
         const float data_equ_to_mat3[3][3] = {{1.0f, 2.0f, 3.0f}, {4.0f, 5.0f, 6.0f}, {7.0f, 8.0f, 9.0f}};
-        rmdev::ArmMatrix<float, 3, 3> mat6{data_equ_to_mat3};
-        rmdev::ArmMatrix<float, 3, 3> mat6_2(data_equ_to_mat3);
+        rmdev::Matrix<float, 3, 3> mat6{data_equ_to_mat3};
+        rmdev::Matrix<float, 3, 3> mat6_2(data_equ_to_mat3);
         EXPECT_TRUE(mat6 == mat3);
         EXPECT_TRUE(mat6_2 == mat3);
         EXPECT_TRUE(mat5 == mat6);
 
-        rmdev::ArmMatrix<float, 3, 3> mat7 = mat2;
+        rmdev::Matrix<float, 3, 3> mat7 = mat2;
         EXPECT_TRUE(mat7 == mat2);
 
-        const rmdev::ArmMatrix<float, 3, 3> mat8_const{mat2};
+        const rmdev::Matrix<float, 3, 3> mat8_const{mat2};
         EXPECT_TRUE(mat8_const == mat2);
 
         bool mat2_and_mat8_are_equal = true;
@@ -189,13 +189,13 @@ static TEST_SUIT(ArmMatrixBasicTest)
     TEST_CASE_END();
 }
 
-static TEST_SUIT(ArmMatrixSpecialConstructTest)
+static TEST_SUIT(MatrixSpecialConstructTest)
 {
-    TEST_CASE_BEGIN(ArmMatrixSpecialConstructTest);
+    TEST_CASE_BEGIN(MatrixSpecialConstructTest);
     {
         // 方阵
         [EMDEVIF_TEST_LAMBDA_CAPTURE] {
-            using SquareMatrix = rmdev::ArmMatrix<float, 3, 3>;
+            using SquareMatrix = rmdev::Matrix<float, 3, 3>;
 
             const SquareMatrix zero_expected{0, 0, 0, 0, 0, 0, 0, 0, 0};
 
@@ -217,7 +217,7 @@ static TEST_SUIT(ArmMatrixSpecialConstructTest)
 
         // 非方阵
         [EMDEVIF_TEST_LAMBDA_CAPTURE] {
-            using NotSquareMatrix = rmdev::ArmMatrix<float, 3, 2>;
+            using NotSquareMatrix = rmdev::Matrix<float, 3, 2>;
 
             const NotSquareMatrix zero_expected{0, 0, 0, 0, 0, 0};
 
@@ -240,11 +240,11 @@ static TEST_SUIT(ArmMatrixSpecialConstructTest)
     TEST_CASE_END();
 }
 
-static TEST_SUIT(ArmMatrixCalcTest)
+static TEST_SUIT(MatrixCalcTest)
 {
-    TEST_CASE_BEGIN(ArmMatrixCalculateTest);
+    TEST_CASE_BEGIN(MatrixCalculateTest);
     {
-        using TestMatrix = rmdev::ArmMatrix<float, 3, 3>;
+        using TestMatrix = rmdev::Matrix<float, 3, 3>;
 
         TestMatrix mat1{1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f, 7.0f, 8.0f, 9.0f};
         const TestMatrix mat2{9.0f, 8.0f, 7.0f, 6.0f, 5.0f, 4.0f, 3.0f, 2.0f, 1.0f};
@@ -333,8 +333,8 @@ static TEST_SUIT(ArmMatrixCalcTest)
         }
         EXPECT_TRUE(mat1_mul_mat2_is_equal_to_expected);
 
-        const rmdev::ArmMatrix<float, 4, 2> mat3{{1.0f, 2.0f}, {3.0f, 4.0f}, {5.0f, 6.0f}, {7.0f, 8.0f}};
-        rmdev::ArmMatrix<float, 2, 4> mat3_trans;
+        const rmdev::Matrix<float, 4, 2> mat3{{1.0f, 2.0f}, {3.0f, 4.0f}, {5.0f, 6.0f}, {7.0f, 8.0f}};
+        rmdev::Matrix<float, 2, 4> mat3_trans;
         rmdev::trans(mat3_trans, mat3);
         const decltype(mat3_trans) mat3_trans_expected{{1.0f, 3.0f, 5.0f, 7.0f}, {2.0f, 4.0f, 6.0f, 8.0f}};
         EXPECT_TRUE(mat3_trans == mat3_trans_expected);
@@ -379,7 +379,7 @@ static TEST_SUIT(ArmMatrixCalcTest)
 void matrixTest()
 {
     RUN_SUIT(ArmMatCInterfaceTest);
-    RUN_SUIT(ArmMatrixBasicTest);
-    RUN_SUIT(ArmMatrixSpecialConstructTest);
-    RUN_SUIT(ArmMatrixCalcTest);
+    RUN_SUIT(MatrixBasicTest);
+    RUN_SUIT(MatrixSpecialConstructTest);
+    RUN_SUIT(MatrixCalcTest);
 }

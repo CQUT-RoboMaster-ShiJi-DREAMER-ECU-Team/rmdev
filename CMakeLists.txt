@@ -6,8 +6,6 @@ if (NOT (TARGET emdevif))
     message(FATAL_ERROR "[${PROJECT_NAME}]: emdevif target not found! Please add emdevif as a subdirectory before adding rmdev.")
 endif ()
 
-set(CMAKE_CXX_SCAN_FOR_MODULES ON)
-
 option(RMDEV_ENABLE_TESTS "Enable the test for rmdev." OFF)
 option(RMDEV_ENABLE_INS_MODULE "Enable the rmdev_ins module." OFF)
 
@@ -17,8 +15,8 @@ if (EMDEVIF_USE_STM32CUBEMX)
     enable_language(ASM)
 endif ()
 
-if (RMDEV_ENABLE_TESTS)
-    set(EMDEVIF_ENABLE_TESTS ON CACHE BOOL "" FORCE)
+if (EMDEVIF_USE_CPP_MODULES)
+    message(STATUS "[${PROJECT_NAME}]: \"EMDEVIF_USE_CPP_MODULES\" was set to ON, so ${PROJECT_NAME} used too.")
 endif ()
 
 add_subdirectory(modules/rmdev_math)
