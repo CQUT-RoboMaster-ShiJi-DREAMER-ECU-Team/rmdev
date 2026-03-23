@@ -8,7 +8,10 @@
 
 // 整个活~
 // https://cppreference.cn/w/cpp/language/operator_alternative
-%:include <ciso646>
+#if (!(__cplusplus >= 202002L))
+    %:include <ciso646>
+#endif
+
 #include <memory>
 #include <algorithm>
 #include <utility>
