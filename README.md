@@ -1,20 +1,20 @@
 # rmdev
 
-rmdev: RoboMaster Development。适用于 RoboMaster 电控的开发库。
+rmdev: RoboMaster Development， RoboMaster 电控开发库。
 
 ## 特点
 
-* 使用 C++20 的模块组织工程。
-* 支持多种平台（STM32、ESP32 原生支持，其他平台也提供移植的方法）。
-* 可以通过设置 CMake 变量来选择性关闭不需要的功能，被关闭的功能不会被编译进库中。
+- C++20 模块 + 头文件两种导入方式
+- 可按模块/驱动启用，减少无用编译
+- 与 `emdevif` 深度协同，适配嵌入式开发场景
 
 ## 依赖
 
-* C++20 以上以及模块的支持。
-* CMake 3.28 以上版本。
-* [emdevif](https://github.com/CQUT-RoboMaster-ShiJi-DREAMER-ECU-Team/emdevif.git) 库。
+- CMake >= 3.28
+- 支持 C++20 的编译器
+- `emdevif`（必须先加入工程）
 
-## 外部库
+## 模块组成
 
 子模块
 
@@ -28,6 +28,7 @@ rmdev: RoboMaster Development。适用于 RoboMaster 电控的开发库。
 驱动
 
 * [rmdev_driver_BMI088](https://github.com/CQUT-RoboMaster-ShiJi-DREAMER-ECU-Team/rmdev_driver_BMI088.git) BMI088 驱动
+* [rmdev_driver_DJIMotor](https://github.com/CQUT-RoboMaster-ShiJi-DREAMER-ECU-Team/rmdev_driver_DJIMotor) 大疆电机驱动
 
 ## 使用方法
 
@@ -124,4 +125,4 @@ target_link_libraries(${PROJECT_NAME} INTERFACE
 
 ## 测试
 
-详见 [test](./test)。
+见 [`test`](./test)。
