@@ -14,6 +14,11 @@ rmdev: RoboMaster Development， RoboMaster 电控开发库。
 - 支持 C++20 的编译器
 - `emdevif`（必须先加入工程）
 
+## 编码规范
+
+本项目遵循统一编码规范，详见：
+[https://github.com/CQUT-RoboMaster-ShiJi-DREAMER-ECU-Team/rmdev_developing_or_testing_environment/blob/main/docs/emdevif-coding-style.md](https://github.com/CQUT-RoboMaster-ShiJi-DREAMER-ECU-Team/rmdev_developing_or_testing_environment/blob/main/docs/emdevif-coding-style.md)
+
 ## 模块组成
 
 子模块
