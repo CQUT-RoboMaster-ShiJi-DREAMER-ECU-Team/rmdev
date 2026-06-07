@@ -32,7 +32,7 @@ TEST_SUIT(SubscriberTest)
 
     TEST_CASE_BEGIN(SysQueue)
     {
-        emdevif::SysQueue<int, 5> q1 = decltype(q1)::create({.name = "test q1"});
+        emdevif::SysQueue<int, 5> q1{emdevif::SysQueueBuilder{.name = "test q1"}};
         rmdev::Subscriber<int, decltype(q1)> sub1{q1};
 
         using emdevif::ErrorCode;
@@ -89,7 +89,7 @@ TEST_SUIT(SubscriberTest)
 
     TEST_CASE_BEGIN(SysSlot)
     {
-        emdevif::SysMessageSlot<int> q2 = decltype(q2)::create({.name = "test q2"});
+        emdevif::SysMessageSlot<int> q2 = emdevif::SysMessageSlot<int>::create(emdevif::SysQueueBuilder{.name = "test q2"});
         rmdev::Subscriber<int, decltype(q2)> sub2{q2};
 
         using emdevif::ErrorCode;
