@@ -130,4 +130,4 @@ target_link_libraries(${PROJECT_NAME} INTERFACE
 
 ## 测试
 
-见 [`test`](./test)。
+单元测试已迁移至宿主环境仓库 `rmdev-dev` 的 `tests/mock/` 目录，使用 GoogleTest 框架。详见 `rmdev-dev` 根目录 `AGENTS.md` 的宿主单元测试章节。
