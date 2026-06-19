@@ -18,7 +18,6 @@ rmdev/
 ├── drivers/                    # 驱动模块（各为独立 submodule 仓库）
 │   ├── rmdev_driver_BMI088/    #   BMI088 IMU 驱动
 │   └── rmdev_driver_DJIMotor/  #   大疆电机驱动
-├── test/                       # 测试入口与测试套件
 └── OpenOCD-BoardConfigFileTemplates/  # OpenOCD 板级配置模板
 ```
 
@@ -43,19 +42,19 @@ rmdev/
 
 | 变量 | 默认 | 说明 |
 |---|---|---|
-| `RMDEV_ENABLE_TESTS` | `OFF` | 测试开关，开启后构建 `rmdev_unit_test` 库 |
 | `RMDEV_ENABLE_INS_MODULE` | `OFF` | INS 姿态解算模块开关，需 CMSIS-DSP |
 | `RMDEV_ENABLED_DRIVER_LIST` | `""` | 启用的驱动列表（分号分隔），如 `"BMI088;DJIMotor"` |
-| `RMDEV_TEST_IGNORE_NAME_LIST` | `""` | 测试忽略列表（分号分隔） |
 
 ### 依赖链
 - `rmdev` → `emdevif`（必须先 `add_subdirectory`）
 - `rmdev_ins` → CMSIS-DSP（由 CubeMX 或用户提供）
-- `rmdev` 测试入口自动调用 `emdevif` 测试入口（`rmdev_testEntry` 内部先执行 emdevif 测试）
+
+### 测试
+
+单元测试已迁移至宿主环境，测试文件位于开发环境仓库 [rmdev-dev](https://github.com/CQUT-RoboMaster-ShiJi-DREAMER-ECU-Team/rmdev-dev) 根目录下的 `tests/mock/emdevif/`，使用 GoogleTest 框架。详见 `rmdev-dev` 根 `AGENTS.md` 的宿主单元测试章节。
 
 ## 参考资料
 - 编码规范：[https://github.com/CQUT-RoboMaster-ShiJi-DREAMER-ECU-Team/rmdev-dev/blob/main/docs/emdevif-coding-style.md](https://github.com/CQUT-RoboMaster-ShiJi-DREAMER-ECU-Team/rmdev-dev/blob/main/docs/emdevif-coding-style.md)
 - 开发环境（集成与测试）：[https://github.com/CQUT-RoboMaster-ShiJi-DREAMER-ECU-Team/rmdev-dev](https://github.com/CQUT-RoboMaster-ShiJi-DREAMER-ECU-Team/rmdev-dev)
-- 测试说明：`test/README.md`
 - 完整使用指南：`README.md`
 - 子模块清单：`.gitmodules`
