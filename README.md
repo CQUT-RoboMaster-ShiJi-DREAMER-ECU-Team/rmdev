@@ -122,7 +122,6 @@ target_link_libraries(${PROJECT_NAME} INTERFACE
 
 | CMake 缓存变量                | 类型     | 默认值  | 说明                    |
 |---------------------------|--------|------|-----------------------|
-| RMDEV_ENABLE_TESTS        | Bool   | OFF  | 是否启用测试                |
 | RMDEV_ENABLE_INS_MODULE   | Bool   | OFF  | 是否使用姿态解算模块            |
 | RMDEV_ENABLED_DRIVER_LIST | String | `""` | 要使用的驱动列表。驱动名称之间使用分号分隔 |
 
