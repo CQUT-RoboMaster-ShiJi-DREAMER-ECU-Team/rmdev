@@ -16,8 +16,9 @@ rmdev: RoboMaster Development， RoboMaster 电控开发库。
 
 ## 编码规范
 
-本项目遵循统一编码规范，详见：
-[https://github.com/CQUT-RoboMaster-ShiJi-DREAMER-ECU-Team/rmdev-dev/blob/main/docs/emdevif-coding-style.md](https://github.com/CQUT-RoboMaster-ShiJi-DREAMER-ECU-Team/rmdev-dev/blob/main/docs/emdevif-coding-style.md)
+本项目遵循统一编码规范（覆盖 emdevif 与 rmdev 全部子模块）：
+- 集成环境内：[`../docs/coding-style.md`](../docs/coding-style.md)（相对本仓库根目录）
+- 独立查看：https://github.com/CQUT-RoboMaster-ShiJi-DREAMER-ECU-Team/rmdev-dev/blob/main/docs/coding-style.md
 
 ## 模块组成
 
@@ -29,6 +30,8 @@ rmdev: RoboMaster Development， RoboMaster 电控开发库。
   运动学解算
 * [rmdev_device_model](https://github.com/CQUT-RoboMaster-ShiJi-DREAMER-ECU-Team/rmdev_device_model.git) 设备模型
 * [rmdev_ins](https://github.com/CQUT-RoboMaster-ShiJi-DREAMER-ECU-Team/rmdev_ins.git) 姿态解算
+* [rmdev_message_manager](https://github.com/CQUT-RoboMaster-ShiJi-DREAMER-ECU-Team/rmdev_message_manager.git) 发布/订阅消息管理
+* [rmdev_debug_assistance](https://github.com/CQUT-RoboMaster-ShiJi-DREAMER-ECU-Team/rmdev_debug_assistance.git) 调试辅助
 
 驱动
 
