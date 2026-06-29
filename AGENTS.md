@@ -59,7 +59,7 @@ rmdev/
 
 ### 测试
 
-单元测试已迁移至宿主环境，测试文件位于开发环境仓库 [rmdev-dev](https://github.com/CQUT-RoboMaster-ShiJi-DREAMER-ECU-Team/rmdev-dev) 根目录下的 `tests/mock/`，使用 GoogleTest 框架。详见 `rmdev-dev` 根 `AGENTS.md` 的宿主单元测试章节。
+单元测试已迁移至模拟测试环境，测试文件位于开发环境仓库 [rmdev-dev](https://github.com/CQUT-RoboMaster-ShiJi-DREAMER-ECU-Team/rmdev-dev) 根目录下的 `tests/mock/`，使用 GoogleTest 框架。详见 `rmdev-dev` 根 `AGENTS.md` 的模拟单元测试章节。
 
 ## 参考资料
 - 编码规范：见上文「编码规范」章节（集成环境内读 `../docs/coding-style.md`）
