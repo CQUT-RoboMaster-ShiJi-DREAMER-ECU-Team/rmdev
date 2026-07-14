@@ -22,21 +22,20 @@ rmdev: RoboMaster Development， RoboMaster 电控开发库。
 
 ## 模块组成
 
-子模块
+模块
 
-* [rmdev_math](https://github.com/CQUT-RoboMaster-ShiJi-DREAMER-ECU-Team/rmdev_math.git) 数学库
-* [rmdev_control_algorithm](https://github.com/CQUT-RoboMaster-ShiJi-DREAMER-ECU-Team/rmdev_control_algorithm.git) 控制算法
-* [rmdev_kinematic_solution](https://github.com/CQUT-RoboMaster-ShiJi-DREAMER-ECU-Team/rmdev_kinematic_solution.git)
-  运动学解算
-* [rmdev_device_model](https://github.com/CQUT-RoboMaster-ShiJi-DREAMER-ECU-Team/rmdev_device_model.git) 设备模型
-* [rmdev_ins](https://github.com/CQUT-RoboMaster-ShiJi-DREAMER-ECU-Team/rmdev_ins.git) 姿态解算
-* [rmdev_message_manager](https://github.com/CQUT-RoboMaster-ShiJi-DREAMER-ECU-Team/rmdev_message_manager.git) 发布/订阅消息管理
-* [rmdev_debug_assistance](https://github.com/CQUT-RoboMaster-ShiJi-DREAMER-ECU-Team/rmdev_debug_assistance.git) 调试辅助
+* `math` 数学库
+* `control_algorithm` 控制算法
+* `kinematic_solution` 运动学解算
+* `device_model` 设备模型
+* `ins` 姿态解算
+* `message_manager` 发布/订阅消息管理
+* `debug_assistance` 调试辅助
 
 驱动
 
-* [rmdev_driver_BMI088](https://github.com/CQUT-RoboMaster-ShiJi-DREAMER-ECU-Team/rmdev_driver_BMI088.git) BMI088 驱动
-* [rmdev_driver_DJIMotor](https://github.com/CQUT-RoboMaster-ShiJi-DREAMER-ECU-Team/rmdev_driver_DJIMotor) 大疆电机驱动
+* `BMI088` BMI088 驱动
+* `DJIMotor` 大疆电机驱动
 
 ## 使用方法
 
@@ -54,74 +53,12 @@ project_root
 ├── emdevif_collection/
 │   └── emdevif/
 │       └── ...
-└── ...
-```
-
-rmdev 的配置方式与 emdevif 的配置方法稍有不同。emdevif 的主要模块都在一个仓库内，但 rmdev 根据功能，将子模块拆分到了不同仓库内。
-以下有两种方式配置：
-
-### 1、手动拉取需要的子模块
-
-我们推荐您先需要先确定需要使用哪些子模块，然后根据需要使用 `git clone` 或 `git submodule add` 将子模块加入您的工程中。
-
-假如需要 `rmdev_math`、`rmdev_control_algorithm` 库，使用示例如下：
-
-```Shell
-mkdir rmdev
-
-git submodule add https://github.com/CQUT-RoboMaster-ShiJi-DREAMER-ECU-Team/rmdev_math.git rmdev/rmdev_math
-git submodule add https://github.com/CQUT-RoboMaster-ShiJi-DREAMER-ECU-Team/rmdev_control_algorithm.git rmdev/rmdev_control_algorithm
-
-touch rmdev/CMakeLists.txt  # 需要手动创建 CMakeLists.txt
-```
-
-这样，文件结构将会变成：
-
-```
-project_root
-├── inc/
-│   └── ...
-├── src/
-│   └── ...
-├── CMakeLists.txt
-├── emdevif_collection/
-│   └── emdevif/
-│       └── ...
 ├── rmdev/
-│   ├── CMakeLists.txt
-│   ├── rmdev_math/
-│   └── rmdev_control_algorithm/
+│   └── ...
 └── ...
 ```
 
-手动创建的 CMakeLists.txt 示例：
-
-```CMake
-cmake_minimum_required(VERSION 3.28)
-
-project(rmdev C CXX)
-
-if (NOT (TARGET emdevif))
-    message(FATAL_ERROR "[${PROJECT_NAME}]: emdevif target not found! Please add emdevif as a subdirectory before adding rmdev.")
-endif ()
-
-add_subdirectory(rmdev_math)
-add_subdirectory(rmdev_control_algorithm)
-
-add_library(${PROJECT_NAME} INTERFACE)
-
-target_link_libraries(${PROJECT_NAME} INTERFACE
-    emdevif
-
-    # 将需要的子模块添加在此处
-    rmdev_math
-    rmdev_control_algorithm
-)
-```
-
-### 2、直接拉取整个仓库
-
-您也可以直接拉取本仓库，然后将它添加到 CMake 的子路径中。只是有一些 CMake 缓存变量需要您配置：
+直接将 rmdev 作为子目录加入工程后执行 `add_subdirectory(rmdev)`。配置变量如下：
 
 | CMake 缓存变量                | 类型     | 默认值  | 说明                    |
 |---------------------------|--------|------|-----------------------|

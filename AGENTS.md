@@ -1,41 +1,32 @@
 # AGENTS.md
 
 ## 模块定位
-`rmdev` 是 RoboMaster 电控开发库聚合层，通过 git submodule 统一组织算法、模型与驱动模块，并依赖 `emdevif` 提供底层抽象。
+`rmdev` 是 RoboMaster 电控开发库，统一组织算法、模型与驱动模块，并依赖 `emdevif` 提供底层抽象。
 
 ## 仓库结构
 
 ```
 rmdev/
-├── modules/                    # 功能模块（各为独立 submodule 仓库）
-│   ├── rmdev_math/             #   数学库
-│   ├── rmdev_control_algorithm/ #   控制算法
-│   ├── rmdev_kinematic_solution/ # 运动学解算
-│   ├── rmdev_device_model/     #   设备模型
-│   ├── rmdev_ins/              #   姿态解算（需 CMSIS-DSP）
-│   ├── rmdev_message_manager/  #   发布订阅消息管理
-│   └── rmdev_debug_assistance/ #   调试辅助
-├── drivers/                    # 驱动模块（各为独立 submodule 仓库）
-│   ├── rmdev_driver_BMI088/    #   BMI088 IMU 驱动
-│   └── rmdev_driver_DJIMotor/  #   大疆电机驱动
+├── modules/                    # 功能模块
+│   ├── math/                   #   数学库
+│   ├── control_algorithm/      #   控制算法
+│   ├── kinematic_solution/     #   运动学解算
+│   ├── device_model/           #   设备模型
+│   ├── ins/                    #   姿态解算（需 CMSIS-DSP）
+│   ├── message_manager/        #   发布订阅消息管理
+│   └── debug_assistance/       #   调试辅助
+├── drivers/                    # 驱动模块
+│   ├── BMI088/                 #   BMI088 IMU 驱动
+│   └── DJIMotor/               #   大疆电机驱动
 └── OpenOCD-BoardConfigFileTemplates/  # OpenOCD 板级配置模板
 ```
 
-### 元仓库性质
-`rmdev` 本身是一个聚合仓库，`modules/` 和 `drivers/` 下的每个目录都是独立的 git submodule（见 `.gitmodules`），各有独立的版本历史、Issues 和 CI。修改子模块代码时应当在其独立仓库中进行，本仓库只做聚合层调整。
+### 集成方式
 
-### 两种使用方式
-
-`rmdev` 提供两种集成方式，对应不同的模块参与逻辑：
-
-1. **直接克隆整个仓库并加入工程**  
-   将本仓库作为子目录加入工程后执行 `add_subdirectory(rmdev)`。此时：
-   - **基础模块**（math / control_algorithm / kinematic_solution / device_model / debug_assistance / message_manager）总是编译并链接
-   - **INS 模块**：通过 `RMDEV_ENABLE_INS_MODULE=ON` 启用，依赖 CMSIS-DSP
-   - **驱动模块**：通过 `RMDEV_ENABLED_DRIVER_LIST` 按需启用
-
-2. **手动创建 `rmdev/` 路径并只拉取需要的子模块**  
-   用户自行创建 `rmdev/CMakeLists.txt`，仅对实际拉取的子模块执行 `add_subdirectory`。不需要的模块直接不拉取，因此不存在“默认编译”一说；是否启用完全由用户在自己的 `CMakeLists.txt` 中决定。
+将本仓库作为子目录加入工程后执行 `add_subdirectory(rmdev)`。此时：
+- **基础模块**（math / control_algorithm / kinematic_solution / device_model / debug_assistance / message_manager）总是编译并链接
+- **INS 模块**：通过 `RMDEV_ENABLE_INS_MODULE=ON` 启用，依赖 CMSIS-DSP
+- **驱动模块**：通过 `RMDEV_ENABLED_DRIVER_LIST` 按需启用
 
 ## 编码规范
 
@@ -65,4 +56,3 @@ rmdev/
 - 编码规范：见上文「编码规范」章节（集成环境内读 `../docs/coding-style.md`）
 - 开发环境（集成与测试）：https://github.com/CQUT-RoboMaster-ShiJi-DREAMER-ECU-Team/rmdev-dev
 - 完整使用指南：`README.md`
-- 子模块清单：`.gitmodules`

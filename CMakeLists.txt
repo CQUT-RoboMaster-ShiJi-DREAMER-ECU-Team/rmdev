@@ -18,12 +18,12 @@ if (EMDEVIF_USE_CPP_MODULES)
     message(STATUS "[${PROJECT_NAME}]: \"EMDEVIF_USE_CPP_MODULES\" was set to ON, so ${PROJECT_NAME} used too.")
 endif ()
 
-add_subdirectory(modules/rmdev_math)
-add_subdirectory(modules/rmdev_control_algorithm)
-add_subdirectory(modules/rmdev_kinematic_solution)
-add_subdirectory(modules/rmdev_device_model)
-add_subdirectory(modules/rmdev_debug_assistance)
-add_subdirectory(modules/rmdev_message_manager)
+add_subdirectory(modules/math)
+add_subdirectory(modules/control_algorithm)
+add_subdirectory(modules/kinematic_solution)
+add_subdirectory(modules/device_model)
+add_subdirectory(modules/debug_assistance)
+add_subdirectory(modules/message_manager)
 
 add_library(${PROJECT_NAME} INTERFACE)
 
@@ -41,12 +41,9 @@ target_link_libraries(${PROJECT_NAME} INTERFACE
 if (NOT (RMDEV_ENABLED_DRIVER_LIST STREQUAL ""))
     block()
         foreach (usedDriverName IN LISTS RMDEV_ENABLED_DRIVER_LIST)
-            set(subDirName "rmdev_driver_")
-            string(APPEND subDirName ${usedDriverName})
+            set(libName "rmdev_driver_${usedDriverName}")
 
-            set(libName ${subDirName})
-
-            add_subdirectory(drivers/${subDirName})
+            add_subdirectory(drivers/${usedDriverName})
             target_link_libraries(${PROJECT_NAME} INTERFACE ${libName})
 
             message(STATUS "[${PROJECT_NAME}]: Enabled driver lib `${libName}`")
@@ -55,7 +52,7 @@ if (NOT (RMDEV_ENABLED_DRIVER_LIST STREQUAL ""))
 endif ()
 
 if (RMDEV_ENABLE_INS_MODULE)
-    add_subdirectory(modules/rmdev_ins)
+    add_subdirectory(modules/ins)
     target_link_libraries(${PROJECT_NAME} INTERFACE rmdev_ins)
     message(STATUS "[${PROJECT_NAME}]: Enabled \"INS\" lib.")
 endif ()

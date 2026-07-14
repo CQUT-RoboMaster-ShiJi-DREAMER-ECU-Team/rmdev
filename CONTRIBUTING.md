@@ -1,18 +1,12 @@
 # 贡献指南
 
-`rmdev` 是一个**独立维护**的聚合库（RoboMaster 电控开发库），但它的开发 / 测试集成环境是 [`rmdev-dev`](https://github.com/CQUT-RoboMaster-ShiJi-DREAMER-ECU-Team/rmdev-dev)。
+`rmdev` 是 RoboMaster 电控开发库，统一组织算法、模型与驱动模块。它的开发与测试集成环境是 [`rmdev-dev`](https://github.com/CQUT-RoboMaster-ShiJi-DREAMER-ECU-Team/rmdev-dev)。
 
 ## 在哪里开发
 
-`rmdev` 本身是聚合仓库，`modules/` 和 `drivers/` 下的每个目录都是独立的 git submodule，各有独立仓库、版本历史与 CI：
+`rmdev` 内的所有模块均在本仓库中直接维护。模块逻辑改动无需切换到其他仓库。
 
-- **子模块（算法/模型/驱动）逻辑改动**：优先在对应独立仓库（如 `rmdev_math.git`、`rmdev_driver_BMI088.git`）提交并验证。
-- **聚合层调整**：仅当涉及 `rmdev` 自身的 `CMakeLists.txt`、`.gitmodules` 或子模块组织结构时，才在 `rmdev` 仓库提交。
-- **集成验证**：改动合并后，同步到 `rmdev-dev` 并运行模拟单元测试，确保集成路径无回归。
-
-## 多仓库协作流程
-
-完整流程见 `rmdev-dev` 根目录 [`AGENTS.md`](https://github.com/CQUT-RoboMaster-ShiJi-DREAMER-ECU-Team/rmdev-dev/blob/main/AGENTS.md) 的「多仓库协作流程」章节。
+集成验证在 `rmdev-dev` 中进行。改动后请同步到 `rmdev-dev` 并运行模拟单元测试，确保集成路径无回归。
 
 ## 编码规范
 
