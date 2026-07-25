@@ -28,5 +28,5 @@ set(RMDEV_ENABLED_DRIVER_LIST "DJIMotor" CACHE INTERNAL "" FORCE)
 1. 在上层 `rmdev` 中通过 `RMDEV_ENABLED_DRIVER_LIST` 启用本驱动。
 2. 先完成 CAN / 串口外设句柄映射（通过链接期注入
    `emdevif::user_impl::peripheral_handle_map::findHandle`，详见
-   [`emdevif/peripheral/README.md`](../../../emdevif_collection/emdevif/peripheral/README.md)）。
+   [`emdevif/docs/peripheral.md`](../../../emdevif_collection/emdevif/docs/peripheral.md)）。
 3. 与控制算法层之间通过 `rmdev_device_model` 交换状态与目标值。

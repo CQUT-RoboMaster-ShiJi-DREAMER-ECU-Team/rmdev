@@ -30,5 +30,5 @@ set(RMDEV_ENABLED_DRIVER_LIST "BMI088" CACHE INTERNAL "" FORCE)
 2. 根据硬件选择 `SPI` / `I2C` 配置（`RMDEV_DRIVER_BMI088_USE_SPI`）。
 3. 通过**链接期注入**完成外设句柄映射：在任意 `.cpp` 文件中实现
    `emdevif::user_impl::peripheral_handle_map::findHandle`，将本驱动用到的外设名称（如 SPI 句柄）映射到对应的 `XxxModel::Instance`。具体注册方式见
-   [`emdevif/peripheral/README.md`](../../../emdevif_collection/emdevif/peripheral/README.md)。
+   [`emdevif/docs/peripheral.md`](../../../emdevif_collection/emdevif/docs/peripheral.md)。
 4. 将读取结果写入 `rmdev_device_model` 的 IMU 模型，供算法层消费。
